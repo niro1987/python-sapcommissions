@@ -21,19 +21,11 @@ classifiers = [
 dependencies = [
     "requests ~= 2.31.0",
 ]
-dynamic = [
-    "readme",
-]
+readme = "docs/README.md"
 
 
 [project.urls]
 "Homepage" = "https://github.com/niro1987/python-sapcommissions"
-"Bug Tracker" = "https://github.com/niro1987/python-sapcommissions/issues"
-"Documentation" = "https://github.com/niro1987/python-sapcommissions"
-
-
-[tool.setuptools.dynamic]
-readme = {file = "docs/README.md"}
 
 
 [tool.setuptools.packages.find]
