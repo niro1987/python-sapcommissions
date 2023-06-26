@@ -46,20 +46,20 @@ In this documentation, we talk about endpoints and resources, here is what that 
 
 ## Usage
 
-To get started, import `Client` and an endpoint of your choosing. In this
+To get started, import `Connection` and an endpoint of your choosing. In this
 example, we'll use `Participants` as the endpoint.
 
 ```py
-from sapcommissions import Client
+from sapcommissions import Connection
 from sapcommissions.endpoints import Participants
 ```
 
-Initialize the Client by providing the tenant, environment, username,
+Initialize a Connection by providing the tenant, environment, username,
 and password. Optionally, you can disable ssl verification, if you have problems
 connecting to the API from your corporate network.
 
 ```python
-prod = Client("CALD", "PRD", "MyUserName", "MySuperSecretPassword", verify_ssl=False)
+prod = Connection("CALD", "PRD", "MyUserName", "MySuperSecretPassword", verify_ssl=False)
 ```
 
 We'll use the `Participants` endpoint to get a list of all participants in the environment.
