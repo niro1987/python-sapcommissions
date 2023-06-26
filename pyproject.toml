@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "python-sapcommissions"
 description = "A Python wrapper for the SAP Commissions API"
-version = "0.0.1"
+version = "1.0.0"
 authors = [
     {name = "Niels Perfors", email = "niels.perfors1987@gmail.com"},
 ]
