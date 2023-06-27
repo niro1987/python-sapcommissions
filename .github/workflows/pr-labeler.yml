@@ -1,22 +1,28 @@
-name: size-label
-on: pull_request_target
+name: labeler
+
+on: [pull_request]
+
 jobs:
-  size-label:
-    permissions:
-      contents: read
-      pull-requests: write
+  labeler:
     runs-on: ubuntu-latest
+    name: Label the PR size
     steps:
-      - name: size-label
-        uses: "pascalgn/size-label-action@v0.5.0"
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - uses: codelytv/pr-size-labeler@v1
         with:
-          sizes: >
-            {
-              "0": "XS",
-              "20": "S",
-              "50": "M",
-              "200": "L",
-              "800": "XL"
-            }
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          xs_label: 'size/xs'
+          xs_max_size: '10'
+          s_label: 'size/s'
+          s_max_size: '25'
+          m_label: 'size/m'
+          m_max_size: '50'
+          l_label: 'size/l'
+          l_max_size: '200'
+          xl_label: 'size/xl'
+          fail_if_xl: 'false'
+          message_if_xl: >
+            This PR exceeds the recommended size of 200 lines.
+            Please make sure you are NOT addressing multiple issues with one PR.
+            Note this PR might be rejected due to its size.
+          github_api_url: 'api.github.com'
+          files_to_ignore: ''
