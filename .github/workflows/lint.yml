@@ -14,11 +14,10 @@ jobs:
         with:
           python-root-list: "sapcommissions tests"
           use-mypy: false
-          use-pycodestyle: false
-          use-pylint: false
+          use-pycodestyle: true
+          use-pylint: true
+          extra-pylint-options: "--rcfile=tox.ini"
           use-flake8: true
+          extra-flake8-options: "--config=tox.ini"
           use-black: true
           use-isort: true
-          extra-flake8-options: "--max-line-length 88 --extend-ignore E203"
-          extra-black-options: "--line-length 88"
-          extra-isort-options: "--line-length 88 --profile black"
