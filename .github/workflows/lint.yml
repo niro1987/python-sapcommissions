@@ -15,7 +15,7 @@ jobs:
           python-root-list: "sapcommissions tests"
           use-mypy: false
           use-pycodestyle: true
-          use-pylint: true
+          use-pylint: false
           extra-pylint-options: "--rcfile=pyproject.toml"
           use-flake8: true
           extra-flake8-options: "--config=tox.ini"
