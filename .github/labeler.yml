@@ -1,0 +1,13 @@
+ci/cd:
+  - .github/**
+
+documentation:
+  - README.md
+  - ./*.md
+  - docs/**
+
+endpoints:
+  - sapcommissions/endpoints.py
+
+resources:
+  - sapcommissions/resources.py
