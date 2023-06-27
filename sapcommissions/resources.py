@@ -12,21 +12,21 @@ from typing import ClassVar, get_args, get_origin, get_type_hints
 LOGGER = logging.getLogger(__name__)
 
 
-def _decode(value, astype):
+def _decode(value, astype):  # pylint: disable=too-many-return-statements
     if isinstance(value, list):
         if astype is list:
             LOGGER.error("Unknown type for list elements: %s", astype)
-            raise TypeError("Unknown type for list elements: %s", astype)
+            raise TypeError("Unknown type for list elements")
         if get_origin(astype) is list:
             if len(subtypes := get_args(astype)) > 1:
                 LOGGER.error("Impropper type for list elements: %s", subtypes)
-                raise TypeError("Impropper type for list elements: %s", subtypes)
+                raise TypeError("Impropper type for list elements")
             return [_decode(v, subtypes[0]) for v in value]
         LOGGER.error("Impropper type, value is list: %s", astype)
-        raise TypeError("Impropper type, value is list: %s", astype)
+        raise TypeError("Impropper type, value is list")
     if isinstance(astype, UnionType):
         LOGGER.error("UnionType is not supported: %s", astype)
-        raise NotImplementedError("Unsupported type: %s", astype)
+        raise NotImplementedError("Unsupported type")
     if value is None:
         return None
     if astype is datetime:
@@ -38,7 +38,7 @@ def _decode(value, astype):
     if issubclass(astype, _Resource) and isinstance(value, dict):
         return astype.from_dict(value)
     if issubclass(astype, _Resource) and isinstance(value, (str, int)):
-        return astype(**{astype._seq_attr: value})
+        return astype(**{astype._seqAttr: value})  # pylint: disable=protected-access
     return astype(value)
 
 
@@ -46,23 +46,23 @@ def _encode(value, fromtype):
     if isinstance(value, list):
         if fromtype is list:
             LOGGER.error("Unknown type for list elements: %s", fromtype)
-            raise TypeError("Unknown type for list elements: %s", fromtype)
+            raise TypeError("Unknown type for list elements")
         if get_origin(fromtype) is list:
             if len(subtypes := get_args(fromtype)) > 1:
                 LOGGER.error("Impropper type for list elements: %s", subtypes)
-                raise TypeError("Impropper type for list elements: %s", subtypes)
+                raise TypeError("Impropper type for list elements")
             return [_decode(v, subtypes[0]) for v in value]
         LOGGER.error("Impropper type, value is list: %s", fromtype)
-        raise TypeError("Impropper type, value is list: %s", fromtype)
+        raise TypeError("Impropper type, value is list")
     if isinstance(fromtype, UnionType):
         LOGGER.error("UnionType is not supported: %s", fromtype)
-        raise NotImplementedError("Unsupported type: %s", fromtype)
+        raise NotImplementedError("Unsupported type")
     if value is None:
         return None
     if isinstance(value, (datetime, date)):
         return value.isoformat()
-    elif isinstance(value, _Resource):
-        return value.to_dict(ignore_seq=False)
+    if isinstance(value, _Resource):
+        return value.to_dict(ignoreSeq=False)
     if isinstance(value, int):
         return value
     return str(value)
@@ -79,30 +79,32 @@ class _Resource:
 
     @classmethod
     @property
-    def _seq_attr(cls) -> str | None:
+    def _seqAttr(cls) -> str | None:
         """Returns the name of the sequence attribute or None."""
-        for f in fields(cls):
-            if f.metadata.get("seq"):
-                return f.name
+        for fld in fields(cls):
+            if fld.metadata.get("seq"):
+                return fld.name
+        return None
 
     @property
     def _seq(self) -> int | None:
         """Returns the sequence or None."""
-        seq_attr = self._seq_attr
+        seq_attr = self._seqAttr
         return self[seq_attr] if seq_attr else None
 
     @classmethod
     @property
-    def _id_attr(cls) -> str | None:
+    def _idAttr(cls) -> str | None:
         """Returns the name of the identifier attribute or None."""
-        for f in fields(cls):
-            if f.metadata.get("id"):
-                return f.name
+        for fld in fields(cls):
+            if fld.metadata.get("id"):
+                return fld.name
+        return None
 
     @property
     def _id(self) -> str | None:
         """Returns the identifier or None."""
-        id_attr = self._id_attr
+        id_attr = self._idAttr
         return self[id_attr] if id_attr else None
 
     @classmethod
@@ -113,6 +115,7 @@ class _Resource:
 
     @classmethod
     def from_dict(cls, json: dict) -> _Resource:
+        """Convert dictionary to _Resource instance."""
         types = get_type_hints(cls)
         invalid_json = {k: v for k, v in json.items() if k not in types.keys()}
         for field_name in invalid_json.keys():
@@ -122,18 +125,18 @@ class _Resource:
             valid_json[field_name] = _decode(value, types[field_name])
         return cls(**valid_json)
 
-    def to_dict(self, ignore_seq: bool = True) -> dict:
+    def to_dict(self, ignoreSeq: bool = True) -> dict:
+        """Convert _Resource instance to dictionary."""
         types = get_type_hints(self.__class__)
         data = {}
-        for f in fields(self):
-            value = self[f.name]
-            if value is None:
+        for fld in fields(self):
+            if (value := self[fld.name]) is None:
                 continue
-            if f.metadata.get("json_ignore"):
+            if fld.metadata.get("json_ignore"):
                 continue
-            if ignore_seq and f.metadata.get("seq"):
+            if ignoreSeq and fld.metadata.get("seq"):
                 continue
-            data[f.name] = _encode(value, types[f.name])
+            data[fld.name] = _encode(value, types[fld.name])
         return data
 
     def __getitem__(self, attribute: str):
@@ -941,7 +944,7 @@ class LookUpTableDimension(_Resource):
     includeStartInRange: bool = field(default=None, repr=False)
     includeEndInRange: bool = field(default=None, repr=False)
     flags: str = field(default=None, repr=False)
-    MDLT: LookUpTable = field(default=None, repr=False)
+    MDLT: LookUpTable = field(default=None, repr=False)  # pylint: disable=invalid-name
     categoryTree: CategoryTree = field(default=None, repr=False)
     modelSeq: Model = field(default=None, metadata={"json_ignore": True}, repr=False)
     etag: str = field(default=None, metadata={"json_ignore": True}, repr=False)
@@ -960,13 +963,13 @@ class LookUpTableIndice(_Resource):
     maxDate: date = field(default=None, repr=False)
     validStart: date = field(default=None, repr=False)
     validEnd: date = field(default=None, repr=False)
-    classifier: str = field(default=None, repr=False)  # TODO Implement Classifier
-    category: str = field(default=None, repr=False)  # TODO Implement Category
+    classifier: str = field(default=None, repr=False)  # Implement Classifier
+    category: str = field(default=None, repr=False)  # Implement Category
     effectiveStartDate: date = field(default=None, repr=True)
     effectiveEndDate: date = field(default=None, repr=False)
     createDate: datetime = field(default=None, repr=False)
     removeDate: datetime = field(default=None, repr=False)
-    MDLT: LookUpTable = field(default=None, repr=False)
+    MDLT: LookUpTable = field(default=None, repr=False)  # pylint: disable=invalid-name
     dimensionSeq: LookUpTableDimension = field(default=None, repr=False)
     modelSeq: Model = field(default=None, metadata={"json_ignore": True}, repr=False)
     etag: str = field(default=None, metadata={"json_ignore": True}, repr=False)
@@ -1361,7 +1364,7 @@ class PaymentSummary(_Resource):
     priorBalance: Value = field(default=None, repr=False)
     balance: Value = field(default=None, repr=False)
     payment: Value = field(default=None, repr=False)
-    Deposit: Value = field(default=None, repr=False)
+    Deposit: Value = field(default=None, repr=False)  # pylint: disable=invalid-name
     outstandingBalance: Value = field(default=None, repr=False)
     etag: str = field(default=None, metadata={"json_ignore": True}, repr=False)
 

@@ -39,24 +39,47 @@ exclude = [
 
 [project.optional-dependencies]
 dev = [
-    "black",
+    "pycodestyle",
+    "pylint",
     "flake8",
+    "black",
     "isort",
-    "python-dotenv",
 ]
-
 
 [tool.black]
 line-length = 88
 
-
 [tool.isort]
 profile = "black"
 
-
-[tool.flake8]
-max-line-length = 88
+[tool.pylint.MAIN]
+py-version = 3.11
 ignore = [
-    "E203", # Whitespace before colon
-    "W503", # Line break before binary operator
+    "tests"
 ]
+
+load-plugins = [
+    "pylint.extensions.code_style",
+    "pylint.extensions.typing"
+]
+
+[tool.pylint.BASIC]
+attr-naming-style = "camelCase"
+argument-naming-style = "camelCase"
+good-names = [
+    "id"
+]
+
+[tool.pylint."MESSAGES CONTROL"]
+disable = [
+    "too-many-ancestors",
+    "too-many-arguments",
+    "too-many-instance-attributes",
+    "too-many-lines",
+    "missing-class-docstring"
+]
+
+enable = ["use-symbolic-message-instead"]
+
+[tool.pylint.CODE_STYLE]
+max-line-length-suggestions = 88

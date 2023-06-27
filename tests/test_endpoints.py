@@ -316,7 +316,7 @@ class TestEndpoint(unittest.TestCase):
     def test_init(self):
         # Check that the endpoint was initialized correctly
         self.assertEqual(
-            self.endpoint._client.base_url,
+            self.endpoint._client.baseUrl,
             "https://spam-eggs.callidusondemand.com/api",
         )
         self.assertEqual(self.endpoint._client.auth.username, "user")

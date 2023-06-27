@@ -1,3 +1,4 @@
+"""Endpoints are used to interact with SAP Commissions objects."""
 import logging
 from datetime import date
 from typing import Any
@@ -19,20 +20,20 @@ class _Client(Session):
 
     def __init__(
         self,
-        base_url: str,
+        baseUrl: str,
         username: str,
         password: str,
-        verify_ssl: bool = True,
+        verifySsl: bool = True,
     ) -> None:
         """Initialize an endpoint to interact with SAP Commissions."""
         super().__init__()
-        self.base_url: str = base_url
+        self.baseUrl: str = baseUrl
         self.auth = HTTPBasicAuth(username, password)
-        if verify_ssl is False:
+        if verifySsl is False:
             disable_warnings()
-            self.verify = verify_ssl
+            self.verify = verifySsl
 
-    def request(
+    def request(  # pylint: disable=arguments-differ
         self,
         method: str,
         uri: str,
@@ -41,7 +42,7 @@ class _Client(Session):
     ) -> dict[str, Any | list[dict[str, Any]]] | Response:
         """Perform an HTTP request to the SAP Commissions REST API."""
         LOGGER.debug("%s %s %s", method.upper(), uri, parameters)
-        url: str = self.base_url + uri
+        url: str = self.baseUrl + uri
         with super().request(
             method=method,
             url=url,
@@ -63,12 +64,13 @@ class _Client(Session):
                 )
                 if 401 <= response.status_code <= 403:
                     raise AuthenticationError(response.text) from error
-                elif 400 <= response.status_code < 500:
+                if 400 <= response.status_code < 500:
                     raise ClientError(response.text) from error
-                elif 500 <= response.status_code < 600:
+                if 500 <= response.status_code < 600:
                     raise ServerError(response.text) from error
+        return None
 
-    def get(
+    def get(  # pylint: disable=arguments-renamed,arguments-differ
         self,
         uri: str,
         parameters: dict[str, str] | None = None,
@@ -76,19 +78,19 @@ class _Client(Session):
         """Perform a GET request to the SAP Commissions REST API."""
         return self.request("GET", uri, parameters=parameters)
 
-    def delete(
+    def delete(  # pylint: disable=arguments-renamed,arguments-differ
         self, uri: str, parameters: dict[str, str] | None = None
     ) -> dict[str, Any | list[dict[str, Any]]]:
         """Perform a DELETE request to the SAP Commissions REST API."""
         return self.request("DELETE", uri, parameters=parameters)
 
-    def post(
+    def post(  # pylint: disable=arguments-renamed,arguments-differ
         self, uri: str, body: list[dict[str, str]]
     ) -> dict[str, Any | list[dict[str, Any]]]:
         """Perform a POST request to the SAP Commissions REST API."""
         return self.request("POST", uri, body=body)
 
-    def put(
+    def put(  # pylint: disable=arguments-renamed,arguments-differ
         self, uri: str, body: list[dict[str, str]]
     ) -> dict[str, Any | list[dict[str, Any]]]:
         """Perform a PUT request to the SAP Commissions REST API."""
@@ -103,10 +105,10 @@ class _Endpoint:
     def __init__(self, connection: Connection) -> None:
         """Initialize a base template for an endpoint method."""
         self._client = _Client(
-            base_url=connection.api_url,
+            baseUrl=connection.apiUrl,
             username=connection.username,
             password=connection.password,
-            verify_ssl=connection.verify_ssl,
+            verifySsl=connection.verifySsl,
         )
 
     def __repr__(self) -> str:
@@ -114,10 +116,12 @@ class _Endpoint:
 
     @property
     def name(self) -> str:
-        return self.resource._name
+        """Returns the name of the resource."""
+        return self.resource._name  # pylint: disable=protected-access
 
     @property
     def url(self) -> str:
+        """Returns the API URL of the endpoint."""
         return f"/v2/{self.name}"
 
 
@@ -221,7 +225,7 @@ class _DeleteVersions(_Endpoint):
         """
         LOGGER.info("Delete versions for %s with seq %s", self.name, seq)
 
-        query = dict()
+        query = {}
         assert isinstance(seq, int)
         assert isinstance(effectiveStartDate, date)
         query["effectiveStartDate"] = effectiveStartDate.strftime("%Y-%m-%d")
@@ -278,7 +282,7 @@ class _GetVersions(_Endpoint):
         """
         LOGGER.info("Get versions of %s with seq %s", self.name, seq)
 
-        query = dict()
+        query = {}
         assert isinstance(seq, int)
         if startDate:
             assert isinstance(startDate, date)
@@ -297,7 +301,7 @@ class _GetVersions(_Endpoint):
 class _List(_Endpoint):
     def list(
         self,
-        filter: str = None,
+        filter: str = None,  # pylint: disable=redefined-builtin
         startDate: date = None,
         endDate: date = None,
         limit: int = None,
@@ -338,7 +342,7 @@ class _List(_Endpoint):
         LOGGER.info("List %s", self.name)
 
         query = {"top": limit if limit and limit < 100 else 100}
-        if expand := self.resource._expands:
+        if expand := self.resource._expands:  # pylint: disable=protected-access
             query["expand"] = ",".join(expand)
         if filter:
             assert isinstance(filter, str)
@@ -383,7 +387,7 @@ class _List(_Endpoint):
 
     def get_id(
         self,
-        id: str,
+        id: str,  # pylint: disable=redefined-builtin
         raw: bool = False,
     ) -> resources._Resource:
         """
@@ -400,13 +404,13 @@ class _List(_Endpoint):
         LOGGER.info("Get %s with id %s", self.name, id)
 
         assert isinstance(id, str)
-        id_attr = self.resource._id_attr
-        if id_attr is None:
+        # pylint: disable-next=protected-access
+        if (id_attr := self.resource._idAttr) is None:
             LOGGER.warning("%s has no id attribute.", self.name)
             return None
 
         query = {"top": 10}
-        if expand := self.resource._expands:
+        if expand := self.resource._expands:  # pylint: disable=protected-access
             query["expand"] = ",".join(expand)
         query["$filter"] = f"{id_attr} eq '{id}'"
 
@@ -421,7 +425,7 @@ class _List(_Endpoint):
 
     def count(
         self,
-        filter: str = None,
+        filter: str = None,  # pylint: disable=redefined-builtin
         startDate: date = None,
         endDate: date = None,
         **filter_kwargs: dict,

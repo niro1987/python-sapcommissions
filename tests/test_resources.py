@@ -29,13 +29,13 @@ class TestResourceMethods(unittest.TestCase):
         self.assertEqual(DummyResource._name, "test")
 
     def test_seq_attr_property(self):
-        self.assertIsNone(DummyResource._seq_attr)
+        self.assertIsNone(DummyResource._seqAttr)
 
     def test_seq_property(self):
         self.assertIsNone(self.resource._seq)
 
     def test_id_attr_property(self):
-        self.assertEqual(DummyResource._id_attr, "id")
+        self.assertEqual(DummyResource._idAttr, "id")
 
     def test_id_property(self):
         self.assertEqual(self.resource._id, "123")
