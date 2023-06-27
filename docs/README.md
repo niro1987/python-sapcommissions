@@ -21,11 +21,10 @@ A Python wrapper for the SAP Commissions API.
 
 ## Installation
 
-This project is hosted on [GitHub](https://github.com/niro1987/python-sapcommissions).
 To install the project, run the following command:
 
 ```text
-pip install git+https://github.com/niro1987/python-sapcommissions.git#egg=sapcommissions
+pip install python-sapcommissions
 ```
 
 ### REST API
