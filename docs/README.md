@@ -62,9 +62,16 @@ prod = Connection("CALD", "PRD", "MyUserName", "MySuperSecretPassword", verify_s
 ```
 
 We'll use the `Participants` endpoint to get a list of all participants in the environment.
+The `list()` method returns a `generator`, to retrieve all `Participants`, we can convert the
+generator to a `list` or processes the `Participants` one-by-one.
 
 ```py
-all_users = Participants(prod).list()
+# List all Participants
+all_users = list(Participants(prod).list())
+
+# Process Participants one-by-one
+for participant in Participants(prod).list():
+  ...  # Do something
 ```
 
 ## Methods
@@ -80,6 +87,10 @@ The `list()` method is used to retrieve multiple resources from the endpoint. By
 the current effective version of the resource (if the endpoint is versioned). To retrieve a
 different effective version, you must provide both `startDate` and `endDate` parameters.
 
+Due to the potentially huge amount of requests to the endpoint, the `list()` method actually returns a
+`generator` object, not a `list`. Depending on the `limit` parameter, the `list()` method requests
+up to 100 resources at a time.
+
 In most cases, you will want to apply some kind of filter. For a complete list of available filter
 options please visit the [REST API Documentation](#rest-api).
 
@@ -93,10 +104,10 @@ Provide `filter_kwargs` keyword arguments to apply a quick filter. For example
 combine the arguments using the `and` operator, as will multiple `filter_kwargs` arguments.
 
 ```py
-# Get a list of all positions in the environment.
+# Get all positions.
 positions = Positions(prod).list()
 
-# Get a list of all positions with title 'Sales Manager'.
+# Get all positions with title 'Sales Manager'.
 sales_managers = Positions(prod).list(filter="title/name eq 'Sales Manager'")
 ```
 
@@ -109,9 +120,9 @@ sales_managers = Positions(prod).list(filter="title/name eq 'Sales Manager'")
 | raw           | `bool` | False                      | Return the raw json response from the API        |
 | filter_kwargs | `dict` | False                      | Keyword arguments to apply to the filter         |
 
-| Returns          | Description                               |
-| ---------------- | ----------------------------------------- |
-| `list[Resource]` | A list of resources, single valid version |
+| Returns               | Description                                    |
+| --------------------- | ---------------------------------------------- |
+| `generator<Resource>` | A generator of resources, single valid version |
 
 ### Get
 
@@ -172,9 +183,9 @@ of all versions of the resource.
 | -------- | ----- | -------- | --------------------------------------------- |
 | seq      | `int` | True     | The system unique identifier for the resource |
 
-| Returns          | Description                             |
-| ---------------- | --------------------------------------- |
-| `list[Resource]` | A list of all versions for a  resources |
+| Returns          | Description                            |
+| ---------------- | -------------------------------------- |
+| `list[Resource]` | A list of all versions for a resources |
 
 ```py
 # Get all versions for a position.
