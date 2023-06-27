@@ -53,7 +53,7 @@ line-length = 88
 profile = "black"
 
 [tool.pylint.MAIN]
-py-version = 3.11
+py-version = "3.11"
 ignore = [
     "tests"
 ]
