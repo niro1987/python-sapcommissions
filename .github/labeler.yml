@@ -9,10 +9,10 @@ documentation:
   - "docs/**"
 
 endpoints:
-  - "*endpoints*"
+  - "**/*endpoints**"
 
 resources:
-  - "*resources*"
+  - "**/*resources**"
 
 tests:
   - "tests/**"
