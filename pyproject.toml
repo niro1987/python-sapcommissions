@@ -55,9 +55,7 @@ profile = "black"
 
 [tool.pylint.MAIN]
 py-version = "3.11"
-ignore = [
-    "tests"
-]
+ignore-patterns="tests/*"
 
 load-plugins = [
     "pylint.extensions.code_style",
