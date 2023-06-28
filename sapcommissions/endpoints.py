@@ -535,35 +535,6 @@ class _UpdateVersions(_Endpoint):
         return updated_versions
 
 
-class _PipelineRuns(_Endpoint):
-    def classify(self, calendarSeq: str, periodSeq: str) -> resources.Pipeline:
-        """
-        Run Classify pipeline.
-
-        Parameters
-        ----------
-        calendarSeq : str
-            Calendar system identifier.
-        periodSeq : str
-            Period system identifier.
-        """
-        command: dict[str, str] = {
-            "command": "PipelineRun",
-            "stageTypeSeq": "21673573206720515",
-            "calendarSeq": calendarSeq,
-            "periodSeq": periodSeq,
-            "runMode": "full",
-            "runStats": True,
-        }
-        response = self._client.post(self.url, [command])
-        data = response[self.name]
-        pipelines: list[resources.Pipeline] = [
-            self.resource.from_dict(item) for item in data
-        ]
-
-        return pipelines[0] if pipelines else None
-
-
 class AppliedDeposits(_Get, _List):
     resource = resources.AppliedDeposit
 
@@ -792,8 +763,39 @@ class Periods(_Create, _Delete, _Get, _List, _Update):
     resource = resources.Period
 
 
-class Pipelines(_Get, _List, _PipelineRuns):
+class Pipelines(_Get, _List):
     resource = resources.Pipeline
+
+    def classify(
+        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+    ) -> resources.Pipeline:
+        """
+        Run Classify pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        command = {
+            "command": "PipelineRun",
+            "stageTypeSeq": "21673573206720515",
+            "calendarSeq": calendarSeq,
+            "periodSeq": periodSeq,
+            "runMode": "full",
+            "runStats": True,
+        }
+        if processingUnitSeq is not None:
+            command["processingUnitSeq"] = processingUnitSeq
+
+        response = self._client.post(self.url, [command])
+        data = response[self.name]
+        pipeline_seq = data["0"][0]
+        return resources.Pipeline(pipelineRunSeq=pipeline_seq)
 
 
 class Plans(_Get, _List):
