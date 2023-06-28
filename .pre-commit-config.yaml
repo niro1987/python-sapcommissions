@@ -40,3 +40,5 @@ repos:
     rev: v2.17.4
     hooks:
       - id: pylint
+        args:
+          - "--rcfile=pyproject.toml"
