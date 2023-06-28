@@ -137,12 +137,16 @@ class _Resource:
     def from_dict(cls, json: dict) -> _Resource:
         """Convert dictionary to _Resource instance."""
         types = get_type_hints(cls)
-        invalid_json = {k: v for k, v in json.items() if k not in types.keys()}
-        for field_name in invalid_json.keys():
-            LOGGER.warning("%s is not a valid field for %s", field_name, cls.__name__)
-        valid_json = {k: v for k, v in json.items() if k in types.keys()}
-        for field_name, value in valid_json.items():
-            valid_json[field_name] = _deserialize(value, types[field_name])
+        valid_json = {}
+
+        for field_name, value in json.items():
+            if field_name in types:
+                valid_json[field_name] = _deserialize(value, types[field_name])
+            else:
+                LOGGER.warning(
+                    "%s is not a valid field for %s", field_name, cls.__name__
+                )
+
         return cls(**valid_json)
 
     def to_dict(self, ignoreSeq: bool = True) -> dict:
