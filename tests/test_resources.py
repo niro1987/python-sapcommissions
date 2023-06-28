@@ -8,14 +8,16 @@ from typing import ClassVar
 
 from sapcommissions.resources import _deserialize, _Resource, _serialize
 
+# pylint: skip-file
+
 
 @dataclass
 class DummyResource(_Resource):
     _endpoint_name: ClassVar[str] = "test"
-    id: str = field(metadata={"id": True})
-    name: str = field(default=None)
+    id: str = field(metadata={"seq": True})
+    name: str = field(default=None, metadata={"id": True})
     items: list[str] = field(default_factory=list)
-    expands: dict = field(default=None)
+    parent: DummyResource = field(default=None)
 
 
 class TestResourceMethods(unittest.TestCase):
@@ -25,43 +27,81 @@ class TestResourceMethods(unittest.TestCase):
             "name": "Test Resource",
             "items": ["item1", "item2"],
         }
-        self.resource: DummyResource = DummyResource.from_dict(self.resource_dict)
+        self.resource: DummyResource = DummyResource(
+            id="123",
+            name="Test Resource",
+            items=["item1", "item2"],
+        )
 
     def test_name_property(self):
         self.assertEqual(DummyResource._name, "test")
 
     def test_seq_attr_property(self):
-        self.assertIsNone(DummyResource._seqAttr)
+        self.assertEqual(DummyResource._seqAttr, "id")
 
     def test_seq_property(self):
-        self.assertIsNone(self.resource._seq)
+        self.assertEqual(self.resource._seq, "123")
 
     def test_id_attr_property(self):
-        self.assertEqual(DummyResource._idAttr, "id")
+        self.assertEqual(DummyResource._idAttr, "name")
 
     def test_id_property(self):
-        self.assertEqual(self.resource._id, "123")
+        self.assertEqual(self.resource._id, "Test Resource")
 
     def test_expands_property(self):
-        self.assertEqual(
-            DummyResource._expands,
-            ("items", "expands"),
-        )
+        self.assertEqual(DummyResource._expands, ("items", "parent"))
 
-    def test_from_dict_method(self):
-        self.assertIsInstance(self.resource, DummyResource)
+    def test_to_dict_with_seq(self):
+        self.assertEqual(self.resource.to_dict(False), self.resource_dict)
+
+    def test_to_dict_without_seq(self):
+        resource_dict = self.resource_dict.copy()
+        del resource_dict["id"]
+        self.assertEqual(self.resource.to_dict(), resource_dict)
+
+    def test_from_dict_with_valid_dict(self):
+        self.assertEqual(self.resource, DummyResource.from_dict(self.resource_dict))
         self.assertEqual(self.resource.id, "123")
         self.assertEqual(self.resource.name, "Test Resource")
         self.assertEqual(self.resource.items, ["item1", "item2"])
-        self.assertEqual(self.resource.expands, None)
+        self.assertEqual(self.resource.parent, None)
 
-    def test_to_dict_method(self):
-        expected_dict = {
-            "id": "123",
-            "name": "Test Resource",
-            "items": ["item1", "item2"],
+    def test_from_dict_with_invalid_dict(self):
+        resource_dict = {
+            "spam": "eggs",
+            "ham": "cheese",
+            "foo": "bar",
         }
-        self.assertEqual(self.resource.to_dict(), expected_dict)
+        with self.assertRaises(TypeError):
+            DummyResource.from_dict(resource_dict)
+
+    def test_from_dict_with_invalid_field(self):
+        resource_dict = self.resource_dict.copy()
+        resource_dict["invalidField"] = "spam"
+        resource: DummyResource = DummyResource.from_dict(resource_dict)
+
+        self.assertEqual(resource, self.resource)
+
+    def test_from_dict_with_valid_reference(self):
+        resource_dict = {
+            "objectType": "DummyResource",
+            "key": "spam",
+            "displayName": "eggs",
+        }
+        resource: DummyResource = DummyResource.from_dict(resource_dict)
+        self.assertIsInstance(resource, DummyResource)
+        self.assertEqual(resource.id, "spam")
+        self.assertEqual(resource.name, "eggs")
+
+    def test_from_dict_with_invalid_reference(self):
+        resource_dict = {
+            "objectType": "Sausages",
+            "key": "spam",
+            "displayName": "eggs",
+        }
+
+        with self.assertRaises(TypeError):
+            DummyResource.from_dict(resource_dict)
 
 
 class TestEncodeDecode(unittest.TestCase):

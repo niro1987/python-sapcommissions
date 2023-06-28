@@ -1,13 +1,18 @@
 ci/cd:
-  - .github/**
+  - "*"
+  - ".github/**"
+  - ".vscode/**"
 
 documentation:
-  - README.md
-  - ./*.md
-  - docs/**
+  - "README.md"
+  - "./*.md"
+  - "docs/**"
 
 endpoints:
-  - sapcommissions/endpoints.py
+  - "**/*endpoints**"
 
 resources:
-  - sapcommissions/resources.py
+  - "**/*resources**"
+
+tests:
+  - "tests/**"
