@@ -136,6 +136,19 @@ class _Resource:
     @classmethod
     def from_dict(cls, json: dict) -> _Resource:
         """Convert dictionary to _Resource instance."""
+        reference_keys = ("objectType", "key", "displayName")
+        if all(key in json for key in reference_keys):
+            if (object_type := json["objectType"]) != cls.__name__:
+                LOGGER.error("Reference mismatch %s -> %s", object_type, cls.__name__)
+                raise TypeError("Reference mismatch")
+            seq_value = json["key"]
+            id_value = json["displayName"]
+            json.clear()
+            if (seq_attr := cls._seqAttr) is not None:
+                json[seq_attr] = seq_value
+            if (id_attr := cls._idAttr) is not None:
+                json[id_attr] = id_value
+
         types = get_type_hints(cls)
         valid_json = {}
 
