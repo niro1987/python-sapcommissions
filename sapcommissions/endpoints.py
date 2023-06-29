@@ -766,6 +766,30 @@ class Periods(_Create, _Delete, _Get, _List, _Update):
 class Pipelines(_Get, _List):
     resource = resources.Pipeline
 
+    def _run_pipeline(
+        self,
+        stageTypeSeq: str,
+        calendarSeq: str,
+        periodSeq: str,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """Run a PipelineRun command."""
+        command = {
+            "command": "PipelineRun",
+            "stageTypeSeq": stageTypeSeq,
+            "calendarSeq": calendarSeq,
+            "periodSeq": periodSeq,
+            "runMode": "full",
+            "runStats": True,
+        }
+        if processingUnitSeq is not None:
+            command["processingUnitSeq"] = processingUnitSeq
+
+        response = self._client.post(self.url, [command])
+        data = response[self.name]
+        pipeline_seq = data["0"][0]
+        return resources.Pipeline(pipelineRunSeq=pipeline_seq)
+
     def classify(
         self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
     ) -> resources.Pipeline:
