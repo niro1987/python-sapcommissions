@@ -805,21 +805,12 @@ class Pipelines(_Get, _List):
         processingUnitSeq : str : optional
             Processing Unit system identifier.
         """
-        command = {
-            "command": "PipelineRun",
-            "stageTypeSeq": "21673573206720515",
-            "calendarSeq": calendarSeq,
-            "periodSeq": periodSeq,
-            "runMode": "full",
-            "runStats": True,
-        }
-        if processingUnitSeq is not None:
-            command["processingUnitSeq"] = processingUnitSeq
-
-        response = self._client.post(self.url, [command])
-        data = response[self.name]
-        pipeline_seq = data["0"][0]
-        return resources.Pipeline(pipelineRunSeq=pipeline_seq)
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720515",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            processingUnitSeq=processingUnitSeq,
+        )
 
 
 class Plans(_Get, _List):
