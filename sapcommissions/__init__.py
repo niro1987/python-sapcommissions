@@ -41,3 +41,21 @@ class ReportFormat(Enum):
     PDF = "pdf"
     EXCEL = "excel"
     NATIVE = "native"
+
+
+class Revalidate(Enum):
+    """
+    Enum for revalidate mode.
+    """
+
+    ALL = "all"
+    ONLY_ERRORS = "onlyError"
+
+
+class RunMode(Enum):
+    """
+    Enum for import runMode.
+    """
+
+    ALL = "all"
+    NEW = "new"

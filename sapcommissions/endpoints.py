@@ -9,7 +9,7 @@ from requests.models import Response
 from requests.sessions import Session
 from urllib3 import disable_warnings
 
-from sapcommissions import Connection, ReportFormat, resources
+from sapcommissions import Connection, ReportFormat, Revalidate, RunMode, resources
 from sapcommissions.exceptions import AuthenticationError, ClientError, ServerError
 
 LOGGER = logging.getLogger(__name__)
@@ -1156,6 +1156,202 @@ class Pipelines(_Get, _List):
             periodSeq=periodSeq,
             processingUnitSeq=processingUnitSeq,
         )
+
+    def _run_import(
+        self,
+        stageTypeSeq: str,
+        calendarSeq: str,
+        batchName: str,
+        runMode: RunMode = RunMode.ALL,
+        revalidate: Revalidate | None = None,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """Run a Import command."""
+        try:
+            odi_type: str = batchName.split("_")[1]
+            odi_type = odi_type.upper()
+            assert len(odi_type) >= 4
+            assert odi_type[:2] in {"TX", "OG", "CL", "PL"}
+        except (IndexError, AssertionError) as error:
+            LOGGER.error("Batch does not conform to any ODI template: %s", batchName)
+            raise TypeError(
+                "Batch does not conform to any ODI template TX*, OG*, CL*, PL*"
+            ) from error
+
+        stage_tables: tuple[str, list[str]]
+        if odi_type[:2] == "TX":
+            stage_tables = (
+                "TransactionalData",
+                [
+                    "TransactionAndCredit",
+                    "Deposit",
+                ],
+            )
+        if odi_type[:2] == "OG":
+            stage_tables = (
+                "OrganizationData",
+                [
+                    "Participant",
+                    "Position",
+                    "Title",
+                    "PositionRelation",
+                ],
+            )
+        if odi_type[:2] == "CL":
+            stage_tables = (
+                "ClassificationData",
+                [
+                    "Category",
+                    "Category_Classifiers",
+                    "Customer",
+                    "Product",
+                    "PostalCode",
+                    "GenericClassifier",
+                ],
+            )
+        if odi_type[:2] == "PL":
+            stage_tables = (
+                "PlanRelatedData",
+                [
+                    "FixedValue",
+                    "VariableAssignment",
+                    "Quota",
+                    "RelationalMDLT",
+                ],
+            )
+
+        command = {
+            "command": "Import",
+            "stageTypeSeq": stageTypeSeq,
+            "calendarSeq": calendarSeq,
+            "batchName": batchName,
+            "runMode": runMode.value,
+            "runStats": True,
+            "module": stage_tables[0],
+            "stageTables": stage_tables[1],
+        }
+        if revalidate is not None:
+            command["revalidate"] = revalidate.value
+        if processingUnitSeq is not None:
+            command["processingUnitSeq"] = processingUnitSeq
+
+        response = self._client.post(self.url, [command])
+        data = response[self.name]
+        pipeline_seq = data["0"][0]
+        return resources.Pipeline(pipelineRunSeq=pipeline_seq)
+
+    def validate(
+        self,
+        calendarSeq: str,
+        batchName: str,
+        runMode: RunMode = RunMode.ALL,
+        revalidate: Revalidate | None = None,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """Validate data from stage."""
+        return self._run_import(
+            stageTypeSeq="21673573206720533",
+            calendarSeq=calendarSeq,
+            batchName=batchName,
+            runMode=runMode,
+            revalidate=revalidate,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def transfer(
+        self,
+        calendarSeq: str,
+        batchName: str,
+        runMode: RunMode = RunMode.ALL,
+        revalidate: Revalidate | None = None,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """Transfer data from stage, leave invalid data."""
+        return self._run_import(
+            stageTypeSeq="21673573206720534",
+            calendarSeq=calendarSeq,
+            batchName=batchName,
+            runMode=runMode,
+            revalidate=revalidate,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def transfer_if_all_valid(
+        self,
+        calendarSeq: str,
+        batchName: str,
+        runMode: RunMode = RunMode.ALL,
+        revalidate: Revalidate | None = None,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """Transfer data from stage only if all data is valid."""
+        return self._run_import(
+            stageTypeSeq="21673573206720535",
+            calendarSeq=calendarSeq,
+            batchName=batchName,
+            runMode=runMode,
+            revalidate=revalidate,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def validate_and_transfer(
+        self,
+        calendarSeq: str,
+        batchName: str,
+        runMode: RunMode = RunMode.ALL,
+        revalidate: Revalidate | None = None,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """Validate and Transfer data from stage."""
+        return self._run_import(
+            stageTypeSeq="21673573206720536",
+            calendarSeq=calendarSeq,
+            batchName=batchName,
+            runMode=runMode,
+            revalidate=revalidate,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def validate_and_transfer_if_all_valid(
+        self,
+        calendarSeq: str,
+        batchName: str,
+        runMode: RunMode = RunMode.ALL,
+        revalidate: Revalidate | None = None,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """Validate and Transfer data from stage only if all data is valid."""
+        return self._run_import(
+            stageTypeSeq="21673573206720537",
+            calendarSeq=calendarSeq,
+            batchName=batchName,
+            runMode=runMode,
+            revalidate=revalidate,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def reset_from_validate(
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        batchName: str | None = None,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """Run Reset From Validate."""
+        command = {
+            "calendarSeq": calendarSeq,
+            "periodSeq": periodSeq,
+            "runStats": True,
+        }
+        if batchName is not None:
+            command["batchName"] = batchName
+        if processingUnitSeq is not None:
+            command["processingUnitSeq"] = processingUnitSeq
+
+        response = self._client.post(self.url + "/resetfromvalidate", [command])
+        data = response[self.name]
+        pipeline_seq = data["0"][0]
+        return resources.Pipeline(pipelineRunSeq=pipeline_seq)
 
 
 class Plans(_Get, _List):
