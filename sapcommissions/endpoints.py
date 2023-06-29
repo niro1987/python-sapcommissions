@@ -812,6 +812,270 @@ class Pipelines(_Get, _List):
             processingUnitSeq=processingUnitSeq,
         )
 
+    def allocate(
+        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+    ) -> resources.Pipeline:
+        """
+        Run Allocate pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720516",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def reward(
+        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+    ) -> resources.Pipeline:
+        """
+        Run Reward pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720518",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def pay(
+        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+    ) -> resources.Pipeline:
+        """
+        Run Pay pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720519",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def post(
+        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+    ) -> resources.Pipeline:
+        """
+        Run Post pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720520",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def finalize(
+        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+    ) -> resources.Pipeline:
+        """
+        Run Finalize pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720521",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def comp_and_pay(
+        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+    ) -> resources.Pipeline:
+        """
+        Run Compensate And Pay pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720532",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def reset_from_classify(
+        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+    ) -> resources.Pipeline:
+        """
+        Run Reset From Classify pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720514",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def reset_from_allocate(
+        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+    ) -> resources.Pipeline:
+        """
+        Run Reset From Allocate pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720523",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def reset_from_reward(
+        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+    ) -> resources.Pipeline:
+        """
+        Run Reset From Reward pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720522",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def reset_from_pay(
+        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+    ) -> resources.Pipeline:
+        """
+        Run Reset From Payment pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720526",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def undo_post(
+        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+    ) -> resources.Pipeline:
+        """
+        Run Undo Post pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720718",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def undo_finalize(
+        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+    ) -> resources.Pipeline:
+        """
+        Run Undo Finalize pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720721",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            processingUnitSeq=processingUnitSeq,
+        )
+
 
 class Plans(_Get, _List):
     resource = resources.Plan
