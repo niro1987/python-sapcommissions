@@ -1032,6 +1032,28 @@ class Pipelines(_Get, _List):
             processingUnitSeq=processingUnitSeq,
         )
 
+    def cleanup_deferred_results(
+        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+    ) -> resources.Pipeline:
+        """
+        Run Cleanup Deferred Results pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720540",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            processingUnitSeq=processingUnitSeq,
+        )
+
     def undo_post(
         self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
     ) -> resources.Pipeline:
