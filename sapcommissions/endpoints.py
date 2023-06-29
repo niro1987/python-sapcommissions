@@ -1167,59 +1167,7 @@ class Pipelines(_Get, _List):
         processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
         """Run a Import command."""
-        try:
-            odi_type: str = batchName.split("_")[1]
-            odi_type = odi_type.upper()
-            assert len(odi_type) >= 4
-            assert odi_type[:2] in {"TX", "OG", "CL", "PL"}
-        except (IndexError, AssertionError) as error:
-            LOGGER.error("Batch does not conform to any ODI template: %s", batchName)
-            raise TypeError(
-                "Batch does not conform to any ODI template TX*, OG*, CL*, PL*"
-            ) from error
-
-        stage_tables: tuple[str, list[str]]
-        if odi_type[:2] == "TX":
-            stage_tables = (
-                "TransactionalData",
-                [
-                    "TransactionAndCredit",
-                    "Deposit",
-                ],
-            )
-        if odi_type[:2] == "OG":
-            stage_tables = (
-                "OrganizationData",
-                [
-                    "Participant",
-                    "Position",
-                    "Title",
-                    "PositionRelation",
-                ],
-            )
-        if odi_type[:2] == "CL":
-            stage_tables = (
-                "ClassificationData",
-                [
-                    "Category",
-                    "Category_Classifiers",
-                    "Customer",
-                    "Product",
-                    "PostalCode",
-                    "GenericClassifier",
-                ],
-            )
-        if odi_type[:2] == "PL":
-            stage_tables = (
-                "PlanRelatedData",
-                [
-                    "FixedValue",
-                    "VariableAssignment",
-                    "Quota",
-                    "RelationalMDLT",
-                ],
-            )
-
+        stage_tables = _stageTables(batchName)
         command = {
             "command": "Import",
             "stageTypeSeq": stageTypeSeq,
