@@ -9,7 +9,7 @@ from requests.models import Response
 from requests.sessions import Session
 from urllib3 import disable_warnings
 
-from sapcommissions import Connection, resources
+from sapcommissions import Connection, ReportFormat, resources
 from sapcommissions.exceptions import AuthenticationError, ClientError, ServerError
 
 LOGGER = logging.getLogger(__name__)
@@ -782,6 +782,65 @@ class Pipelines(_Get, _List):
             "runMode": "full",
             "runStats": True,
         }
+        if processingUnitSeq is not None:
+            command["processingUnitSeq"] = processingUnitSeq
+
+        response = self._client.post(self.url, [command])
+        data = response[self.name]
+        pipeline_seq = data["0"][0]
+        return resources.Pipeline(pipelineRunSeq=pipeline_seq)
+
+    def generate_reports(
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        formats: list[ReportFormat],
+        reports: list[str],
+        groups: list[str] | None = None,
+        positionSeqs: list[str] | None = None,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """
+        Run Reports Generation pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        formats : list[ReportFormat]
+            List of report formats.
+        reports : list[str]
+            List of report names.
+        groups : list[str] : Optional
+            List of BO groups names. Use either groups or positionSeqs.
+        positionSeqs : list[str] : Optional
+            List of position system identifiers. Use either groups or positionSeqs.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        command = {
+            "command": "PipelineRun",
+            "stageTypeSeq": "21673573206720698",
+            "calendarSeq": calendarSeq,
+            "periodSeq": periodSeq,
+            "generateODSReports": True,
+            "reportTypeName": "Crystal",
+            "reportFormatsList": [format.value for format in formats],
+            "odsReportList": reports,
+            "runMode": "full",
+            "runStats": True,
+        }
+        if groups is not None and isinstance(groups, list) and len(groups) > 0:
+            command["boGroupsList"] = groups
+        if (
+            positionSeqs is not None
+            and isinstance(positionSeqs, list)
+            and len(positionSeqs) > 0
+        ):
+            command["runMode"] = "positions"
+            command["positionSeqs"] = positionSeqs
         if processingUnitSeq is not None:
             command["processingUnitSeq"] = processingUnitSeq
 
