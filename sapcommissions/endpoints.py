@@ -15,6 +15,65 @@ from sapcommissions.exceptions import AuthenticationError, ClientError, ServerEr
 LOGGER = logging.getLogger(__name__)
 
 
+def _stage_tables(batchName: str) -> tuple[str, list[str]]:
+    """
+    Deduce the tables to be staged from the batchName.
+    """
+    try:
+        odi_type: str = batchName.split("_")[1]
+        odi_type = odi_type.upper()
+        assert len(odi_type) >= 4
+        assert odi_type[:2] in {"TX", "OG", "CL", "PL"}
+    except (IndexError, AssertionError) as error:
+        LOGGER.error("Batch does not conform to any ODI template: %s", batchName)
+        raise TypeError(
+            "Batch does not conform to any ODI template TX*, OG*, CL*, PL*"
+        ) from error
+
+    stage_tables: tuple[str, list[str]]
+    if odi_type[:2] == "TX":
+        stage_tables = (
+            "TransactionalData",
+            [
+                "TransactionAndCredit",
+                "Deposit",
+            ],
+        )
+    if odi_type[:2] == "OG":
+        stage_tables = (
+            "OrganizationData",
+            [
+                "Participant",
+                "Position",
+                "Title",
+                "PositionRelation",
+            ],
+        )
+    if odi_type[:2] == "CL":
+        stage_tables = (
+            "ClassificationData",
+            [
+                "Category",
+                "Category_Classifiers",
+                "Customer",
+                "Product",
+                "PostalCode",
+                "GenericClassifier",
+            ],
+        )
+    if odi_type[:2] == "PL":
+        stage_tables = (
+            "PlanRelatedData",
+            [
+                "FixedValue",
+                "VariableAssignment",
+                "Quota",
+                "RelationalMDLT",
+            ],
+        )
+    return stage_tables
+
+
 class _Client(Session):
     """Interacts with SAP Commissions REST API. Extends requests.Session."""
 
@@ -1167,7 +1226,7 @@ class Pipelines(_Get, _List):
         processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
         """Run a Import command."""
-        stage_tables = _stageTables(batchName)
+        stage_tables = _stage_tables(batchName)
         command = {
             "command": "Import",
             "stageTypeSeq": stageTypeSeq,
@@ -1297,6 +1356,43 @@ class Pipelines(_Get, _List):
             command["processingUnitSeq"] = processingUnitSeq
 
         response = self._client.post(self.url + "/resetfromvalidate", [command])
+        data = response[self.name]
+        pipeline_seq = data["0"][0]
+        return resources.Pipeline(pipelineRunSeq=pipeline_seq)
+
+    def purge(self, batchName: str):
+        """
+        Run Purge import data.
+        """
+        stage_tables = _stage_tables(batchName)
+        command = {
+            "command": "PipelineRun",
+            "stageTypeSeq": 21673573206720573,
+            "batchName": batchName,
+            "module": stage_tables[0],
+            "stageTables": stage_tables[1],
+        }
+
+        response = self._client.post(self.url, [command])
+        data = response[self.name]
+        pipeline_seq = data["0"][0]
+        return resources.Pipeline(pipelineRunSeq=pipeline_seq)
+
+    def xml_import(
+        self, xmlFileName: str, xmlFileContent: str, updateExistingObjects: bool = False
+    ):
+        """
+        Run XML Import.
+        """
+        command = {
+            "command": "XMLImport",
+            "stageTypeSeq": "21673573206720693",
+            "xmlFileName": xmlFileName,
+            "xmlFileContent": xmlFileContent,
+            "updateExistingObjects": updateExistingObjects,
+        }
+
+        response = self._client.post(self.url, [command])
         data = response[self.name]
         pipeline_seq = data["0"][0]
         return resources.Pipeline(pipelineRunSeq=pipeline_seq)
