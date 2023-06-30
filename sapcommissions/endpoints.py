@@ -822,7 +822,7 @@ class Periods(_Create, _Delete, _Get, _List, _Update):
     resource = resources.Period
 
 
-class Pipelines(_Get, _List):
+class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
     resource = resources.Pipeline
 
     def _run_pipeline(
@@ -830,6 +830,7 @@ class Pipelines(_Get, _List):
         stageTypeSeq: str,
         calendarSeq: str,
         periodSeq: str,
+        runStats: bool | None = None,
         processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
         """Run a PipelineRun command."""
@@ -839,8 +840,9 @@ class Pipelines(_Get, _List):
             "calendarSeq": calendarSeq,
             "periodSeq": periodSeq,
             "runMode": "full",
-            "runStats": True,
         }
+        if runStats is not None:
+            command["runStats"] = runStats
         if processingUnitSeq is not None:
             command["processingUnitSeq"] = processingUnitSeq
 
@@ -857,6 +859,7 @@ class Pipelines(_Get, _List):
         reports: list[str],
         groups: list[str] | None = None,
         positionSeqs: list[str] | None = None,
+        runStats: bool = True,
         processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
         """
@@ -889,7 +892,7 @@ class Pipelines(_Get, _List):
             "reportFormatsList": [format.value for format in formats],
             "odsReportList": reports,
             "runMode": "full",
-            "runStats": True,
+            "runStats": runStats,
         }
         if groups is not None and isinstance(groups, list) and len(groups) > 0:
             command["boGroupsList"] = groups
@@ -909,7 +912,11 @@ class Pipelines(_Get, _List):
         return resources.Pipeline(pipelineRunSeq=pipeline_seq)
 
     def classify(
-        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        processingUnitSeq: str | None = None,
+        runStats: bool = True,
     ) -> resources.Pipeline:
         """
         Run Classify pipeline.
@@ -927,11 +934,16 @@ class Pipelines(_Get, _List):
             stageTypeSeq="21673573206720515",
             calendarSeq=calendarSeq,
             periodSeq=periodSeq,
+            runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
 
     def allocate(
-        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        processingUnitSeq: str | None = None,
+        runStats: bool = True,
     ) -> resources.Pipeline:
         """
         Run Allocate pipeline.
@@ -949,11 +961,16 @@ class Pipelines(_Get, _List):
             stageTypeSeq="21673573206720516",
             calendarSeq=calendarSeq,
             periodSeq=periodSeq,
+            runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
 
     def summarize(
-        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        processingUnitSeq: str | None = None,
+        runStats: bool = True,
     ) -> resources.Pipeline:
         """
         Run Summarize pipeline.
@@ -971,11 +988,16 @@ class Pipelines(_Get, _List):
             stageTypeSeq="21673573206720531",
             calendarSeq=calendarSeq,
             periodSeq=periodSeq,
+            runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
 
     def reward(
-        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        processingUnitSeq: str | None = None,
+        runStats: bool = True,
     ) -> resources.Pipeline:
         """
         Run Reward pipeline.
@@ -993,11 +1015,16 @@ class Pipelines(_Get, _List):
             stageTypeSeq="21673573206720518",
             calendarSeq=calendarSeq,
             periodSeq=periodSeq,
+            runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
 
     def pay(
-        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        processingUnitSeq: str | None = None,
+        runStats: bool = True,
     ) -> resources.Pipeline:
         """
         Run Pay pipeline.
@@ -1015,11 +1042,16 @@ class Pipelines(_Get, _List):
             stageTypeSeq="21673573206720519",
             calendarSeq=calendarSeq,
             periodSeq=periodSeq,
+            runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
 
     def post(
-        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        processingUnitSeq: str | None = None,
+        runStats: bool = True,
     ) -> resources.Pipeline:
         """
         Run Post pipeline.
@@ -1037,11 +1069,16 @@ class Pipelines(_Get, _List):
             stageTypeSeq="21673573206720520",
             calendarSeq=calendarSeq,
             periodSeq=periodSeq,
+            runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
 
     def finalize(
-        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        processingUnitSeq: str | None = None,
+        runStats: bool = True,
     ) -> resources.Pipeline:
         """
         Run Finalize pipeline.
@@ -1059,11 +1096,16 @@ class Pipelines(_Get, _List):
             stageTypeSeq="21673573206720521",
             calendarSeq=calendarSeq,
             periodSeq=periodSeq,
+            runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
 
     def comp_and_pay(
-        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        processingUnitSeq: str | None = None,
+        runStats: bool = True,
     ) -> resources.Pipeline:
         """
         Run Compensate And Pay pipeline.
@@ -1081,11 +1123,16 @@ class Pipelines(_Get, _List):
             stageTypeSeq="21673573206720532",
             calendarSeq=calendarSeq,
             periodSeq=periodSeq,
+            runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
 
     def reset_from_classify(
-        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        processingUnitSeq: str | None = None,
+        runStats: bool = True,
     ) -> resources.Pipeline:
         """
         Run Reset From Classify pipeline.
@@ -1103,11 +1150,16 @@ class Pipelines(_Get, _List):
             stageTypeSeq="21673573206720514",
             calendarSeq=calendarSeq,
             periodSeq=periodSeq,
+            runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
 
     def reset_from_allocate(
-        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        processingUnitSeq: str | None = None,
+        runStats: bool = True,
     ) -> resources.Pipeline:
         """
         Run Reset From Allocate pipeline.
@@ -1125,11 +1177,16 @@ class Pipelines(_Get, _List):
             stageTypeSeq="21673573206720523",
             calendarSeq=calendarSeq,
             periodSeq=periodSeq,
+            runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
 
     def reset_from_reward(
-        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        processingUnitSeq: str | None = None,
+        runStats: bool = True,
     ) -> resources.Pipeline:
         """
         Run Reset From Reward pipeline.
@@ -1147,11 +1204,16 @@ class Pipelines(_Get, _List):
             stageTypeSeq="21673573206720522",
             calendarSeq=calendarSeq,
             periodSeq=periodSeq,
+            runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
 
     def reset_from_pay(
-        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        processingUnitSeq: str | None = None,
+        runStats: bool = True,
     ) -> resources.Pipeline:
         """
         Run Reset From Payment pipeline.
@@ -1169,6 +1231,7 @@ class Pipelines(_Get, _List):
             stageTypeSeq="21673573206720526",
             calendarSeq=calendarSeq,
             periodSeq=periodSeq,
+            runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
 
@@ -1195,7 +1258,11 @@ class Pipelines(_Get, _List):
         )
 
     def undo_post(
-        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        processingUnitSeq: str | None = None,
+        runStats: bool = True,
     ) -> resources.Pipeline:
         """
         Run Undo Post pipeline.
@@ -1213,11 +1280,16 @@ class Pipelines(_Get, _List):
             stageTypeSeq="21673573206720718",
             calendarSeq=calendarSeq,
             periodSeq=periodSeq,
+            runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
 
     def undo_finalize(
-        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        processingUnitSeq: str | None = None,
+        runStats: bool = True,
     ) -> resources.Pipeline:
         """
         Run Undo Finalize pipeline.
@@ -1235,6 +1307,7 @@ class Pipelines(_Get, _List):
             stageTypeSeq="21673573206720721",
             calendarSeq=calendarSeq,
             periodSeq=periodSeq,
+            runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
 
@@ -1289,6 +1362,7 @@ class Pipelines(_Get, _List):
         batchName: str,
         runMode: RunMode = RunMode.ALL,
         revalidate: Revalidate | None = None,
+        runStats: bool | None = None,
         processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
         """Run a Import command."""
@@ -1299,12 +1373,13 @@ class Pipelines(_Get, _List):
             "calendarSeq": calendarSeq,
             "batchName": batchName,
             "runMode": runMode.value,
-            "runStats": True,
             "module": stage_tables[0],
             "stageTables": stage_tables[1],
         }
         if revalidate is not None:
             command["revalidate"] = revalidate.value
+        if runStats is not None:
+            command["runStats"] = runStats
         if processingUnitSeq is not None:
             command["processingUnitSeq"] = processingUnitSeq
 
@@ -1319,6 +1394,7 @@ class Pipelines(_Get, _List):
         batchName: str,
         runMode: RunMode = RunMode.ALL,
         revalidate: Revalidate | None = None,
+        runStats: bool = True,
         processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
         """Validate data from stage."""
@@ -1328,6 +1404,7 @@ class Pipelines(_Get, _List):
             batchName=batchName,
             runMode=runMode,
             revalidate=revalidate,
+            runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
 
@@ -1337,6 +1414,7 @@ class Pipelines(_Get, _List):
         batchName: str,
         runMode: RunMode = RunMode.ALL,
         revalidate: Revalidate | None = None,
+        runStats: bool = True,
         processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
         """Transfer data from stage, leave invalid data."""
@@ -1346,6 +1424,7 @@ class Pipelines(_Get, _List):
             batchName=batchName,
             runMode=runMode,
             revalidate=revalidate,
+            runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
 
@@ -1355,6 +1434,7 @@ class Pipelines(_Get, _List):
         batchName: str,
         runMode: RunMode = RunMode.ALL,
         revalidate: Revalidate | None = None,
+        runStats: bool = True,
         processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
         """Transfer data from stage only if all data is valid."""
@@ -1364,6 +1444,7 @@ class Pipelines(_Get, _List):
             batchName=batchName,
             runMode=runMode,
             revalidate=revalidate,
+            runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
 
@@ -1373,6 +1454,7 @@ class Pipelines(_Get, _List):
         batchName: str,
         runMode: RunMode = RunMode.ALL,
         revalidate: Revalidate | None = None,
+        runStats: bool = True,
         processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
         """Validate and Transfer data from stage."""
@@ -1382,6 +1464,7 @@ class Pipelines(_Get, _List):
             batchName=batchName,
             runMode=runMode,
             revalidate=revalidate,
+            runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
 
@@ -1391,6 +1474,7 @@ class Pipelines(_Get, _List):
         batchName: str,
         runMode: RunMode = RunMode.ALL,
         revalidate: Revalidate | None = None,
+        runStats: bool = True,
         processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
         """Validate and Transfer data from stage only if all data is valid."""
@@ -1400,6 +1484,7 @@ class Pipelines(_Get, _List):
             batchName=batchName,
             runMode=runMode,
             revalidate=revalidate,
+            runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
 
@@ -1408,13 +1493,14 @@ class Pipelines(_Get, _List):
         calendarSeq: str,
         periodSeq: str,
         batchName: str | None = None,
+        runStats: bool = True,
         processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
         """Run Reset From Validate."""
         command = {
             "calendarSeq": calendarSeq,
             "periodSeq": periodSeq,
-            "runStats": True,
+            "runStats": runStats,
         }
         if batchName is not None:
             command["batchName"] = batchName
