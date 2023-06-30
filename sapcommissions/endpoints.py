@@ -9,7 +9,13 @@ from requests.models import Response
 from requests.sessions import Session
 from urllib3 import disable_warnings
 
-from sapcommissions import Connection, ReportFormat, Revalidate, RunMode, resources
+from sapcommissions import (
+    Connection,
+    ImportRunMode,
+    ReportFormat,
+    Revalidate,
+    resources,
+)
 from sapcommissions.exceptions import AuthenticationError, ClientError, ServerError
 
 LOGGER = logging.getLogger(__name__)
@@ -1394,7 +1400,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         stageTypeSeq: str,
         calendarSeq: str,
         batchName: str,
-        runMode: RunMode = RunMode.ALL,
+        runMode: ImportRunMode = ImportRunMode.ALL,
         revalidate: Revalidate | None = None,
         runStats: bool | None = None,
         processingUnitSeq: str | None = None,
@@ -1426,7 +1432,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         self,
         calendarSeq: str,
         batchName: str,
-        runMode: RunMode = RunMode.ALL,
+        runMode: ImportRunMode = ImportRunMode.ALL,
         revalidate: Revalidate | None = None,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
@@ -1446,7 +1452,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         self,
         calendarSeq: str,
         batchName: str,
-        runMode: RunMode = RunMode.ALL,
+        runMode: ImportRunMode = ImportRunMode.ALL,
         revalidate: Revalidate | None = None,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
@@ -1466,7 +1472,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         self,
         calendarSeq: str,
         batchName: str,
-        runMode: RunMode = RunMode.ALL,
+        runMode: ImportRunMode = ImportRunMode.ALL,
         revalidate: Revalidate | None = None,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
@@ -1486,7 +1492,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         self,
         calendarSeq: str,
         batchName: str,
-        runMode: RunMode = RunMode.ALL,
+        runMode: ImportRunMode = ImportRunMode.ALL,
         revalidate: Revalidate | None = None,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
@@ -1506,7 +1512,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         self,
         calendarSeq: str,
         batchName: str,
-        runMode: RunMode = RunMode.ALL,
+        runMode: ImportRunMode = ImportRunMode.ALL,
         revalidate: Revalidate | None = None,
         runStats: bool = True,
         processingUnitSeq: str | None = None,

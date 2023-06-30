@@ -52,7 +52,7 @@ class Revalidate(Enum):
     ONLY_ERRORS = "onlyError"
 
 
-class RunMode(Enum):
+class ImportRunMode(Enum):
     """
     Enum for import runMode.
     """
