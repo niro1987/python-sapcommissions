@@ -1100,6 +1100,33 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             processingUnitSeq=processingUnitSeq,
         )
 
+    def compensate(
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        processingUnitSeq: str | None = None,
+        runStats: bool = True,
+    ) -> resources.Pipeline:
+        """
+        Run Compensate pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720530",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            runStats=runStats,
+            processingUnitSeq=processingUnitSeq,
+        )
+
     def comp_and_pay(
         self,
         calendarSeq: str,
