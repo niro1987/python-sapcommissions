@@ -924,8 +924,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         self,
         calendarSeq: str,
         periodSeq: str,
-        processingUnitSeq: str | None = None,
         runStats: bool = True,
+        processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
         """
         Run Classify pipeline.
@@ -951,8 +951,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         self,
         calendarSeq: str,
         periodSeq: str,
-        processingUnitSeq: str | None = None,
         runStats: bool = True,
+        processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
         """
         Run Allocate pipeline.
@@ -978,8 +978,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         self,
         calendarSeq: str,
         periodSeq: str,
-        processingUnitSeq: str | None = None,
         runStats: bool = True,
+        processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
         """
         Run Summarize pipeline.
@@ -1005,8 +1005,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         self,
         calendarSeq: str,
         periodSeq: str,
-        processingUnitSeq: str | None = None,
         runStats: bool = True,
+        processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
         """
         Run Reward pipeline.
@@ -1032,8 +1032,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         self,
         calendarSeq: str,
         periodSeq: str,
-        processingUnitSeq: str | None = None,
         runStats: bool = True,
+        processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
         """
         Run Pay pipeline.
@@ -1059,8 +1059,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         self,
         calendarSeq: str,
         periodSeq: str,
-        processingUnitSeq: str | None = None,
         runStats: bool = True,
+        processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
         """
         Run Post pipeline.
@@ -1086,8 +1086,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         self,
         calendarSeq: str,
         periodSeq: str,
-        processingUnitSeq: str | None = None,
         runStats: bool = True,
+        processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
         """
         Run Finalize pipeline.
@@ -1114,8 +1114,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         calendarSeq: str,
         periodSeq: str,
         removeStaleResults: bool = False,
-        processingUnitSeq: str | None = None,
         runStats: bool = True,
+        processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
         """
         Run Compensate pipeline.
@@ -1143,8 +1143,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         calendarSeq: str,
         periodSeq: str,
         removeStaleResults: bool = False,
-        processingUnitSeq: str | None = None,
         runStats: bool = True,
+        processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
         """
         Run Compensate And Pay pipeline.
@@ -1171,8 +1171,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         self,
         calendarSeq: str,
         periodSeq: str,
-        processingUnitSeq: str | None = None,
         runStats: bool = True,
+        processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
         """
         Run Reset From Classify pipeline.
@@ -1198,8 +1198,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         self,
         calendarSeq: str,
         periodSeq: str,
-        processingUnitSeq: str | None = None,
         runStats: bool = True,
+        processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
         """
         Run Reset From Allocate pipeline.
@@ -1225,8 +1225,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         self,
         calendarSeq: str,
         periodSeq: str,
-        processingUnitSeq: str | None = None,
         runStats: bool = True,
+        processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
         """
         Run Reset From Reward pipeline.
@@ -1252,8 +1252,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         self,
         calendarSeq: str,
         periodSeq: str,
-        processingUnitSeq: str | None = None,
         runStats: bool = True,
+        processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
         """
         Run Reset From Payment pipeline.
@@ -1301,8 +1301,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         self,
         calendarSeq: str,
         periodSeq: str,
-        processingUnitSeq: str | None = None,
         runStats: bool = True,
+        processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
         """
         Run Undo Post pipeline.
@@ -1328,8 +1328,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         self,
         calendarSeq: str,
         periodSeq: str,
-        processingUnitSeq: str | None = None,
         runStats: bool = True,
+        processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
         """
         Run Undo Finalize pipeline.
