@@ -956,7 +956,7 @@ class Pipelines(_Get, _List):
         self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
     ) -> resources.Pipeline:
         """
-        Run Allocate pipeline.
+        Run Summarize pipeline.
 
         Parameters
         ----------
