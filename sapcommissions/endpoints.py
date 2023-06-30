@@ -12,6 +12,7 @@ from urllib3 import disable_warnings
 from sapcommissions import (
     Connection,
     ImportRunMode,
+    PipelineRunMode,
     ReportFormat,
     Revalidate,
     resources,
@@ -836,6 +837,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         stageTypeSeq: str,
         calendarSeq: str,
         periodSeq: str,
+        runMode: PipelineRunMode = PipelineRunMode.FULL,
+        positionSeqs: list[str] | None = None,
         removeStaleResults: bool | None = None,
         runStats: bool | None = None,
         processingUnitSeq: str | None = None,
@@ -846,8 +849,15 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             "stageTypeSeq": stageTypeSeq,
             "calendarSeq": calendarSeq,
             "periodSeq": periodSeq,
-            "runMode": "full",
+            "runMode": runMode.value,
         }
+        if (
+            positionSeqs is not None
+            and isinstance(positionSeqs, list)
+            and len(positionSeqs) > 0
+        ):
+            command["runMode"] = "positions"
+            command["positionSeqs"] = positionSeqs
         if removeStaleResults is not None:
             command["removeStaleResults"] = removeStaleResults
         if runStats is not None:
@@ -891,6 +901,11 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         processingUnitSeq : str : optional
             Processing Unit system identifier.
         """
+        if (groups is None and positionSeqs is None) or (
+            groups is not None and positionSeqs is not None
+        ):
+            LOGGER.error("Use either groups or positionSeqs")
+            raise ValueError("Use either groups or positionSeqs")
         command = {
             "command": "PipelineRun",
             "stageTypeSeq": "21673573206720698",
@@ -924,6 +939,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         self,
         calendarSeq: str,
         periodSeq: str,
+        incremental: bool = False,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
@@ -943,6 +959,9 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             stageTypeSeq="21673573206720515",
             calendarSeq=calendarSeq,
             periodSeq=periodSeq,
+            runMode=(
+                PipelineRunMode.INCREMENTAL if incremental else PipelineRunMode.FULL
+            ),
             runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
@@ -951,6 +970,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         self,
         calendarSeq: str,
         periodSeq: str,
+        incremental: bool = False,
+        positionSeqs: list[str] | None = None,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
@@ -970,6 +991,10 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             stageTypeSeq="21673573206720516",
             calendarSeq=calendarSeq,
             periodSeq=periodSeq,
+            runMode=(
+                PipelineRunMode.INCREMENTAL if incremental else PipelineRunMode.FULL
+            ),
+            positionSeqs=positionSeqs,
             runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
@@ -978,6 +1003,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         self,
         calendarSeq: str,
         periodSeq: str,
+        incremental: bool = False,
+        positionSeqs: list[str] | None = None,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
@@ -997,6 +1024,10 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             stageTypeSeq="21673573206720531",
             calendarSeq=calendarSeq,
             periodSeq=periodSeq,
+            runMode=(
+                PipelineRunMode.INCREMENTAL if incremental else PipelineRunMode.FULL
+            ),
+            positionSeqs=positionSeqs,
             runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
@@ -1005,6 +1036,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         self,
         calendarSeq: str,
         periodSeq: str,
+        positionSeqs: list[str] | None = None,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
@@ -1024,6 +1056,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             stageTypeSeq="21673573206720518",
             calendarSeq=calendarSeq,
             periodSeq=periodSeq,
+            positionSeqs=positionSeqs,
             runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
@@ -1113,6 +1146,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         self,
         calendarSeq: str,
         periodSeq: str,
+        incremental: bool = False,
+        positionSeqs: list[str] | None = None,
         removeStaleResults: bool = False,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
@@ -1133,6 +1168,10 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             stageTypeSeq="21673573206720530",
             calendarSeq=calendarSeq,
             periodSeq=periodSeq,
+            runMode=(
+                PipelineRunMode.INCREMENTAL if incremental else PipelineRunMode.FULL
+            ),
+            positionSeqs=positionSeqs,
             runStats=runStats,
             removeStaleResults=removeStaleResults,
             processingUnitSeq=processingUnitSeq,
@@ -1142,6 +1181,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         self,
         calendarSeq: str,
         periodSeq: str,
+        incremental: bool = False,
+        positionSeqs: list[str] | None = None,
         removeStaleResults: bool = False,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
@@ -1162,6 +1203,10 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             stageTypeSeq="21673573206720532",
             calendarSeq=calendarSeq,
             periodSeq=periodSeq,
+            runMode=(
+                PipelineRunMode.INCREMENTAL if incremental else PipelineRunMode.FULL
+            ),
+            positionSeqs=positionSeqs,
             runStats=runStats,
             removeStaleResults=removeStaleResults,
             processingUnitSeq=processingUnitSeq,

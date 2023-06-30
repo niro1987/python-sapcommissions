@@ -59,3 +59,12 @@ class ImportRunMode(Enum):
 
     ALL = "all"
     NEW = "new"
+
+
+class PipelineRunMode(Enum):
+    """
+    Enum for pipeline runMode.
+    """
+
+    FULL = "full"
+    INCREMENTAL = "incremental"
