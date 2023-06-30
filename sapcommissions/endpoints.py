@@ -1440,6 +1440,33 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             processingUnitSeq=processingUnitSeq,
         )
 
+    def update_analytics(
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ):
+        """
+        Run Update Analitics pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720701",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            runStats=runStats,
+            processingUnitSeq=processingUnitSeq,
+        )
+
     def _run_import(
         self,
         stageTypeSeq: str,
