@@ -952,6 +952,28 @@ class Pipelines(_Get, _List):
             processingUnitSeq=processingUnitSeq,
         )
 
+    def summarize(
+        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+    ) -> resources.Pipeline:
+        """
+        Run Allocate pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720531",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            processingUnitSeq=processingUnitSeq,
+        )
+
     def reward(
         self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
     ) -> resources.Pipeline:
