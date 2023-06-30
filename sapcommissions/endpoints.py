@@ -999,39 +999,6 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             processingUnitSeq=processingUnitSeq,
         )
 
-    def summarize(
-        self,
-        calendarSeq: str,
-        periodSeq: str,
-        incremental: bool = False,
-        positionSeqs: list[str] | None = None,
-        runStats: bool = True,
-        processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
-        """
-        Run Summarize pipeline.
-
-        Parameters
-        ----------
-        calendarSeq : str
-            Calendar system identifier.
-        periodSeq : str
-            Period system identifier.
-        processingUnitSeq : str : optional
-            Processing Unit system identifier.
-        """
-        return self._run_pipeline(
-            stageTypeSeq="21673573206720531",
-            calendarSeq=calendarSeq,
-            periodSeq=periodSeq,
-            runMode=(
-                PipelineRunMode.INCREMENTAL if incremental else PipelineRunMode.FULL
-            ),
-            positionSeqs=positionSeqs,
-            runStats=runStats,
-            processingUnitSeq=processingUnitSeq,
-        )
-
     def reward(
         self,
         calendarSeq: str,
@@ -1088,15 +1055,17 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             processingUnitSeq=processingUnitSeq,
         )
 
-    def post(
+    def summarize(
         self,
         calendarSeq: str,
         periodSeq: str,
+        incremental: bool = False,
+        positionSeqs: list[str] | None = None,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
         """
-        Run Post pipeline.
+        Run Summarize pipeline.
 
         Parameters
         ----------
@@ -1108,36 +1077,13 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             Processing Unit system identifier.
         """
         return self._run_pipeline(
-            stageTypeSeq="21673573206720520",
+            stageTypeSeq="21673573206720531",
             calendarSeq=calendarSeq,
             periodSeq=periodSeq,
-            runStats=runStats,
-            processingUnitSeq=processingUnitSeq,
-        )
-
-    def finalize(
-        self,
-        calendarSeq: str,
-        periodSeq: str,
-        runStats: bool = True,
-        processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
-        """
-        Run Finalize pipeline.
-
-        Parameters
-        ----------
-        calendarSeq : str
-            Calendar system identifier.
-        periodSeq : str
-            Period system identifier.
-        processingUnitSeq : str : optional
-            Processing Unit system identifier.
-        """
-        return self._run_pipeline(
-            stageTypeSeq="21673573206720521",
-            calendarSeq=calendarSeq,
-            periodSeq=periodSeq,
+            runMode=(
+                PipelineRunMode.INCREMENTAL if incremental else PipelineRunMode.FULL
+            ),
+            positionSeqs=positionSeqs,
             runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
@@ -1209,6 +1155,114 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             positionSeqs=positionSeqs,
             runStats=runStats,
             removeStaleResults=removeStaleResults,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def post(
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """
+        Run Post pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720520",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            runStats=runStats,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def undo_post(
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """
+        Run Undo Post pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720718",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            runStats=runStats,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def finalize(
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """
+        Run Finalize pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720521",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            runStats=runStats,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def undo_finalize(
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """
+        Run Undo Finalize pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720721",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
 
@@ -1339,60 +1393,6 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             stageTypeSeq="21673573206720540",
             calendarSeq=calendarSeq,
             periodSeq=periodSeq,
-            processingUnitSeq=processingUnitSeq,
-        )
-
-    def undo_post(
-        self,
-        calendarSeq: str,
-        periodSeq: str,
-        runStats: bool = True,
-        processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
-        """
-        Run Undo Post pipeline.
-
-        Parameters
-        ----------
-        calendarSeq : str
-            Calendar system identifier.
-        periodSeq : str
-            Period system identifier.
-        processingUnitSeq : str : optional
-            Processing Unit system identifier.
-        """
-        return self._run_pipeline(
-            stageTypeSeq="21673573206720718",
-            calendarSeq=calendarSeq,
-            periodSeq=periodSeq,
-            runStats=runStats,
-            processingUnitSeq=processingUnitSeq,
-        )
-
-    def undo_finalize(
-        self,
-        calendarSeq: str,
-        periodSeq: str,
-        runStats: bool = True,
-        processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
-        """
-        Run Undo Finalize pipeline.
-
-        Parameters
-        ----------
-        calendarSeq : str
-            Calendar system identifier.
-        periodSeq : str
-            Period system identifier.
-        processingUnitSeq : str : optional
-            Processing Unit system identifier.
-        """
-        return self._run_pipeline(
-            stageTypeSeq="21673573206720721",
-            calendarSeq=calendarSeq,
-            periodSeq=periodSeq,
-            runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
 
