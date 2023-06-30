@@ -830,6 +830,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         stageTypeSeq: str,
         calendarSeq: str,
         periodSeq: str,
+        removeStaleResults: bool | None = None,
         runStats: bool | None = None,
         processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
@@ -841,6 +842,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             "periodSeq": periodSeq,
             "runMode": "full",
         }
+        if removeStaleResults is not None:
+            command["removeStaleResults"] = removeStaleResults
         if runStats is not None:
             command["runStats"] = runStats
         if processingUnitSeq is not None:
@@ -1104,6 +1107,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         self,
         calendarSeq: str,
         periodSeq: str,
+        removeStaleResults: bool = False,
         processingUnitSeq: str | None = None,
         runStats: bool = True,
     ) -> resources.Pipeline:
@@ -1124,6 +1128,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             calendarSeq=calendarSeq,
             periodSeq=periodSeq,
             runStats=runStats,
+            removeStaleResults=removeStaleResults,
             processingUnitSeq=processingUnitSeq,
         )
 
@@ -1131,6 +1136,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         self,
         calendarSeq: str,
         periodSeq: str,
+        removeStaleResults: bool = False,
         processingUnitSeq: str | None = None,
         runStats: bool = True,
     ) -> resources.Pipeline:
@@ -1151,6 +1157,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             calendarSeq=calendarSeq,
             periodSeq=periodSeq,
             runStats=runStats,
+            removeStaleResults=removeStaleResults,
             processingUnitSeq=processingUnitSeq,
         )
 
