@@ -1216,6 +1216,50 @@ class Pipelines(_Get, _List):
             processingUnitSeq=processingUnitSeq,
         )
 
+    def approve_calculated_data(
+        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+    ) -> resources.Pipeline:
+        """
+        Run Approve calculated data.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720712",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def purge_approved_data(
+        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+    ) -> resources.Pipeline:
+        """
+        Run Purge approved data.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720715",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            processingUnitSeq=processingUnitSeq,
+        )
+
     def _run_import(
         self,
         stageTypeSeq: str,
