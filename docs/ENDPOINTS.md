@@ -1,535 +1,665 @@
 # Endpoints
 
 - [Endpoints](#endpoints)
-  - [AppliedDeposits](#applieddeposits)
-  - [AuditLogs](#auditlogs)
-  - [Balances](#balances)
-  - [BusinessUnits](#businessunits)
-  - [Calendars](#calendars)
-  - [Categories](#categories)
-  - [CategoryClassifiers](#categoryclassifiers)
-  - [CategoryTrees](#categorytrees)
-  - [Commissions](#commissions)
-  - [Credits](#credits)
-  - [CreditTypes](#credittypes)
-  - [Customers](#customers)
-  - [Deposits](#deposits)
-  - [EarningCodes](#earningcodes)
-  - [EarningGroupCodes](#earninggroupcodes)
-  - [EarningGroups](#earninggroups)
-  - [EventTypes](#eventtypes)
-  - [FixedValues](#fixedvalues)
-  - [FixValueTypes](#fixvaluetypes)
-  - [FixedValueVariables](#fixedvaluevariables)
-  - [Formulas](#formulas)
-  - [GenericClassifiers](#genericclassifiers)
-  - [GenericClassifierTypes](#genericclassifiertypes)
-  - [GlobalFieldNames](#globalfieldnames)
-  - [Groups](#groups)
-  - [Incentives](#incentives)
-  - [LookUpTables](#lookuptables)
-  - [LookUpTableVariables](#lookuptablevariables)
-  - [Measurements](#measurements)
-  - [MessageLogs](#messagelogs)
-  - [Messages](#messages)
-  - [Participants](#participants)
-  - [PaymentMappings](#paymentmappings)
-  - [Payments](#payments)
-  - [PatmentSummarys](#patmentsummarys)
-  - [Periods](#periods)
-  - [Pipelines](#pipelines)
-  - [Plans](#plans)
-  - [PositionGroups](#positiongroups)
-  - [PositionRelations](#positionrelations)
-  - [PositionRelationTypes](#positionrelationtypes)
-  - [Positions](#positions)
-  - [PrimaryMeasurements](#primarymeasurements)
-  - [ProcessingUnits](#processingunits)
-  - [Products](#products)
-  - [Quotas](#quotas)
-  - [RateTables](#ratetables)
-  - [RateTableVariables](#ratetablevariables)
-  - [Reasons](#reasons)
-  - [SalesOrders](#salesorders)
-  - [SalesTransactions](#salestransactions)
-  - [SecondaryMeasurements](#secondarymeasurements)
-  - [StatusCodes](#statuscodes)
-  - [Territories](#territories)
-  - [TerritoryVariables](#territoryvariables)
-  - [Titles](#titles)
-  - [UnitTypes](#unittypes)
-  - [Users](#users)
-  - [Variables](#variables)
-
-## AppliedDeposits
-
-- [Get](README.md#get)
-- [List](README.md#list)
-
-## AuditLogs
-
-- [Get](README.md#get)
-- [List](README.md#list)
-
-## Balances
-
-- [Get](README.md#get)
-- [List](README.md#list)
-
-## BusinessUnits
-
-- [Create](README.md#create)
-- [Get](README.md#get)
-- [List](README.md#list)
-- [Update](README.md#update)
-
-## Calendars
-
-- [Create](README.md#create)
-- [Get](README.md#get)
-- [List](README.md#list)
-- [Update](README.md#update)
-
-## Categories
-
-- [Create](README.md#create)
-- [Create Versions](README.md#create-versions)
-- [Get](README.md#get)
-- [Get Versions](README.md#get-versions)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Update Versions](README.md#update-versions)
-- [Delete](README.md#delete)
-- [Delete Versions](README.md#delete-versions)
-
-## CategoryClassifiers
-
-- [Create](README.md#create)
-- [Get](README.md#get)
-- [List](README.md#list)
-- [Update](README.md#update)
-
-## CategoryTrees
-
-- [Create](README.md#create)
-- [Create Versions](README.md#create-versions)
-- [Get](README.md#get)
-- [Get Versions](README.md#get-versions)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Update Versions](README.md#update-versions)
-- [Delete](README.md#delete)
-- [Delete Versions](README.md#delete-versions)
-
-## Commissions
-
-- [Get](README.md#get)
-- [List](README.md#list)
-
-## Credits
-
-- [Create](README.md#create)
-- [Get](README.md#get)
-- [List](README.md#list)
-- [Update](README.md#update)
-
-## CreditTypes
-
-- [Create](README.md#create)
-- [Get](README.md#get)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Delete](README.md#delete)
-
-## Customers
-
-- [Create](README.md#create)
-- [Create Versions](README.md#create-versions)
-- [Get](README.md#get)
-- [Get Versions](README.md#get-versions)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Update Versions](README.md#update-versions)
-- [Delete](README.md#delete)
-- [Delete Versions](README.md#delete-versions)
-
-## Deposits
-
-- [Create](README.md#create)
-- [Get](README.md#get)
-- [List](README.md#list)
-- [Update](README.md#update)
-
-## EarningCodes
-
-- [Create](README.md#create)
-- [Get](README.md#get)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Delete](README.md#delete)
-
-## EarningGroupCodes
+  - [List of Endpoints](#list-of-endpoints)
+  - [Run Pipelines](#run-pipelines)
+    - [Generate Reports](#generate-reports)
+    - [Classify](#classify)
+    - [Allocate](#allocate)
+    - [Reward](#reward)
+    - [Pay](#pay)
+    - [Summarize](#summarize)
+    - [Compensate](#compensate)
+    - [Compensate and Pay](#compensate-and-pay)
+    - [Post](#post)
+    - [Undo Post](#undo-post)
+    - [Finalize](#finalize)
+    - [Undo Finalize](#undo-finalize)
+    - [Reset From Classify](#reset-from-classify)
+    - [Reset From Allocate](#reset-from-allocate)
+    - [Reset From Reward](#reset-from-reward)
+    - [Reset From Pay](#reset-from-pay)
+    - [Cleanup Deffered Results](#cleanup-deffered-results)
+    - [Approve Calculated Data](#approve-calculated-data)
+    - [Purge Approved Data](#purge-approved-data)
+    - [Update Analytics](#update-analytics)
+    - [Validate](#validate)
+    - [Transfer](#transfer)
+    - [Transfer If All Valid](#transfer-if-all-valid)
+    - [Validate and Transfer](#validate-and-transfer)
+    - [Validate and Transfer If All Valid](#validate-and-transfer-if-all-valid)
+    - [Reset From Validate](#reset-from-validate)
+    - [Purge](#purge)
+    - [XML Import](#xml-import)
+
+## List of Endpoints
+
+| Endpoint               | Methods                                                                                                                                                                                                                                    |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| AppliedDeposits        | [`Get`][get], [`List`][list]                                                                                                                                                                                                               |
+| AuditLogs              | [`Get`][get], [`List`][list]                                                                                                                                                                                                               |
+| Balances               | [`Get`][get], [`List`][list]                                                                                                                                                                                                               |
+| BusinessUnits          | [`Create`][create], [`Get`][get], [`List`][list], [`Update`][update]                                                                                                                                                                       |
+| Calendars              | [`Create`][create], [`Get`][get], [`List`][list], [`Update`][update]                                                                                                                                                                       |
+| Categories             | [`Create`][create], [`Create Versions`][create-versions], [`Get`][get], [`Get Versions`][get-versions], [`List`][list], [`Update`][update], [`Update Versions`][update-versions], [`Delete`][delete], [`Delete Versions`][delete-versions] |
+| CategoryClassifiers    | [`Create`][create], [`Get`][get], [`List`][list], [`Update`][update]                                                                                                                                                                       |
+| CategoryTrees          | [`Create`][create], [`Create Versions`][create-versions], [`Get`][get], [`Get Versions`][get-versions], [`List`][list], [`Update`][update], [`Update Versions`][update-versions], [`Delete`][delete], [`Delete Versions`][delete-versions] |
+| Commissions            | [`Get`][get], [`List`][list]                                                                                                                                                                                                               |
+| Credits                | [`Create`][create], [`Get`][get], [`List`][list], [`Update`][update]                                                                                                                                                                       |
+| CreditTypes            | [`Create`][create], [`Get`][get], [`List`][list], [`Update`][update], [`Delete`][delete]                                                                                                                                                   |
+| Customers              | [`Create`][create], [`Create Versions`][create-versions], [`Get`][get], [`Get Versions`][get-versions], [`List`][list], [`Update`][update], [`Update Versions`][update-versions], [`Delete`][delete], [`Delete Versions`][delete-versions] |
+| Deposits               | [`Create`][create], [`Get`][get], [`List`][list], [`Update`][update], [`Delete`][delete]                                                                                                                                                   |
+| EarningCodes           | [`Create`][create], [`Get`][get], [`List`][list], [`Update`][update], [`Delete`][delete]                                                                                                                                                   |
+| EarningGroupCodes      | [`Create`][create], [`Get`][get], [`List`][list], [`Update`][update], [`Delete`][delete]                                                                                                                                                   |
+| EarningGroups          | [`Create`][create], [`Get`][get], [`List`][list], [`Update`][update], [`Delete`][delete]                                                                                                                                                   |
+| EventTypes             | [`Create`][create], [`Get`][get], [`List`][list], [`Update`][update], [`Delete`][delete]                                                                                                                                                   |
+| FixedValues            | [`Create`][create], [`Create Versions`][create-versions], [`Get`][get], [`Get Versions`][get-versions], [`List`][list], [`Update`][update], [`Update Versions`][update-versions], [`Delete`][delete], [`Delete Versions`][delete-versions] |
+| FixValueTypes          | [`Create`][create], [`Get`][get], [`List`][list], [`Update`][update], [`Delete`][delete]                                                                                                                                                   |
+| FixedValueVariables    | [`Create`][create], [`Create Versions`][create-versions], [`Get`][get], [`Get Versions`][get-versions], [`List`][list], [`Update`][update], [`Update Versions`][update-versions], [`Delete`][delete], [`Delete Versions`][delete-versions] |
+| Formulas               | [`Get`][get], [`List`][list]                                                                                                                                                                                                               |
+| GenericClassifiers     | [`Create`][create], [`Create Versions`][create-versions], [`Get`][get], [`Get Versions`][get-versions], [`List`][list], [`Update`][update], [`Update Versions`][update-versions], [`Delete`][delete], [`Delete Versions`][delete-versions] |
+| GenericClassifierTypes | [`Get`][get], [`List`][list]                                                                                                                                                                                                               |
+| GlobalFieldNames       | [`Create`][create], [`Get`][get], [`List`][list], [`Update`][update], [`Delete`][delete]                                                                                                                                                   |
+| Groups                 | [`Create`][create], [`Get`][get], [`List`][list], [`Update`][update], [`Delete`][delete]                                                                                                                                                   |
+| Incentives             | [`Get`][get], [`List`][list]                                                                                                                                                                                                               |
+| LookUpTables           | [`Get`][get], [`List`][list]                                                                                                                                                                                                               |
+| LookUpTableVariables   | [`Create`][create], [`Create Versions`][create-versions], [`Get`][get], [`Get Versions`][get-versions], [`List`][list], [`Update`][update], [`Update Versions`][update-versions], [`Delete`][delete], [`Delete Versions`][delete-versions] |
+| Measurements           | [`Get`][get], [`List`][list]                                                                                                                                                                                                               |
+| MessageLogs            | [`Get`][get], [`List`][list]                                                                                                                                                                                                               |
+| Messages               | [`Get`][get], [`List`][list]                                                                                                                                                                                                               |
+| Participants           | [`Create`][create], [`Create Versions`][create-versions], [`Get`][get], [`Get Versions`][get-versions], [`List`][list], [`Update`][update], [`Update Versions`][update-versions], [`Delete`][delete], [`Delete Versions`][delete-versions] |
+| PaymentMappings        | [`Create`][create], [`Get`][get], [`List`][list], [`Update`][update], [`Delete`][delete]                                                                                                                                                   |
+| Payments               | [`Get`][get], [`List`][list]                                                                                                                                                                                                               |
+| PatmentSummarys        | [`Get`][get], [`List`][list]                                                                                                                                                                                                               |
+| Periods                | [`Create`][create], [`Get`][get], [`List`][list], [`Update`][update], [`Delete`][delete]                                                                                                                                                   |
+| Pipelines              | [`Get`][get], [`List`][list], [Run Pipelines](#run-pipelines) (see below)                                                                                                                                                                  |
+| Plans                  | [`Get`][get], [`List`][list]                                                                                                                                                                                                               |
+| PositionGroups         | [`Create`][create], [`Get`][get], [`List`][list], [`Update`][update], [`Delete`][delete]                                                                                                                                                   |
+| PositionRelations      | [`Create`][create], [`Create Versions`][create-versions], [`Get`][get], [`Get Versions`][get-versions], [`List`][list], [`Update`][update], [`Update Versions`][update-versions], [`Delete`][delete], [`Delete Versions`][delete-versions] |
+| PositionRelationTypes  | [`Create`][create], [`Get`][get], [`List`][list], [`Update`][update], [`Delete`][delete]                                                                                                                                                   |
+| Positions              | [`Create`][create], [`Create Versions`][create-versions], [`Get`][get], [`Get Versions`][get-versions], [`List`][list], [`Update`][update], [`Update Versions`][update-versions], [`Delete`][delete], [`Delete Versions`][delete-versions] |
+| PrimaryMeasurements    | [`Get`][get], [`List`][list]                                                                                                                                                                                                               |
+| ProcessingUnits        | [`Create`][create], [`Get`][get], [`List`][list], [`Update`][update]                                                                                                                                                                       |
+| Products               | [`Create`][create], [`Create Versions`][create-versions], [`Get`][get], [`Get Versions`][get-versions], [`List`][list], [`Update`][update], [`Update Versions`][update-versions], [`Delete`][delete], [`Delete Versions`][delete-versions] |
+| Quotas                 | [`Create`][create], [`Get`][get], [`List`][list], [`Update`][update], [`Delete`][delete]                                                                                                                                                   |
+| RateTables             | [`Get`][get], [`List`][list]                                                                                                                                                                                                               |
+| RateTableVariables     | [`Create`][create], [`Create Versions`][create-versions], [`Get`][get], [`Get Versions`][get-versions], [`List`][list], [`Update`][update], [`Update Versions`][update-versions], [`Delete`][delete], [`Delete Versions`][delete-versions] |
+| Reasons                | [`Create`][create], [`Get`][get], [`List`][list], [`Update`][update], [`Delete`][delete]                                                                                                                                                   |
+| SalesOrders            | [`Create`][create], [`Get`][get], [`List`][list], [`Update`][update], [`Delete`][delete]                                                                                                                                                   |
+| SalesTransactions      | [`Create`][create], [`Get`][get], [`List`][list], [`Update`][update], [`Delete`][delete]                                                                                                                                                   |
+| SecondaryMeasurements  | [`Get`][get], [`List`][list]                                                                                                                                                                                                               |
+| StatusCodes            | [`Create`][create], [`Get`][get], [`List`][list], [`Update`][update], [`Delete`][delete]                                                                                                                                                   |
+| Territories            | [`Create`][create], [`Create Versions`][create-versions], [`Get`][get], [`Get Versions`][get-versions], [`List`][list], [`Update`][update], [`Update Versions`][update-versions], [`Delete`][delete], [`Delete Versions`][delete-versions] |
+| TerritoryVariables     | [`Create`][create], [`Create Versions`][create-versions], [`Get`][get], [`Get Versions`][get-versions], [`List`][list], [`Update`][update], [`Update Versions`][update-versions], [`Delete`][delete], [`Delete Versions`][delete-versions] |
+| Titles                 | [`Create`][create], [`Create Versions`][create-versions], [`Get`][get], [`Get Versions`][get-versions], [`List`][list], [`Update`][update], [`Update Versions`][update-versions], [`Delete`][delete], [`Delete Versions`][delete-versions] |
+| UnitTypes              | [`Get`][get], [`List`][list]                                                                                                                                                                                                               |
+| Users                  | [`Create`][create], [`Get`][get], [`List`][list], [`Update`][update], [`Delete`][delete]                                                                                                                                                   |
+| Variables              | [`Create`][create], [`Create Versions`][create-versions], [`Get`][get], [`Get Versions`][get-versions], [`List`][list], [`Update`][update], [`Update Versions`][update-versions], [`Delete`][delete], [`Delete Versions`][delete-versions] |
+
+## Run Pipelines
+
+Apart from the [`Get`][get] and [`List`][list] methods, you can also run various pipelines.
+
+### Generate Reports
+
+Run Reports Generation pipeline.
+
+```py
+Pipelines(env).generate_reports(...)
+```
 
-- [Create](README.md#create)
-- [Get](README.md#get)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Delete](README.md#delete)
+| Argument          | Type                 | Required | Description                                                             |
+| ----------------- | -------------------- | -------- | ----------------------------------------------------------------------- |
+| calendarSeq       | `str`                | True     | Calendar system identifier                                              |
+| periodSeq         | `str`                | True     | Period system identifier                                                |
+| formats           | `list[ReportFormat]` | True     | List of report formats                                                  |
+| reports           | `list[str]`          | True     | List of report names                                                    |
+| groups            | `list[str]`          | False    | List of BO group names. Use either groups or positionSeqs parameter.    |
+| positionSeqs      | `list[str]`          | False    | List of position system identifiers. Use either groups or positionSeqs. |
+| runStats          | `bool`               | False    | Run statistics, default is True.                                        |
+| processingUnitSeq | `str`                | False    | Processing Unit system identifier, required if enabled.                 |
+
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
+
+### Classify
+
+Run Classify pipeline.
+
+```py
+Pipelines(env).classify(...)
+```
+
+| Argument          | Type   | Required | Description                                                   |
+| ----------------- | ------ | -------- | ------------------------------------------------------------- |
+| calendarSeq       | `str`  | True     | Calendar system identifier                                    |
+| periodSeq         | `str`  | True     | Period system identifier                                      |
+| incremental       | `bool` | False    | Only process new and modified transactions. Default is False. |
+| runStats          | `bool` | False    | Run statistics, default is True.                              |
+| processingUnitSeq | `str`  | False    | Processing Unit system identifier, required if enabled.       |
+
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
+
+### Allocate
+
+Run Allocate pipeline.
+
+```py
+Pipelines(env).allocate(...)
+```
+
+| Argument          | Type        | Required | Description                                                   |
+| ----------------- | ----------- | -------- | ------------------------------------------------------------- |
+| calendarSeq       | `str`       | True     | Calendar system identifier                                    |
+| periodSeq         | `str`       | True     | Period system identifier                                      |
+| incremental       | `bool`      | False    | Only process new and modified transactions. Default is False. |
+| positionSeqs      | `list[str]` | False    | Run for specific positions. Provide a list of positionSeq.    |
+| runStats          | `bool`      | False    | Run statistics, default is True.                              |
+| processingUnitSeq | `str`       | False    | Processing Unit system identifier, required if enabled.       |
+
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
+
+### Reward
+
+Run Reward pipeline.
+
+```py
+Pipelines(env).reward(...)
+```
+
+| Argument          | Type        | Required | Description                                                |
+| ----------------- | ----------- | -------- | ---------------------------------------------------------- |
+| calendarSeq       | `str`       | True     | Calendar system identifier                                 |
+| periodSeq         | `str`       | True     | Period system identifier                                   |
+| positionSeqs      | `list[str]` | False    | Run for specific positions. Provide a list of positionSeq. |
+| runStats          | `bool`      | False    | Run statistics, default is True.                           |
+| processingUnitSeq | `str`       | False    | Processing Unit system identifier, required if enabled.    |
+
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
+
+### Pay
+
+Run Pay pipeline.
+
+```py
+Pipelines(env).pay(...)
+```
+
+| Argument          | Type   | Required | Description                                             |
+| ----------------- | ------ | -------- | ------------------------------------------------------- |
+| calendarSeq       | `str`  | True     | Calendar system identifier                              |
+| periodSeq         | `str`  | True     | Period system identifier                                |
+| runStats          | `bool` | False    | Run statistics, default is True.                        |
+| processingUnitSeq | `str`  | False    | Processing Unit system identifier, required if enabled. |
+
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
+
+### Summarize
+
+Run Summarize pipeline, combination of [classify](#classify) and [allocate](#allocate).
+
+```py
+Pipelines(env).summarize(...)
+```
+
+| Argument          | Type        | Required | Description                                                   |
+| ----------------- | ----------- | -------- | ------------------------------------------------------------- |
+| calendarSeq       | `str`       | True     | Calendar system identifier                                    |
+| periodSeq         | `str`       | True     | Period system identifier                                      |
+| incremental       | `bool`      | False    | Only process new and modified transactions. Default is False. |
+| positionSeqs      | `list[str]` | False    | Run for specific positions. Provide a list of positionSeq.    |
+| runStats          | `bool`      | False    | Run statistics, default is True.                              |
+| processingUnitSeq | `str`       | False    | Processing Unit system identifier, required if enabled.       |
+
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
+
+### Compensate
+
+Run Compensate pipeline, combination of [classify](#classify), [allocate](#allocate) and [reward](#reward).
+
+```py
+Pipelines(env).compensate(...)
+```
+
+| Argument           | Type        | Required | Description                                                   |
+| ------------------ | ----------- | -------- | ------------------------------------------------------------- |
+| calendarSeq        | `str`       | True     | Calendar system identifier                                    |
+| periodSeq          | `str`       | True     | Period system identifier                                      |
+| incremental        | `bool`      | False    | Only process new and modified transactions. Default is False. |
+| positionSeqs       | `list[str]` | False    | Run for specific positions. Provide a list of positionSeq.    |
+| removeStaleResults | `bool`      | False    | Enable remove stale results. Default is False.                |
+| runStats           | `bool`      | False    | Run statistics, default is True.                              |
+| processingUnitSeq  | `str`       | False    | Processing Unit system identifier, required if enabled.       |
+
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
+
+### Compensate and Pay
+
+Run Compensate and Pay pipeline, full calculation pipeline.
 
-## EarningGroups
+```py
+Pipelines(env).comp_and_pay(...)
+```
 
-- [Create](README.md#create)
-- [Get](README.md#get)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Delete](README.md#delete)
-
-## EventTypes
-
-- [Create](README.md#create)
-- [Get](README.md#get)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Delete](README.md#delete)
+| Argument           | Type        | Required | Description                                                   |
+| ------------------ | ----------- | -------- | ------------------------------------------------------------- |
+| calendarSeq        | `str`       | True     | Calendar system identifier                                    |
+| periodSeq          | `str`       | True     | Period system identifier                                      |
+| incremental        | `bool`      | False    | Only process new and modified transactions. Default is False. |
+| positionSeqs       | `list[str]` | False    | Run for specific positions. Provide a list of positionSeq.    |
+| removeStaleResults | `bool`      | False    | Enable remove stale results. Default is False.                |
+| runStats           | `bool`      | False    | Run statistics, default is True.                              |
+| processingUnitSeq  | `str`       | False    | Processing Unit system identifier, required if enabled.       |
+
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
 
-## FixedValues
+### Post
 
-- [Create](README.md#create)
-- [Create Versions](README.md#create-versions)
-- [Get](README.md#get)
-- [Get Versions](README.md#get-versions)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Update Versions](README.md#update-versions)
-- [Delete](README.md#delete)
-- [Delete Versions](README.md#delete-versions)
+Run Post pipeline.
 
-## FixValueTypes
+```py
+Pipelines(env).post(...)
+```
+
+| Argument          | Type   | Required | Description                                             |
+| ----------------- | ------ | -------- | ------------------------------------------------------- |
+| calendarSeq       | `str`  | True     | Calendar system identifier                              |
+| periodSeq         | `str`  | True     | Period system identifier                                |
+| runStats          | `bool` | False    | Run statistics, default is True.                        |
+| processingUnitSeq | `str`  | False    | Processing Unit system identifier, required if enabled. |
+
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
 
-- [Create](README.md#create)
-- [Get](README.md#get)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Delete](README.md#delete)
+### Undo Post
 
-## FixedValueVariables
+Run Undo Post pipeline.
 
-- [Create](README.md#create)
-- [Create Versions](README.md#create-versions)
-- [Get](README.md#get)
-- [Get Versions](README.md#get-versions)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Update Versions](README.md#update-versions)
-- [Delete](README.md#delete)
-- [Delete Versions](README.md#delete-versions)
+```py
+Pipelines(env).undo_post(...)
+```
+
+| Argument          | Type   | Required | Description                                             |
+| ----------------- | ------ | -------- | ------------------------------------------------------- |
+| calendarSeq       | `str`  | True     | Calendar system identifier                              |
+| periodSeq         | `str`  | True     | Period system identifier                                |
+| runStats          | `bool` | False    | Run statistics, default is True.                        |
+| processingUnitSeq | `str`  | False    | Processing Unit system identifier, required if enabled. |
 
-## Formulas
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
 
-- [Get](README.md#get)
-- [List](README.md#list)
+### Finalize
 
-## GenericClassifiers
+Run Finalize pipeline.
 
-- [Create](README.md#create)
-- [Create Versions](README.md#create-versions)
-- [Get](README.md#get)
-- [Get Versions](README.md#get-versions)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Update Versions](README.md#update-versions)
-- [Delete](README.md#delete)
-- [Delete Versions](README.md#delete-versions)
+```py
+Pipelines(env).finalize(...)
+```
 
-## GenericClassifierTypes
+| Argument          | Type   | Required | Description                                             |
+| ----------------- | ------ | -------- | ------------------------------------------------------- |
+| calendarSeq       | `str`  | True     | Calendar system identifier                              |
+| periodSeq         | `str`  | True     | Period system identifier                                |
+| runStats          | `bool` | False    | Run statistics, default is True.                        |
+| processingUnitSeq | `str`  | False    | Processing Unit system identifier, required if enabled. |
 
-- [Get](README.md#get)
-- [List](README.md#list)
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
 
-## GlobalFieldNames
+### Undo Finalize
 
-- [Create](README.md#create)
-- [Get](README.md#get)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Delete](README.md#delete)
+Run Undo Finalize pipeline.
 
-## Groups
+```py
+Pipelines(env).undo_finalize(...)
+```
 
-- [Create](README.md#create)
-- [Get](README.md#get)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Delete](README.md#delete)
+| Argument          | Type   | Required | Description                                             |
+| ----------------- | ------ | -------- | ------------------------------------------------------- |
+| calendarSeq       | `str`  | True     | Calendar system identifier                              |
+| periodSeq         | `str`  | True     | Period system identifier                                |
+| runStats          | `bool` | False    | Run statistics, default is True.                        |
+| processingUnitSeq | `str`  | False    | Processing Unit system identifier, required if enabled. |
 
-## Incentives
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
 
-- [Get](README.md#get)
-- [List](README.md#list)
+### Reset From Classify
 
-## LookUpTables
+Run Reset From Classify pipeline.
 
-- [Get](README.md#get)
-- [List](README.md#list)
+```py
+Pipelines(env).reset_from_classify(...)
+```
 
-## LookUpTableVariables
+| Argument          | Type   | Required | Description                                             |
+| ----------------- | ------ | -------- | ------------------------------------------------------- |
+| calendarSeq       | `str`  | True     | Calendar system identifier                              |
+| periodSeq         | `str`  | True     | Period system identifier                                |
+| runStats          | `bool` | False    | Run statistics, default is True.                        |
+| processingUnitSeq | `str`  | False    | Processing Unit system identifier, required if enabled. |
 
-- [Create](README.md#create)
-- [Create Versions](README.md#create-versions)
-- [Get](README.md#get)
-- [Get Versions](README.md#get-versions)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Update Versions](README.md#update-versions)
-- [Delete](README.md#delete)
-- [Delete Versions](README.md#delete-versions)
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
 
-## Measurements
+### Reset From Allocate
 
-- [Get](README.md#get)
-- [List](README.md#list)
+Run Reset From Allocate pipeline.
 
-## MessageLogs
+```py
+Pipelines(env).reset_from_allocate(...)
+```
 
-- [Get](README.md#get)
-- [List](README.md#list)
+| Argument          | Type   | Required | Description                                             |
+| ----------------- | ------ | -------- | ------------------------------------------------------- |
+| calendarSeq       | `str`  | True     | Calendar system identifier                              |
+| periodSeq         | `str`  | True     | Period system identifier                                |
+| runStats          | `bool` | False    | Run statistics, default is True.                        |
+| processingUnitSeq | `str`  | False    | Processing Unit system identifier, required if enabled. |
 
-## Messages
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
 
-- [Get](README.md#get)
-- [List](README.md#list)
+### Reset From Reward
 
-## Participants
+Run Reset From Reward pipeline.
 
-- [Create](README.md#create)
-- [Create Versions](README.md#create-versions)
-- [Get](README.md#get)
-- [Get Versions](README.md#get-versions)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Update Versions](README.md#update-versions)
-- [Delete](README.md#delete)
-- [Delete Versions](README.md#delete-versions)
+```py
+Pipelines(env).reset_from_reward(...)
+```
 
-## PaymentMappings
+| Argument          | Type   | Required | Description                                             |
+| ----------------- | ------ | -------- | ------------------------------------------------------- |
+| calendarSeq       | `str`  | True     | Calendar system identifier                              |
+| periodSeq         | `str`  | True     | Period system identifier                                |
+| runStats          | `bool` | False    | Run statistics, default is True.                        |
+| processingUnitSeq | `str`  | False    | Processing Unit system identifier, required if enabled. |
 
-- [Create](README.md#create)
-- [Get](README.md#get)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Delete](README.md#delete)
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
 
-## Payments
+### Reset From Pay
 
-- [Get](README.md#get)
-- [List](README.md#list)
+Run Reset From Pay pipeline.
 
-## PatmentSummarys
+```py
+Pipelines(env).reset_from_pay(...)
+```
 
-- [Get](README.md#get)
-- [List](README.md#list)
+| Argument          | Type   | Required | Description                                             |
+| ----------------- | ------ | -------- | ------------------------------------------------------- |
+| calendarSeq       | `str`  | True     | Calendar system identifier                              |
+| periodSeq         | `str`  | True     | Period system identifier                                |
+| runStats          | `bool` | False    | Run statistics, default is True.                        |
+| processingUnitSeq | `str`  | False    | Processing Unit system identifier, required if enabled. |
 
-## Periods
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
 
-- [Create](README.md#create)
-- [Get](README.md#get)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Delete](README.md#delete)
+### Cleanup Deffered Results
 
-## Pipelines
+Run Cleanup Deffered Results pipeline.
 
-- [Get](README.md#get)
-- [List](README.md#list)
+```py
+Pipelines(env).cleanup_deferred_results(...)
+```
 
-## Plans
+| Argument          | Type  | Required | Description                                             |
+| ----------------- | ----- | -------- | ------------------------------------------------------- |
+| calendarSeq       | `str` | True     | Calendar system identifier                              |
+| periodSeq         | `str` | True     | Period system identifier                                |
+| processingUnitSeq | `str` | False    | Processing Unit system identifier, required if enabled. |
 
-- [Get](README.md#get)
-- [List](README.md#list)
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
 
-## PositionGroups
+### Approve Calculated Data
 
-- [Create](README.md#create)
-- [Get](README.md#get)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Delete](README.md#delete)
+Run Approve Calculated Data pipeline.
 
-## PositionRelations
+```py
+Pipelines(env).approve_calculated_data(...)
+```
 
-- [Create](README.md#create)
-- [Create Versions](README.md#create-versions)
-- [Get](README.md#get)
-- [Get Versions](README.md#get-versions)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Update Versions](README.md#update-versions)
-- [Delete](README.md#delete)
-- [Delete Versions](README.md#delete-versions)
+| Argument          | Type  | Required | Description                                             |
+| ----------------- | ----- | -------- | ------------------------------------------------------- |
+| calendarSeq       | `str` | True     | Calendar system identifier                              |
+| periodSeq         | `str` | True     | Period system identifier                                |
+| processingUnitSeq | `str` | False    | Processing Unit system identifier, required if enabled. |
 
-## PositionRelationTypes
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
 
-- [Create](README.md#create)
-- [Get](README.md#get)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Delete](README.md#delete)
+### Purge Approved Data
 
-## Positions
+Run Purge Approved Data pipeline.
 
-- [Create](README.md#create)
-- [Create Versions](README.md#create-versions)
-- [Get](README.md#get)
-- [Get Versions](README.md#get-versions)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Update Versions](README.md#update-versions)
-- [Delete](README.md#delete)
-- [Delete Versions](README.md#delete-versions)
+```py
+Pipelines(env).purge_approved_data(...)
+```
 
-## PrimaryMeasurements
+| Argument          | Type  | Required | Description                                             |
+| ----------------- | ----- | -------- | ------------------------------------------------------- |
+| calendarSeq       | `str` | True     | Calendar system identifier                              |
+| periodSeq         | `str` | True     | Period system identifier                                |
+| processingUnitSeq | `str` | False    | Processing Unit system identifier, required if enabled. |
 
-- [Get](README.md#get)
-- [List](README.md#list)
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
 
-## ProcessingUnits
+### Update Analytics
 
-- [Create](README.md#create)
-- [Get](README.md#get)
-- [List](README.md#list)
-- [Update](README.md#update)
-
-## Products
+Run Update Analytics pipeline.
 
-- [Create](README.md#create)
-- [Create Versions](README.md#create-versions)
-- [Get](README.md#get)
-- [Get Versions](README.md#get-versions)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Update Versions](README.md#update-versions)
-- [Delete](README.md#delete)
-- [Delete Versions](README.md#delete-versions)
-
-## Quotas
-
-- [Create](README.md#create)
-- [Get](README.md#get)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Delete](README.md#delete)
-
-## RateTables
-
-- [Get](README.md#get)
-- [List](README.md#list)
-
-## RateTableVariables
+```py
+Pipelines(env).update_analytics(...)
+```
 
-- [Create](README.md#create)
-- [Create Versions](README.md#create-versions)
-- [Get](README.md#get)
-- [Get Versions](README.md#get-versions)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Update Versions](README.md#update-versions)
-- [Delete](README.md#delete)
-- [Delete Versions](README.md#delete-versions)
-
-## Reasons
-
-- [Create](README.md#create)
-- [Get](README.md#get)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Delete](README.md#delete)
-
-## SalesOrders
-
-- [Create](README.md#create)
-- [Get](README.md#get)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Delete](README.md#delete)
-
-## SalesTransactions
-
-- [Create](README.md#create)
-- [Get](README.md#get)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Delete](README.md#delete)
-
-## SecondaryMeasurements
-
-- [Get](README.md#get)
-- [List](README.md#list)
-
-## StatusCodes
-
-- [Create](README.md#create)
-- [Get](README.md#get)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Delete](README.md#delete)
-
-## Territories
-
-- [Create](README.md#create)
-- [Create Versions](README.md#create-versions)
-- [Get](README.md#get)
-- [Get Versions](README.md#get-versions)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Update Versions](README.md#update-versions)
-- [Delete](README.md#delete)
-- [Delete Versions](README.md#delete-versions)
-
-## TerritoryVariables
-
-- [Create](README.md#create)
-- [Create Versions](README.md#create-versions)
-- [Get](README.md#get)
-- [Get Versions](README.md#get-versions)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Update Versions](README.md#update-versions)
-- [Delete](README.md#delete)
-- [Delete Versions](README.md#delete-versions)
-
-## Titles
-
-- [Create](README.md#create)
-- [Create Versions](README.md#create-versions)
-- [Get](README.md#get)
-- [Get Versions](README.md#get-versions)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Update Versions](README.md#update-versions)
-- [Delete](README.md#delete)
-- [Delete Versions](README.md#delete-versions)
-
-## UnitTypes
-
-- [Get](README.md#get)
-- [List](README.md#list)
-
-## Users
-
-- [Create](README.md#create)
-- [Get](README.md#get)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Delete](README.md#delete)
-
-## Variables
-
-- [Create](README.md#create)
-- [Create Versions](README.md#create-versions)
-- [Get](README.md#get)
-- [Get Versions](README.md#get-versions)
-- [List](README.md#list)
-- [Update](README.md#update)
-- [Update Versions](README.md#update-versions)
-- [Delete](README.md#delete)
-- [Delete Versions](README.md#delete-versions)
+| Argument          | Type   | Required | Description                                             |
+| ----------------- | ------ | -------- | ------------------------------------------------------- |
+| calendarSeq       | `str`  | True     | Calendar system identifier                              |
+| periodSeq         | `str`  | True     | Period system identifier                                |
+| runStats          | `bool` | False    | Run statistics, default is True.                        |
+| processingUnitSeq | `str`  | False    | Processing Unit system identifier, required if enabled. |
+
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
+
+### Validate
+
+Validate data from stage.
+
+```py
+Pipelines(env).validate(...)
+```
+
+| Argument          | Type            | Required | Description                                                                          |
+| ----------------- | --------------- | -------- | ------------------------------------------------------------------------------------ |
+| calendarSeq       | `str`           | True     | Calendar system identifier                                                           |
+| batchName         | `str`           | True     | Batch name.                                                                          |
+| runMode           | `ImportRunMode` | False    | Import all or only new and modified data. Default: ALL.                              |
+| revalidate        | `Revalidate`    | False    | Revalidate all or only errors if provided. Do not revalidate if None. Default: None. |
+| runStats          | `bool`          | False    | Run statistics, default is True.                                                     |
+| processingUnitSeq | `str`           | False    | Processing Unit system identifier, required if enabled.                              |
+
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
+
+### Transfer
+
+Transfer data from stage, leave invalid data.
+
+```py
+Pipelines(env).transfer(...)
+```
+
+| Argument          | Type            | Required | Description                                                                          |
+| ----------------- | --------------- | -------- | ------------------------------------------------------------------------------------ |
+| calendarSeq       | `str`           | True     | Calendar system identifier                                                           |
+| batchName         | `str`           | True     | Batch name.                                                                          |
+| runMode           | `ImportRunMode` | False    | Import all or only new and modified data. Default: ALL.                              |
+| revalidate        | `Revalidate`    | False    | Revalidate all or only errors if provided. Do not revalidate if None. Default: None. |
+| runStats          | `bool`          | False    | Run statistics, default is True.                                                     |
+| processingUnitSeq | `str`           | False    | Processing Unit system identifier, required if enabled.                              |
+
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
+
+### Transfer If All Valid
+
+Transfer data from stage only if all data is valid.
+
+```py
+Pipelines(env).transfer_if_all_valid(...)
+```
+
+| Argument          | Type            | Required | Description                                                                          |
+| ----------------- | --------------- | -------- | ------------------------------------------------------------------------------------ |
+| calendarSeq       | `str`           | True     | Calendar system identifier                                                           |
+| batchName         | `str`           | True     | Batch name.                                                                          |
+| runMode           | `ImportRunMode` | False    | Import all or only new and modified data. Default: ALL.                              |
+| revalidate        | `Revalidate`    | False    | Revalidate all or only errors if provided. Do not revalidate if None. Default: None. |
+| runStats          | `bool`          | False    | Run statistics, default is True.                                                     |
+| processingUnitSeq | `str`           | False    | Processing Unit system identifier, required if enabled.                              |
+
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
+
+### Validate and Transfer
+
+Validate and Transfer data from stage, leave invalid data.
+
+```py
+Pipelines(env).validate_and_transfer(...)
+```
+
+| Argument          | Type            | Required | Description                                                                          |
+| ----------------- | --------------- | -------- | ------------------------------------------------------------------------------------ |
+| calendarSeq       | `str`           | True     | Calendar system identifier                                                           |
+| batchName         | `str`           | True     | Batch name.                                                                          |
+| runMode           | `ImportRunMode` | False    | Import all or only new and modified data. Default: ALL.                              |
+| revalidate        | `Revalidate`    | False    | Revalidate all or only errors if provided. Do not revalidate if None. Default: None. |
+| runStats          | `bool`          | False    | Run statistics, default is True.                                                     |
+| processingUnitSeq | `str`           | False    | Processing Unit system identifier, required if enabled.                              |
+
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
+
+### Validate and Transfer If All Valid
+
+Validate and Transfer data from stage, leave invalid data.
+
+```py
+Pipelines(env).validate_and_transfer_if_all_valid(...)
+```
+
+| Argument          | Type            | Required | Description                                                                          |
+| ----------------- | --------------- | -------- | ------------------------------------------------------------------------------------ |
+| calendarSeq       | `str`           | True     | Calendar system identifier                                                           |
+| batchName         | `str`           | True     | Batch name.                                                                          |
+| runMode           | `ImportRunMode` | False    | Import all or only new and modified data. Default: ALL.                              |
+| revalidate        | `Revalidate`    | False    | Revalidate all or only errors if provided. Do not revalidate if None. Default: None. |
+| runStats          | `bool`          | False    | Run statistics, default is True.                                                     |
+| processingUnitSeq | `str`           | False    | Processing Unit system identifier, required if enabled.                              |
+
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
+
+### Reset From Validate
+
+Run Reset From Validate.
+
+```py
+Pipelines(env).reset_from_validate(...)
+```
+
+| Argument          | Type   | Required | Description                                             |
+| ----------------- | ------ | -------- | ------------------------------------------------------- |
+| calendarSeq       | `str`  | True     | Calendar system identifier                              |
+| periodSeq         | `str`  | True     | Period system identifier                                |
+| batchName         | `str`  | True     | Batch name.                                             |
+| runStats          | `bool` | False    | Run statistics, default is True.                        |
+| processingUnitSeq | `str`  | False    | Processing Unit system identifier, required if enabled. |
+
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
+
+### Purge
+
+Run Purge import data.
+
+```py
+Pipelines(env).purge(...)
+```
+
+| Argument  | Type  | Required | Description |
+| --------- | ----- | -------- | ----------- |
+| batchName | `str` | True     | Batch name. |
+
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
+
+### XML Import
+
+Run XML Import.
+
+```py
+Pipelines(env).xml_import(...)
+```
+
+| Argument              | Type   | Required | Description                                 |
+| --------------------- | ------ | -------- | ------------------------------------------- |
+| xmlFileName           | `str`  | True     | Filename of imported file.                  |
+| xmlFileContent        | `str`  | True     | File content of imported file.              |
+| updateExistingObjects | `bool` | False    | Update existing opbjects. Default is False. |
+
+| Returns    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Pipeline` | `Pipeline` instance containing only the pipelineRunSeq. |
+
+<!-- Links -->
+
+[create]: README.md#create
+[create-versions]: README.md#create-versions
+[get]: README.md#get
+[get-versions]: README.md#get-versions
+[list]: README.md#list
+[update]: README.md#update
+[update-versions]: README.md#update-versions
+[delete]: README.md#delete
+[delete-versions]: README.md#delete-versions

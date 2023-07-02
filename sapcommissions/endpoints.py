@@ -898,6 +898,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             List of BO groups names. Use either groups or positionSeqs.
         positionSeqs : list[str] : Optional
             List of position system identifiers. Use either groups or positionSeqs.
+        runStats : bool : optional
+            Run statistics.
         processingUnitSeq : str : optional
             Processing Unit system identifier.
         """
@@ -952,6 +954,10 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             Calendar system identifier.
         periodSeq : str
             Period system identifier.
+        incremental : bool : optional
+            Only process new and modified transactions. Default is False.
+        runStats : bool : optional
+            Run statistics.
         processingUnitSeq : str : optional
             Processing Unit system identifier.
         """
@@ -984,6 +990,12 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             Calendar system identifier.
         periodSeq : str
             Period system identifier.
+        incremental : bool : optional
+            Only process new and modified transactions. Default is False.
+        positionSeqs : list[str] : optional
+            Run for specific positions. Provide a list of positionSeq.
+        runStats : bool : optional
+            Run statistics.
         processingUnitSeq : str : optional
             Processing Unit system identifier.
         """
@@ -1016,6 +1028,10 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             Calendar system identifier.
         periodSeq : str
             Period system identifier.
+        positionSeqs : list[str] : optional
+            Run for specific positions. Provide a list of positionSeq.
+        runStats : bool : optional
+            Run statistics.
         processingUnitSeq : str : optional
             Processing Unit system identifier.
         """
@@ -1073,6 +1089,12 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             Calendar system identifier.
         periodSeq : str
             Period system identifier.
+        incremental : bool : optional
+            Only process new and modified transactions. Default is False.
+        positionSeqs : list[str] : optional
+            Run for specific positions. Provide a list of positionSeq.
+        runStats : bool : optional
+            Run statistics.
         processingUnitSeq : str : optional
             Processing Unit system identifier.
         """
@@ -1107,6 +1129,14 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             Calendar system identifier.
         periodSeq : str
             Period system identifier.
+        incremental : bool : optional
+            Only process new and modified transactions. Default is False.
+        positionSeqs : list[str] : optional
+            Run for specific positions. Provide a list of positionSeq.
+        removeStaleResults: bool : Optional
+            Enable remove stale results. Default is False.
+        runStats : bool : optional
+            Run statistics.
         processingUnitSeq : str : optional
             Processing Unit system identifier.
         """
@@ -1142,6 +1172,14 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             Calendar system identifier.
         periodSeq : str
             Period system identifier.
+        incremental : bool : optional
+            Only process new and modified transactions. Default is False.
+        positionSeqs : list[str] : optional
+            Run for specific positions. Provide a list of positionSeq.
+        removeStaleResults: bool : Optional
+            Enable remove stale results. Default is False.
+        runStats : bool : optional
+            Run statistics.
         processingUnitSeq : str : optional
             Processing Unit system identifier.
         """
@@ -1174,6 +1212,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             Calendar system identifier.
         periodSeq : str
             Period system identifier.
+        runStats : bool : optional
+            Run statistics.
         processingUnitSeq : str : optional
             Processing Unit system identifier.
         """
@@ -1201,6 +1241,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             Calendar system identifier.
         periodSeq : str
             Period system identifier.
+        runStats : bool : optional
+            Run statistics.
         processingUnitSeq : str : optional
             Processing Unit system identifier.
         """
@@ -1228,6 +1270,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             Calendar system identifier.
         periodSeq : str
             Period system identifier.
+        runStats : bool : optional
+            Run statistics.
         processingUnitSeq : str : optional
             Processing Unit system identifier.
         """
@@ -1255,6 +1299,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             Calendar system identifier.
         periodSeq : str
             Period system identifier.
+        runStats : bool : optional
+            Run statistics.
         processingUnitSeq : str : optional
             Processing Unit system identifier.
         """
@@ -1282,6 +1328,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             Calendar system identifier.
         periodSeq : str
             Period system identifier.
+        runStats : bool : optional
+            Run statistics.
         processingUnitSeq : str : optional
             Processing Unit system identifier.
         """
@@ -1309,6 +1357,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             Calendar system identifier.
         periodSeq : str
             Period system identifier.
+        runStats : bool : optional
+            Run statistics.
         processingUnitSeq : str : optional
             Processing Unit system identifier.
         """
@@ -1336,6 +1386,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             Calendar system identifier.
         periodSeq : str
             Period system identifier.
+        runStats : bool : optional
+            Run statistics.
         processingUnitSeq : str : optional
             Processing Unit system identifier.
         """
@@ -1363,6 +1415,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             Calendar system identifier.
         periodSeq : str
             Period system identifier.
+        runStats : bool : optional
+            Run statistics.
         processingUnitSeq : str : optional
             Processing Unit system identifier.
         """
@@ -1456,6 +1510,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             Calendar system identifier.
         periodSeq : str
             Period system identifier.
+        runStats : bool : optional
+            Run statistics.
         processingUnitSeq : str : optional
             Processing Unit system identifier.
         """
@@ -1509,7 +1565,25 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         runStats: bool = True,
         processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
-        """Validate data from stage."""
+        """
+        Validate data from stage.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        batchName : str
+            Batch name.
+        runMode : ImportRunMode : optional
+            Import all or only new and modified data. Default: ALL.
+        revalidate : Revalidate : optional
+            Revalidate all or only errors if provided. Do not revalidate if None.
+            Default: None.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
         return self._run_import(
             stageTypeSeq="21673573206720533",
             calendarSeq=calendarSeq,
@@ -1529,7 +1603,25 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         runStats: bool = True,
         processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
-        """Transfer data from stage, leave invalid data."""
+        """
+        Transfer data from stage, leave invalid data.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        batchName : str
+            Batch name.
+        runMode : ImportRunMode : optional
+            Import all or only new and modified data. Default: ALL.
+        revalidate : Revalidate : optional
+            Revalidate all or only errors if provided. Do not revalidate if None.
+            Default: None.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
         return self._run_import(
             stageTypeSeq="21673573206720534",
             calendarSeq=calendarSeq,
@@ -1549,7 +1641,25 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         runStats: bool = True,
         processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
-        """Transfer data from stage only if all data is valid."""
+        """
+        Transfer data from stage only if all data is valid.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        batchName : str
+            Batch name.
+        runMode : ImportRunMode : optional
+            Import all or only new and modified data. Default: ALL.
+        revalidate : Revalidate : optional
+            Revalidate all or only errors if provided. Do not revalidate if None.
+            Default: None.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
         return self._run_import(
             stageTypeSeq="21673573206720535",
             calendarSeq=calendarSeq,
@@ -1569,7 +1679,25 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         runStats: bool = True,
         processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
-        """Validate and Transfer data from stage."""
+        """
+        Validate and Transfer data from stage, leave invalid data.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        batchName : str
+            Batch name.
+        runMode : ImportRunMode : optional
+            Import all or only new and modified data. Default: ALL.
+        revalidate : Revalidate : optional
+            Revalidate all or only errors if provided. Do not revalidate if None.
+            Default: None.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
         return self._run_import(
             stageTypeSeq="21673573206720536",
             calendarSeq=calendarSeq,
@@ -1589,7 +1717,25 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         runStats: bool = True,
         processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
-        """Validate and Transfer data from stage only if all data is valid."""
+        """
+        Validate and Transfer data from stage only if all data is valid.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        batchName : str
+            Batch name.
+        runMode : ImportRunMode : optional
+            Import all or only new and modified data. Default: ALL.
+        revalidate : Revalidate : optional
+            Revalidate all or only errors if provided. Do not revalidate if None.
+            Default: None.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
         return self._run_import(
             stageTypeSeq="21673573206720537",
             calendarSeq=calendarSeq,
@@ -1608,7 +1754,22 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         runStats: bool = True,
         processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
-        """Run Reset From Validate."""
+        """
+        Run Reset From Validate.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        batchName : str
+            Batch name.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
         command = {
             "calendarSeq": calendarSeq,
             "periodSeq": periodSeq,
@@ -1627,6 +1788,11 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
     def purge(self, batchName: str):
         """
         Run Purge import data.
+
+        Parameters
+        ----------
+        batchName : str
+            Batch name.
         """
         stage_tables = _stage_tables(batchName)
         command = {
@@ -1647,6 +1813,15 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
     ):
         """
         Run XML Import.
+
+        Parameters
+        ----------
+        xmlFileName : str
+            Filename of imported file.
+        xmlFileContent : str
+            File content of imported file.
+        updateExistingObjects : bool : optional
+            Update existing opbjects. Default is False.
         """
         command = {
             "command": "XMLImport",
