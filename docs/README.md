@@ -11,6 +11,11 @@ A Python wrapper for the SAP Commissions API.
   - [Methods](#methods)
   - [Legal Disclaimer](#legal-disclaimer)
 
+If you like this project, please consider to [BuyMeACoffee](https://www.buymeacoffee.com/niro1987) or
+[contact me](mailto:niels.perfors1987@gmail.com) directly.
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/niro1987)
+
 ## Installation
 
 To install the project, run the following command:
