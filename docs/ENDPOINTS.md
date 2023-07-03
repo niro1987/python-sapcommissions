@@ -105,7 +105,20 @@ Apart from the [`Get`][get] and [`List`][list] methods, you can also run various
 Run Reports Generation pipeline.
 
 ```py
-Pipelines(env).generate_reports(...)
+# Generate Payments Report for Admin Group.
+from sapcommissions import Connection, ReportFormat
+from sapcommissions.endpoints import Periods, Pipelines
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+period = Periods(env).get_id("January 2023")
+
+pipeline = Pipelines(env).generate_reports(
+  calendarSeq=period.calendar.calendarSeq,
+  periodSeq=period.periodSeq,
+  formats=[ReportFormat.NATIVE],
+  reports=["Payments Report"],
+  groups=["CALD Compensation Reports Admin Group"],
+)
 ```
 
 | Argument          | Type                 | Required | Description                                                             |
@@ -128,7 +141,18 @@ Pipelines(env).generate_reports(...)
 Run Classify pipeline.
 
 ```py
-Pipelines(env).classify(...)
+# Classify new and modified transactions.
+from sapcommissions import Connection
+from sapcommissions.endpoints import Periods, Pipelines
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+period = Periods(env).get_id("January 2023")
+
+pipeline = Pipelines(env).classify(
+  calendarSeq=period.calendar.calendarSeq,
+  periodSeq=period.periodSeq,
+  incremental=True,
+)
 ```
 
 | Argument          | Type   | Required | Description                                                   |
@@ -148,17 +172,27 @@ Pipelines(env).classify(...)
 Run Allocate pipeline.
 
 ```py
-Pipelines(env).allocate(...)
+# Allocate all credits and calculate primary measurements.
+from sapcommissions import Connection
+from sapcommissions.endpoints import Periods, Pipelines
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+period = Periods(env).get_id("January 2023")
+
+pipeline = Pipelines(env).allocate(
+  calendarSeq=period.calendar.calendarSeq,
+  periodSeq=period.periodSeq,
+)
 ```
 
-| Argument          | Type        | Required | Description                                                   |
-| ----------------- | ----------- | -------- | ------------------------------------------------------------- |
-| calendarSeq       | `str`       | True     | Calendar system identifier                                    |
-| periodSeq         | `str`       | True     | Period system identifier                                      |
-| incremental       | `bool`      | False    | Only process new and modified transactions. Default is False. |
-| positionSeqs      | `list[str]` | False    | Run for specific positions. Provide a list of positionSeq.    |
-| runStats          | `bool`      | False    | Run statistics, default is True.                              |
-| processingUnitSeq | `str`       | False    | Processing Unit system identifier, required if enabled.       |
+| Argument          | Type        | Required | Description                                                |
+| ----------------- | ----------- | -------- | ---------------------------------------------------------- |
+| calendarSeq       | `str`       | True     | Calendar system identifier                                 |
+| periodSeq         | `str`       | True     | Period system identifier                                   |
+| incremental       | `bool`      | False    | Only process new and modified credits. Default is False.   |
+| positionSeqs      | `list[str]` | False    | Run for specific positions. Provide a list of positionSeq. |
+| runStats          | `bool`      | False    | Run statistics, default is True.                           |
+| processingUnitSeq | `str`       | False    | Processing Unit system identifier, required if enabled.    |
 
 | Returns    | Description                                             |
 | ---------- | ------------------------------------------------------- |
@@ -169,7 +203,17 @@ Pipelines(env).allocate(...)
 Run Reward pipeline.
 
 ```py
-Pipelines(env).reward(...)
+# Calculate secondary measurements, incentives and deposit values.
+from sapcommissions import Connection
+from sapcommissions.endpoints import Periods, Pipelines
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+period = Periods(env).get_id("January 2023")
+
+pipeline = Pipelines(env).reward(
+  calendarSeq=period.calendar.calendarSeq,
+  periodSeq=period.periodSeq,
+)
 ```
 
 | Argument          | Type        | Required | Description                                                |
@@ -189,7 +233,17 @@ Pipelines(env).reward(...)
 Run Pay pipeline.
 
 ```py
-Pipelines(env).pay(...)
+# Calculate payments and balances.
+from sapcommissions import Connection
+from sapcommissions.endpoints import Periods, Pipelines
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+period = Periods(env).get_id("January 2023")
+
+pipeline = Pipelines(env).pay(
+  calendarSeq=period.calendar.calendarSeq,
+  periodSeq=period.periodSeq,
+)
 ```
 
 | Argument          | Type   | Required | Description                                             |
@@ -208,7 +262,17 @@ Pipelines(env).pay(...)
 Run Summarize pipeline, combination of [classify](#classify) and [allocate](#allocate).
 
 ```py
-Pipelines(env).summarize(...)
+# Run calculations up to primary measurements.
+from sapcommissions import Connection
+from sapcommissions.endpoints import Periods, Pipelines
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+period = Periods(env).get_id("January 2023")
+
+pipeline = Pipelines(env).classify(
+  calendarSeq=period.calendar.calendarSeq,
+  periodSeq=period.periodSeq,
+)
 ```
 
 | Argument          | Type        | Required | Description                                                   |
@@ -229,7 +293,20 @@ Pipelines(env).summarize(...)
 Run Compensate pipeline, combination of [classify](#classify), [allocate](#allocate) and [reward](#reward).
 
 ```py
-Pipelines(env).compensate(...)
+# Run calculations up to deposit values, processing only new and modified transactions
+# and credits and remove stale results.
+from sapcommissions import Connection
+from sapcommissions.endpoints import Periods, Pipelines
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+period = Periods(env).get_id("January 2023")
+
+pipeline = Pipelines(env).compensate(
+  calendarSeq=period.calendar.calendarSeq,
+  periodSeq=period.periodSeq,
+  incremental=True,
+  removeStaleResults-True,
+)
 ```
 
 | Argument           | Type        | Required | Description                                                   |
@@ -251,7 +328,20 @@ Pipelines(env).compensate(...)
 Run Compensate and Pay pipeline, full calculation pipeline.
 
 ```py
-Pipelines(env).comp_and_pay(...)
+# Run Compensate and Pay for specified positions.
+from sapcommissions import Connection
+from sapcommissions.endpoints import Periods, Pipelines, Positions
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+period = Periods(env).get_id("January 2023")
+positions = Positions(env).list(filter="positionGroup/name eq 'A-Team'")
+positions_seq = [position.ruleElementOwnerSeq for position in positions]
+
+pipeline = Pipelines(env).comp_and_pay(
+  calendarSeq=period.calendar.calendarSeq,
+  periodSeq=period.periodSeq,
+  positionSeqs=positions_seq,
+)
 ```
 
 | Argument           | Type        | Required | Description                                                   |
@@ -273,7 +363,17 @@ Pipelines(env).comp_and_pay(...)
 Run Post pipeline.
 
 ```py
-Pipelines(env).post(...)
+# Post payments and calculate balances.
+from sapcommissions import Connection
+from sapcommissions.endpoints import Periods, Pipelines
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+period = Periods(env).get_id("January 2023")
+
+pipeline = Pipelines(env).post(
+  calendarSeq=period.calendar.calendarSeq,
+  periodSeq=period.periodSeq,
+)
 ```
 
 | Argument          | Type   | Required | Description                                             |
@@ -292,7 +392,17 @@ Pipelines(env).post(...)
 Run Undo Post pipeline.
 
 ```py
-Pipelines(env).undo_post(...)
+# Undo Last Post Run.
+from sapcommissions import Connection
+from sapcommissions.endpoints import Periods, Pipelines
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+period = Periods(env).get_id("January 2023")
+
+pipeline = Pipelines(env).undo_post(
+  calendarSeq=period.calendar.calendarSeq,
+  periodSeq=period.periodSeq,
+)
 ```
 
 | Argument          | Type   | Required | Description                                             |
@@ -311,7 +421,17 @@ Pipelines(env).undo_post(...)
 Run Finalize pipeline.
 
 ```py
-Pipelines(env).finalize(...)
+# Finalize payments for a period.
+from sapcommissions import Connection
+from sapcommissions.endpoints import Periods, Pipelines
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+period = Periods(env).get_id("January 2023")
+
+pipeline = Pipelines(env).finalize(
+  calendarSeq=period.calendar.calendarSeq,
+  periodSeq=period.periodSeq,
+)
 ```
 
 | Argument          | Type   | Required | Description                                             |
@@ -330,7 +450,17 @@ Pipelines(env).finalize(...)
 Run Undo Finalize pipeline.
 
 ```py
-Pipelines(env).undo_finalize(...)
+# Undo Last Finalize Run.
+from sapcommissions import Connection
+from sapcommissions.endpoints import Periods, Pipelines
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+period = Periods(env).get_id("January 2023")
+
+pipeline = Pipelines(env).undo_finalize(
+  calendarSeq=period.calendar.calendarSeq,
+  periodSeq=period.periodSeq,
+)
 ```
 
 | Argument          | Type   | Required | Description                                             |
@@ -349,7 +479,17 @@ Pipelines(env).undo_finalize(...)
 Run Reset From Classify pipeline.
 
 ```py
-Pipelines(env).reset_from_classify(...)
+# Reset all data from classification and forward.
+from sapcommissions import Connection
+from sapcommissions.endpoints import Periods, Pipelines
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+period = Periods(env).get_id("January 2023")
+
+pipeline = Pipelines(env).reset_from_classify(
+  calendarSeq=period.calendar.calendarSeq,
+  periodSeq=period.periodSeq,
+)
 ```
 
 | Argument          | Type   | Required | Description                                             |
@@ -368,7 +508,17 @@ Pipelines(env).reset_from_classify(...)
 Run Reset From Allocate pipeline.
 
 ```py
-Pipelines(env).reset_from_allocate(...)
+# Reset all data from credit and forward.
+from sapcommissions import Connection
+from sapcommissions.endpoints import Periods, Pipelines
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+period = Periods(env).get_id("January 2023")
+
+pipeline = Pipelines(env).reset_from_allocate(
+  calendarSeq=period.calendar.calendarSeq,
+  periodSeq=period.periodSeq,
+)
 ```
 
 | Argument          | Type   | Required | Description                                             |
@@ -387,7 +537,17 @@ Pipelines(env).reset_from_allocate(...)
 Run Reset From Reward pipeline.
 
 ```py
-Pipelines(env).reset_from_reward(...)
+# Reset all data from deposit and forward.
+from sapcommissions import Connection
+from sapcommissions.endpoints import Periods, Pipelines
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+period = Periods(env).get_id("January 2023")
+
+pipeline = Pipelines(env).reset_from_reward(
+  calendarSeq=period.calendar.calendarSeq,
+  periodSeq=period.periodSeq,
+)
 ```
 
 | Argument          | Type   | Required | Description                                             |
@@ -406,7 +566,17 @@ Pipelines(env).reset_from_reward(...)
 Run Reset From Pay pipeline.
 
 ```py
-Pipelines(env).reset_from_pay(...)
+# Reset all data from payment and forward.
+from sapcommissions import Connection
+from sapcommissions.endpoints import Periods, Pipelines
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+period = Periods(env).get_id("January 2023")
+
+pipeline = Pipelines(env).reset_from_pay(
+  calendarSeq=period.calendar.calendarSeq,
+  periodSeq=period.periodSeq,
+)
 ```
 
 | Argument          | Type   | Required | Description                                             |
@@ -425,7 +595,25 @@ Pipelines(env).reset_from_pay(...)
 Run Cleanup Deffered Results pipeline.
 
 ```py
-Pipelines(env).cleanup_deferred_results(...)
+# Clean up deferred results for all periods in 2023.
+from sapcommissions import Connection
+from sapcommissions.endpoints import Calendars, Periods, Pipelines
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+calendar = Calendars(env).get_id("Monthly Calendar")
+periods = Periods(env).list(
+  filter=(
+    f"calendar eq {calendar.calendarSeq}"
+    f" and periodType eq {calendar.minorPeriodType.periodTypeSeq}"
+    f" and startDate ge '1/1/2023' and endDate le '1/1/2024'"
+  )
+)
+
+for period in periods:
+  Pipelines(env).cleanup_deferred_results(
+    calendarSeq=calendar.calendarSeq,
+    periodSeq=period.periodSeq,
+  )
 ```
 
 | Argument          | Type  | Required | Description                                             |
@@ -443,7 +631,17 @@ Pipelines(env).cleanup_deferred_results(...)
 Run Approve Calculated Data pipeline.
 
 ```py
-Pipelines(env).approve_calculated_data(...)
+# Approve calculated data.
+from sapcommissions import Connection
+from sapcommissions.endpoints import Periods, Pipelines
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+period = Periods(env).get_id("January 2023")
+
+pipeline = Pipelines(env).approve_calculated_data(
+  calendarSeq=period.calendar.calendarSeq,
+  periodSeq=period.periodSeq,
+)
 ```
 
 | Argument          | Type  | Required | Description                                             |
@@ -461,7 +659,17 @@ Pipelines(env).approve_calculated_data(...)
 Run Purge Approved Data pipeline.
 
 ```py
-Pipelines(env).purge_approved_data(...)
+# Purge approved data.
+from sapcommissions import Connection
+from sapcommissions.endpoints import Periods, Pipelines
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+period = Periods(env).get_id("January 2023")
+
+pipeline = Pipelines(env).purge_approved_data(
+  calendarSeq=period.calendar.calendarSeq,
+  periodSeq=period.periodSeq,
+)
 ```
 
 | Argument          | Type  | Required | Description                                             |
@@ -479,7 +687,17 @@ Pipelines(env).purge_approved_data(...)
 Run Update Analytics pipeline.
 
 ```py
-Pipelines(env).update_analytics(...)
+# Update Analytics.
+from sapcommissions import Connection
+from sapcommissions.endpoints import Periods, Pipelines
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+period = Periods(env).get_id("January 2023")
+
+pipeline = Pipelines(env).update_analytics(
+  calendarSeq=period.calendar.calendarSeq,
+  periodSeq=period.periodSeq,
+)
 ```
 
 | Argument          | Type   | Required | Description                                             |
@@ -498,7 +716,18 @@ Pipelines(env).update_analytics(...)
 Validate data from stage.
 
 ```py
-Pipelines(env).validate(...)
+# Revalidate an entire batch.
+from sapcommissions import Connection, Revalidate
+from sapcommissions.endpoints import Calendars, Pipelines
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+calendar = Calendars(env).get_id("Monthly Calendar")
+
+pipeline = Pipelines(env).validate(
+  calendarSeq=calendar.calendarSeq,
+  batchName="CALD_ENV_OGPO_20230101_123456_positions_file.txt",
+  revalidate=Revalidate.ALL,
+)
 ```
 
 | Argument          | Type            | Required | Description                                                                          |
@@ -519,17 +748,27 @@ Pipelines(env).validate(...)
 Transfer data from stage, leave invalid data.
 
 ```py
-Pipelines(env).transfer(...)
+# Transfer new and modified data.
+from sapcommissions import Connection, ImportRunMode
+from sapcommissions.endpoints import Calendars, Pipelines
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+calendar = Calendars(env).get_id("Monthly Calendar")
+
+pipeline = Pipelines(env).transfer(
+  calendarSeq=calendar.calendarSeq,
+  batchName="CALD_ENV_OGPO_20230101_123456_positions_file.txt",
+  runMode=ImportRunMode.NEW,
+)
 ```
 
-| Argument          | Type            | Required | Description                                                                          |
-| ----------------- | --------------- | -------- | ------------------------------------------------------------------------------------ |
-| calendarSeq       | `str`           | True     | Calendar system identifier                                                           |
-| batchName         | `str`           | True     | Batch name.                                                                          |
-| runMode           | `ImportRunMode` | False    | Import all or only new and modified data. Default: ALL.                              |
-| revalidate        | `Revalidate`    | False    | Revalidate all or only errors if provided. Do not revalidate if None. Default: None. |
-| runStats          | `bool`          | False    | Run statistics, default is True.                                                     |
-| processingUnitSeq | `str`           | False    | Processing Unit system identifier, required if enabled.                              |
+| Argument          | Type            | Required | Description                                             |
+| ----------------- | --------------- | -------- | ------------------------------------------------------- |
+| calendarSeq       | `str`           | True     | Calendar system identifier                              |
+| batchName         | `str`           | True     | Batch name.                                             |
+| runMode           | `ImportRunMode` | False    | Import all or only new and modified data. Default: ALL. |
+| runStats          | `bool`          | False    | Run statistics, default is True.                        |
+| processingUnitSeq | `str`           | False    | Processing Unit system identifier, required if enabled. |
 
 | Returns    | Description                                             |
 | ---------- | ------------------------------------------------------- |
@@ -540,17 +779,26 @@ Pipelines(env).transfer(...)
 Transfer data from stage only if all data is valid.
 
 ```py
-Pipelines(env).transfer_if_all_valid(...)
+# Transfer data, but only if the entire file is valid.
+from sapcommissions import Connection
+from sapcommissions.endpoints import Calendars, Pipelines
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+calendar = Calendars(env).get_id("Monthly Calendar")
+
+pipeline = Pipelines(env).transfer_if_all_valid(
+  calendarSeq=calendar.calendarSeq,
+  batchName="CALD_ENV_OGPO_20230101_123456_positions_file.txt",
+)
 ```
 
-| Argument          | Type            | Required | Description                                                                          |
-| ----------------- | --------------- | -------- | ------------------------------------------------------------------------------------ |
-| calendarSeq       | `str`           | True     | Calendar system identifier                                                           |
-| batchName         | `str`           | True     | Batch name.                                                                          |
-| runMode           | `ImportRunMode` | False    | Import all or only new and modified data. Default: ALL.                              |
-| revalidate        | `Revalidate`    | False    | Revalidate all or only errors if provided. Do not revalidate if None. Default: None. |
-| runStats          | `bool`          | False    | Run statistics, default is True.                                                     |
-| processingUnitSeq | `str`           | False    | Processing Unit system identifier, required if enabled.                              |
+| Argument          | Type            | Required | Description                                             |
+| ----------------- | --------------- | -------- | ------------------------------------------------------- |
+| calendarSeq       | `str`           | True     | Calendar system identifier                              |
+| batchName         | `str`           | True     | Batch name.                                             |
+| runMode           | `ImportRunMode` | False    | Import all or only new and modified data. Default: ALL. |
+| runStats          | `bool`          | False    | Run statistics, default is True.                        |
+| processingUnitSeq | `str`           | False    | Processing Unit system identifier, required if enabled. |
 
 | Returns    | Description                                             |
 | ---------- | ------------------------------------------------------- |
@@ -561,7 +809,17 @@ Pipelines(env).transfer_if_all_valid(...)
 Validate and Transfer data from stage, leave invalid data.
 
 ```py
-Pipelines(env).validate_and_transfer(...)
+# Validate and transfer data from stage, leave invalid data.
+from sapcommissions import Connection
+from sapcommissions.endpoints import Calendars, Pipelines
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+calendar = Calendars(env).get_id("Monthly Calendar")
+
+pipeline = Pipelines(env).validate_and_transfer(
+  calendarSeq=calendar.calendarSeq,
+  batchName="CALD_ENV_OGPO_20230101_123456_positions_file.txt",
+)
 ```
 
 | Argument          | Type            | Required | Description                                                                          |
@@ -579,10 +837,20 @@ Pipelines(env).validate_and_transfer(...)
 
 ### Validate and Transfer If All Valid
 
-Validate and Transfer data from stage, leave invalid data.
+Validate and Transfer data from stage, if all data is valid.
 
 ```py
-Pipelines(env).validate_and_transfer_if_all_valid(...)
+# Validate and transfer data from stage, if all data is valid.
+from sapcommissions import Connection
+from sapcommissions.endpoints import Calendars, Pipelines
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+calendar = Calendars(env).get_id("Monthly Calendar")
+
+pipeline = Pipelines(env).validate_and_transfer_if_all_valid(
+  calendarSeq=calendar.calendarSeq,
+  batchName="CALD_ENV_OGPO_20230101_123456_positions_file.txt",
+)
 ```
 
 | Argument          | Type            | Required | Description                                                                          |
@@ -603,14 +871,31 @@ Pipelines(env).validate_and_transfer_if_all_valid(...)
 Run Reset From Validate.
 
 ```py
-Pipelines(env).reset_from_validate(...)
+from sapcommissions import Connection
+from sapcommissions.endpoints import Periods, Pipelines
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+period = Periods(env).get_id("January 2023")
+
+# Remove a batch from a period.
+pipeline = Pipelines(env).reset_from_validate(
+  calendarSeq=period.calendar.calendarSeq,
+  periodSeq=period.periodSeq,
+  batchName="CALD_ENV_OGPO_20230101_123456_positions_file.txt",
+)
+
+# Remove all batches from a period.
+pipeline = Pipelines(env).reset_from_validate(
+  calendarSeq=period.calendar.calendarSeq,
+  periodSeq=period.periodSeq,
+)
 ```
 
 | Argument          | Type   | Required | Description                                             |
 | ----------------- | ------ | -------- | ------------------------------------------------------- |
 | calendarSeq       | `str`  | True     | Calendar system identifier                              |
 | periodSeq         | `str`  | True     | Period system identifier                                |
-| batchName         | `str`  | True     | Batch name.                                             |
+| batchName         | `str`  | False    | Batch name. Remove all batches if None.                 |
 | runStats          | `bool` | False    | Run statistics, default is True.                        |
 | processingUnitSeq | `str`  | False    | Processing Unit system identifier, required if enabled. |
 
@@ -623,12 +908,20 @@ Pipelines(env).reset_from_validate(...)
 Run Purge import data.
 
 ```py
-Pipelines(env).purge(...)
+# Remove a batch from stage.
+from sapcommissions import Connection
+from sapcommissions.endpoints import Pipelines
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+
+pipeline = Pipelines(env).purge(
+  batchName="CALD_ENV_OGPO_20230101_123456_positions_file.txt",
+)
 ```
 
-| Argument  | Type  | Required | Description |
-| --------- | ----- | -------- | ----------- |
-| batchName | `str` | True     | Batch name. |
+| Argument  | Type  | Required | Description          |
+| --------- | ----- | -------- | -------------------- |
+| batchName | `str` | True     | Batch name to purge. |
 
 | Returns    | Description                                             |
 | ---------- | ------------------------------------------------------- |
@@ -639,7 +932,21 @@ Pipelines(env).purge(...)
 Run XML Import.
 
 ```py
-Pipelines(env).xml_import(...)
+# Import plan data, allow updates on existing objects.
+import os
+
+from sapcommissions import Connection
+from sapcommissions.endpoints import Pipelines
+
+env = Connection("CALD", "ENV", "MyUserName", "MySuperSecretPassword")
+
+filename = "path/to/plan.xml"
+with open(filename, "r") as file:
+  pipeline = Pipelines(env).xml_import(
+    xmlFileName=os.path.basename(filename),
+    xmlFileContent=file.read(),
+    updateExistingObjects=True,
+  )
 ```
 
 | Argument              | Type   | Required | Description                                 |
