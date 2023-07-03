@@ -2,6 +2,7 @@
 A Python wrapper for the SAP Commissions API.
 """
 from dataclasses import dataclass, field
+from enum import Enum
 
 
 @dataclass(frozen=True)
@@ -30,3 +31,40 @@ class Connection:
     def apiDocument(self) -> str:
         """Returns the url for the Commissions API documentation."""
         return self.url + "/APIDocument"
+
+
+class ReportFormat(Enum):
+    """
+    Enum for the report format.
+    """
+
+    PDF = "pdf"
+    EXCEL = "excel"
+    NATIVE = "native"
+
+
+class Revalidate(Enum):
+    """
+    Enum for revalidate mode.
+    """
+
+    ALL = "all"
+    ONLY_ERRORS = "onlyError"
+
+
+class ImportRunMode(Enum):
+    """
+    Enum for import runMode.
+    """
+
+    ALL = "all"
+    NEW = "new"
+
+
+class PipelineRunMode(Enum):
+    """
+    Enum for pipeline runMode.
+    """
+
+    FULL = "full"
+    INCREMENTAL = "incremental"

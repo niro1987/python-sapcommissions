@@ -9,10 +9,76 @@ from requests.models import Response
 from requests.sessions import Session
 from urllib3 import disable_warnings
 
-from sapcommissions import Connection, resources
+from sapcommissions import (
+    Connection,
+    ImportRunMode,
+    PipelineRunMode,
+    ReportFormat,
+    Revalidate,
+    resources,
+)
 from sapcommissions.exceptions import AuthenticationError, ClientError, ServerError
 
 LOGGER = logging.getLogger(__name__)
+
+
+def _stage_tables(batchName: str) -> tuple[str, list[str]]:
+    """
+    Deduce the tables to be staged from the batchName.
+    """
+    try:
+        odi_type: str = batchName.split("_")[1]
+        odi_type = odi_type.upper()
+        assert len(odi_type) >= 4
+        assert odi_type[:2] in {"TX", "OG", "CL", "PL"}
+    except (IndexError, AssertionError) as error:
+        LOGGER.error("Batch does not conform to any ODI template: %s", batchName)
+        raise TypeError(
+            "Batch does not conform to any ODI template TX*, OG*, CL*, PL*"
+        ) from error
+
+    stage_tables: tuple[str, list[str]]
+    if odi_type[:2] == "TX":
+        stage_tables = (
+            "TransactionalData",
+            [
+                "TransactionAndCredit",
+                "Deposit",
+            ],
+        )
+    if odi_type[:2] == "OG":
+        stage_tables = (
+            "OrganizationData",
+            [
+                "Participant",
+                "Position",
+                "Title",
+                "PositionRelation",
+            ],
+        )
+    if odi_type[:2] == "CL":
+        stage_tables = (
+            "ClassificationData",
+            [
+                "Category",
+                "Category_Classifiers",
+                "Customer",
+                "Product",
+                "PostalCode",
+                "GenericClassifier",
+            ],
+        )
+    if odi_type[:2] == "PL":
+        stage_tables = (
+            "PlanRelatedData",
+            [
+                "FixedValue",
+                "VariableAssignment",
+                "Quota",
+                "RelationalMDLT",
+            ],
+        )
+    return stage_tables
 
 
 class _Client(Session):
@@ -763,8 +829,1002 @@ class Periods(_Create, _Delete, _Get, _List, _Update):
     resource = resources.Period
 
 
-class Pipelines(_Get, _List):
+class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
     resource = resources.Pipeline
+
+    def _run_pipeline(
+        self,
+        stageTypeSeq: str,
+        calendarSeq: str,
+        periodSeq: str,
+        runMode: PipelineRunMode = PipelineRunMode.FULL,
+        positionSeqs: list[str] | None = None,
+        removeStaleResults: bool | None = None,
+        runStats: bool | None = None,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """Run a PipelineRun command."""
+        command = {
+            "command": "PipelineRun",
+            "stageTypeSeq": stageTypeSeq,
+            "calendarSeq": calendarSeq,
+            "periodSeq": periodSeq,
+            "runMode": runMode.value,
+        }
+        if (
+            positionSeqs is not None
+            and isinstance(positionSeqs, list)
+            and len(positionSeqs) > 0
+        ):
+            command["runMode"] = "positions"
+            command["positionSeqs"] = positionSeqs
+        if removeStaleResults is not None:
+            command["removeStaleResults"] = removeStaleResults
+        if runStats is not None:
+            command["runStats"] = runStats
+        if processingUnitSeq is not None:
+            command["processingUnitSeq"] = processingUnitSeq
+
+        response = self._client.post(self.url, [command])
+        data = response[self.name]
+        pipeline_seq = data["0"][0]
+        return resources.Pipeline(pipelineRunSeq=pipeline_seq)
+
+    def generate_reports(
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        formats: list[ReportFormat],
+        reports: list[str],
+        groups: list[str] | None = None,
+        positionSeqs: list[str] | None = None,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """
+        Run Reports Generation pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        formats : list[ReportFormat]
+            List of report formats.
+        reports : list[str]
+            List of report names.
+        groups : list[str] : Optional
+            List of BO groups names. Use either groups or positionSeqs.
+        positionSeqs : list[str] : Optional
+            List of position system identifiers. Use either groups or positionSeqs.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        if (groups is None and positionSeqs is None) or (
+            groups is not None and positionSeqs is not None
+        ):
+            LOGGER.error("Use either groups or positionSeqs")
+            raise ValueError("Use either groups or positionSeqs")
+        command = {
+            "command": "PipelineRun",
+            "stageTypeSeq": "21673573206720698",
+            "calendarSeq": calendarSeq,
+            "periodSeq": periodSeq,
+            "generateODSReports": True,
+            "reportTypeName": "Crystal",
+            "reportFormatsList": [format.value for format in formats],
+            "odsReportList": reports,
+            "runMode": "full",
+            "runStats": runStats,
+        }
+        if groups is not None and isinstance(groups, list) and len(groups) > 0:
+            command["boGroupsList"] = groups
+        if (
+            positionSeqs is not None
+            and isinstance(positionSeqs, list)
+            and len(positionSeqs) > 0
+        ):
+            command["runMode"] = "positions"
+            command["positionSeqs"] = positionSeqs
+        if processingUnitSeq is not None:
+            command["processingUnitSeq"] = processingUnitSeq
+
+        response = self._client.post(self.url, [command])
+        data = response[self.name]
+        pipeline_seq = data["0"][0]
+        return resources.Pipeline(pipelineRunSeq=pipeline_seq)
+
+    def classify(
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        incremental: bool = False,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """
+        Run Classify pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        incremental : bool : optional
+            Only process new and modified transactions. Default is False.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720515",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            runMode=(
+                PipelineRunMode.INCREMENTAL if incremental else PipelineRunMode.FULL
+            ),
+            runStats=runStats,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def allocate(
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        incremental: bool = False,
+        positionSeqs: list[str] | None = None,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """
+        Run Allocate pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        incremental : bool : optional
+            Only process new and modified transactions. Default is False.
+        positionSeqs : list[str] : optional
+            Run for specific positions. Provide a list of positionSeq.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720516",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            runMode=(
+                PipelineRunMode.INCREMENTAL if incremental else PipelineRunMode.FULL
+            ),
+            positionSeqs=positionSeqs,
+            runStats=runStats,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def reward(
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        positionSeqs: list[str] | None = None,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """
+        Run Reward pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        positionSeqs : list[str] : optional
+            Run for specific positions. Provide a list of positionSeq.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720518",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            positionSeqs=positionSeqs,
+            runStats=runStats,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def pay(
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """
+        Run Pay pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720519",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            runStats=runStats,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def summarize(
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        incremental: bool = False,
+        positionSeqs: list[str] | None = None,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """
+        Run Summarize pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        incremental : bool : optional
+            Only process new and modified transactions. Default is False.
+        positionSeqs : list[str] : optional
+            Run for specific positions. Provide a list of positionSeq.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720531",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            runMode=(
+                PipelineRunMode.INCREMENTAL if incremental else PipelineRunMode.FULL
+            ),
+            positionSeqs=positionSeqs,
+            runStats=runStats,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def compensate(
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        incremental: bool = False,
+        positionSeqs: list[str] | None = None,
+        removeStaleResults: bool = False,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """
+        Run Compensate pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        incremental : bool : optional
+            Only process new and modified transactions. Default is False.
+        positionSeqs : list[str] : optional
+            Run for specific positions. Provide a list of positionSeq.
+        removeStaleResults: bool : Optional
+            Enable remove stale results. Default is False.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720530",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            runMode=(
+                PipelineRunMode.INCREMENTAL if incremental else PipelineRunMode.FULL
+            ),
+            positionSeqs=positionSeqs,
+            runStats=runStats,
+            removeStaleResults=removeStaleResults,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def comp_and_pay(
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        incremental: bool = False,
+        positionSeqs: list[str] | None = None,
+        removeStaleResults: bool = False,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """
+        Run Compensate And Pay pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        incremental : bool : optional
+            Only process new and modified transactions. Default is False.
+        positionSeqs : list[str] : optional
+            Run for specific positions. Provide a list of positionSeq.
+        removeStaleResults: bool : Optional
+            Enable remove stale results. Default is False.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720532",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            runMode=(
+                PipelineRunMode.INCREMENTAL if incremental else PipelineRunMode.FULL
+            ),
+            positionSeqs=positionSeqs,
+            runStats=runStats,
+            removeStaleResults=removeStaleResults,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def post(
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """
+        Run Post pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720520",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            runStats=runStats,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def undo_post(
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """
+        Run Undo Post pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720718",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            runStats=runStats,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def finalize(
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """
+        Run Finalize pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720521",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            runStats=runStats,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def undo_finalize(
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """
+        Run Undo Finalize pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720721",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            runStats=runStats,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def reset_from_classify(
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """
+        Run Reset From Classify pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720514",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            runStats=runStats,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def reset_from_allocate(
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """
+        Run Reset From Allocate pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720523",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            runStats=runStats,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def reset_from_reward(
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """
+        Run Reset From Reward pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720522",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            runStats=runStats,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def reset_from_pay(
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """
+        Run Reset From Payment pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720526",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            runStats=runStats,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def cleanup_deferred_results(
+        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+    ) -> resources.Pipeline:
+        """
+        Run Cleanup Deferred Results pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720540",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def approve_calculated_data(
+        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+    ) -> resources.Pipeline:
+        """
+        Run Approve calculated data.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720712",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def purge_approved_data(
+        self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
+    ) -> resources.Pipeline:
+        """
+        Run Purge approved data.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720715",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def update_analytics(
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ):
+        """
+        Run Update Analitics pipeline.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_pipeline(
+            stageTypeSeq="21673573206720701",
+            calendarSeq=calendarSeq,
+            periodSeq=periodSeq,
+            runStats=runStats,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def _run_import(
+        self,
+        stageTypeSeq: str,
+        calendarSeq: str,
+        batchName: str,
+        runMode: ImportRunMode = ImportRunMode.ALL,
+        revalidate: Revalidate | None = None,
+        runStats: bool | None = None,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """Run a Import command."""
+        stage_tables = _stage_tables(batchName)
+        command = {
+            "command": "Import",
+            "stageTypeSeq": stageTypeSeq,
+            "calendarSeq": calendarSeq,
+            "batchName": batchName,
+            "runMode": runMode.value,
+            "module": stage_tables[0],
+            "stageTables": stage_tables[1],
+        }
+        if revalidate is not None:
+            command["revalidate"] = revalidate.value
+        if runStats is not None:
+            command["runStats"] = runStats
+        if processingUnitSeq is not None:
+            command["processingUnitSeq"] = processingUnitSeq
+
+        response = self._client.post(self.url, [command])
+        data = response[self.name]
+        pipeline_seq = data["0"][0]
+        return resources.Pipeline(pipelineRunSeq=pipeline_seq)
+
+    def validate(
+        self,
+        calendarSeq: str,
+        batchName: str,
+        runMode: ImportRunMode = ImportRunMode.ALL,
+        revalidate: Revalidate | None = None,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """
+        Validate data from stage.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        batchName : str
+            Batch name.
+        runMode : ImportRunMode : optional
+            Import all or only new and modified data. Default: ALL.
+        revalidate : Revalidate : optional
+            Revalidate all or only errors if provided. Do not revalidate if None.
+            Default: None.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_import(
+            stageTypeSeq="21673573206720533",
+            calendarSeq=calendarSeq,
+            batchName=batchName,
+            runMode=runMode,
+            revalidate=revalidate,
+            runStats=runStats,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def transfer(
+        self,
+        calendarSeq: str,
+        batchName: str,
+        runMode: ImportRunMode = ImportRunMode.ALL,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """
+        Transfer data from stage, leave invalid data.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        batchName : str
+            Batch name.
+        runMode : ImportRunMode : optional
+            Import all or only new and modified data. Default: ALL.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_import(
+            stageTypeSeq="21673573206720534",
+            calendarSeq=calendarSeq,
+            batchName=batchName,
+            runMode=runMode,
+            runStats=runStats,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def transfer_if_all_valid(
+        self,
+        calendarSeq: str,
+        batchName: str,
+        runMode: ImportRunMode = ImportRunMode.ALL,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """
+        Transfer data from stage only if all data is valid.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        batchName : str
+            Batch name.
+        runMode : ImportRunMode : optional
+            Import all or only new and modified data. Default: ALL.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_import(
+            stageTypeSeq="21673573206720535",
+            calendarSeq=calendarSeq,
+            batchName=batchName,
+            runMode=runMode,
+            runStats=runStats,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def validate_and_transfer(
+        self,
+        calendarSeq: str,
+        batchName: str,
+        runMode: ImportRunMode = ImportRunMode.ALL,
+        revalidate: Revalidate | None = None,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """
+        Validate and Transfer data from stage, leave invalid data.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        batchName : str
+            Batch name.
+        runMode : ImportRunMode : optional
+            Import all or only new and modified data. Default: ALL.
+        revalidate : Revalidate : optional
+            Revalidate all or only errors if provided. Do not revalidate if None.
+            Default: None.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_import(
+            stageTypeSeq="21673573206720536",
+            calendarSeq=calendarSeq,
+            batchName=batchName,
+            runMode=runMode,
+            revalidate=revalidate,
+            runStats=runStats,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def validate_and_transfer_if_all_valid(
+        self,
+        calendarSeq: str,
+        batchName: str,
+        runMode: ImportRunMode = ImportRunMode.ALL,
+        revalidate: Revalidate | None = None,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """
+        Validate and Transfer data from stage only if all data is valid.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        batchName : str
+            Batch name.
+        runMode : ImportRunMode : optional
+            Import all or only new and modified data. Default: ALL.
+        revalidate : Revalidate : optional
+            Revalidate all or only errors if provided. Do not revalidate if None.
+            Default: None.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        return self._run_import(
+            stageTypeSeq="21673573206720537",
+            calendarSeq=calendarSeq,
+            batchName=batchName,
+            runMode=runMode,
+            revalidate=revalidate,
+            runStats=runStats,
+            processingUnitSeq=processingUnitSeq,
+        )
+
+    def reset_from_validate(
+        self,
+        calendarSeq: str,
+        periodSeq: str,
+        batchName: str | None = None,
+        runStats: bool = True,
+        processingUnitSeq: str | None = None,
+    ) -> resources.Pipeline:
+        """
+        Run Reset From Validate.
+
+        Parameters
+        ----------
+        calendarSeq : str
+            Calendar system identifier.
+        periodSeq : str
+            Period system identifier.
+        batchName : str : Optional
+            Batch name. Remove all batches if None.
+        runStats : bool : optional
+            Run statistics.
+        processingUnitSeq : str : optional
+            Processing Unit system identifier.
+        """
+        command = {
+            "calendarSeq": calendarSeq,
+            "periodSeq": periodSeq,
+            "runStats": runStats,
+        }
+        if batchName is not None:
+            command["batchName"] = batchName
+        if processingUnitSeq is not None:
+            command["processingUnitSeq"] = processingUnitSeq
+
+        response = self._client.post(self.url + "/resetfromvalidate", [command])
+        data = response[self.name]
+        pipeline_seq = data["0"][0]
+        return resources.Pipeline(pipelineRunSeq=pipeline_seq)
+
+    def purge(self, batchName: str):
+        """
+        Run Purge import data.
+
+        Parameters
+        ----------
+        batchName : str
+            Batch name to purge.
+        """
+        stage_tables = _stage_tables(batchName)
+        command = {
+            "command": "PipelineRun",
+            "stageTypeSeq": 21673573206720573,
+            "batchName": batchName,
+            "module": stage_tables[0],
+            "stageTables": stage_tables[1],
+        }
+
+        response = self._client.post(self.url, [command])
+        data = response[self.name]
+        pipeline_seq = data["0"][0]
+        return resources.Pipeline(pipelineRunSeq=pipeline_seq)
+
+    def xml_import(
+        self, xmlFileName: str, xmlFileContent: str, updateExistingObjects: bool = False
+    ):
+        """
+        Run XML Import.
+
+        Parameters
+        ----------
+        xmlFileName : str
+            Filename of imported file.
+        xmlFileContent : str
+            File content of imported file.
+        updateExistingObjects : bool : optional
+            Update existing opbjects. Default is False.
+        """
+        command = {
+            "command": "XMLImport",
+            "stageTypeSeq": "21673573206720693",
+            "xmlFileName": xmlFileName,
+            "xmlFileContent": xmlFileContent,
+            "updateExistingObjects": updateExistingObjects,
+        }
+
+        response = self._client.post(self.url, [command])
+        data = response[self.name]
+        pipeline_seq = data["0"][0]
+        return resources.Pipeline(pipelineRunSeq=pipeline_seq)
 
 
 class Plans(_Get, _List):
