@@ -1415,7 +1415,7 @@ class Period(_Resource):
     )
     modifiedBy: str = field(default=None, metadata=_meta(json_ignore=True), repr=False)
     calendar: Calendar = field(default=None, repr=False)
-    periodType: PeriodType = field(default=None, repr=False)
+    periodType: PeriodType = field(default=None, repr=True)
     parent: Period = field(default=None, repr=False)
     startDate: date = field(default=None, repr=False)
     endDate: date = field(default=None, repr=False)
