@@ -1599,7 +1599,6 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         calendarSeq: str,
         batchName: str,
         runMode: ImportRunMode = ImportRunMode.ALL,
-        revalidate: Revalidate | None = None,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
@@ -1614,9 +1613,6 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             Batch name.
         runMode : ImportRunMode : optional
             Import all or only new and modified data. Default: ALL.
-        revalidate : Revalidate : optional
-            Revalidate all or only errors if provided. Do not revalidate if None.
-            Default: None.
         runStats : bool : optional
             Run statistics.
         processingUnitSeq : str : optional
@@ -1627,7 +1623,6 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             calendarSeq=calendarSeq,
             batchName=batchName,
             runMode=runMode,
-            revalidate=revalidate,
             runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
@@ -1637,7 +1632,6 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         calendarSeq: str,
         batchName: str,
         runMode: ImportRunMode = ImportRunMode.ALL,
-        revalidate: Revalidate | None = None,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
     ) -> resources.Pipeline:
@@ -1652,9 +1646,6 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             Batch name.
         runMode : ImportRunMode : optional
             Import all or only new and modified data. Default: ALL.
-        revalidate : Revalidate : optional
-            Revalidate all or only errors if provided. Do not revalidate if None.
-            Default: None.
         runStats : bool : optional
             Run statistics.
         processingUnitSeq : str : optional
@@ -1665,7 +1656,6 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             calendarSeq=calendarSeq,
             batchName=batchName,
             runMode=runMode,
-            revalidate=revalidate,
             runStats=runStats,
             processingUnitSeq=processingUnitSeq,
         )
@@ -1763,8 +1753,8 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
             Calendar system identifier.
         periodSeq : str
             Period system identifier.
-        batchName : str
-            Batch name.
+        batchName : str : Optional
+            Batch name. Remove all batches if None.
         runStats : bool : optional
             Run statistics.
         processingUnitSeq : str : optional
@@ -1792,7 +1782,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         Parameters
         ----------
         batchName : str
-            Batch name.
+            Batch name to purge.
         """
         stage_tables = _stage_tables(batchName)
         command = {
