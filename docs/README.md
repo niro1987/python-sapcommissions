@@ -68,7 +68,7 @@ for participant in Participants(prod).list():
 ## Endpoints
 
 Endpoints are the objects you can interact with, like `Participants`, `Positions`, `Credits` or `Pipelines`. For a full
-list of endpoints and their associated methods, pleaseread the [Endpoints documentation](ENDPOINTS.md).
+list of endpoints and their associated methods, please read the [Endpoints documentation](ENDPOINTS.md).
 
 ## Methods
 

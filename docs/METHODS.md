@@ -67,7 +67,7 @@ positions = Positions(prod).list()
 
 for position in positions:
   if position.manager:
-    position.manager = Positions(prod).get(position.manager._seq)
+    position.manager = Positions(prod).get(position.manager.ruleElementOwnerSeq)
 ```
 
 ## Get ID
@@ -111,7 +111,7 @@ The `get_versions()` method is simmilar to the [Get](#get) method, it returns a 
 positions = Positions(prod).list()
 position = positions[0]
 
-position_versions = Positions(prod).get_versions(first_position._seq)
+position_versions = Positions(prod).get_versions(first_position.ruleElementOwnerSeq)
 ```
 
 ## Create
@@ -172,7 +172,10 @@ second_version = Position(
 )
 versions = [first_version, second_version]
 
-created_versions = Positions(prod).create_versions(created_position._seq, versions)
+created_versions = Positions(prod).create_versions(
+  created_position.ruleElementOwnerSeq,
+  versions,
+)
 ```
 
 ## Update
@@ -200,7 +203,7 @@ positions = (
 )
 
 # Now update the position group and update the position.
-for position in positions
+for position in positions:
   position.positionGroup = PositionGroup(name="Sales")
   Positions(prod).update(position)
 ```
@@ -287,7 +290,7 @@ will be deleted.
 positions = Positions(prod).list(filter="name eq 'John Doe'")
 position = positions[0]
 
-message = Positions(prod).delete(position._seq)
+message = Positions(prod).delete(position.ruleElementOwnerSeq)
 assert message == "The record is successfully deleted."
 ```
 
@@ -317,7 +320,7 @@ position = positions[0]
 message = (
   Positions(prod)
   .delete_versions(
-    seq=position._seq,
+    seq=position.ruleElementOwnerSeq,
     effectiveStartDate=position.effectiveStartDate,
     effectiveEndDate=position.effectiveEndDate,
     fillFromRight=False
