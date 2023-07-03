@@ -9,6 +9,7 @@ A Python wrapper for the SAP Commissions API.
   - [Usage](#usage)
   - [Endpoints](#endpoints)
   - [Methods](#methods)
+  - [Legal Disclaimer](#legal-disclaimer)
 
 ## Installation
 
@@ -74,3 +75,11 @@ list of endpoints and their associated methods, pleaseread the [Endpoints docume
 Methods are the actions you can perform on an endpoint, like `list()`, `get()` and `create()`. You'll find links to the
 associated methods in the [Endpoints documentation](ENDPOINTS.md). For a full list of available methods, please read the
 [Methods documentation](METHODS.md).
+
+## Legal Disclaimer
+
+This software is designed for use with SAP® Commissions.
+
+SAP Commissions is the trademark or registered trademark of SAP SE or its affiliates in Germany and in other countries.
+
+The developers take no legal responsibility for the functionality or security of your SAP Commissions environment.
