@@ -32,13 +32,13 @@ tenant name, and `ENV` with your environment name.
 
 ### Terminology
 
-In this documentation, we talk about endpoints and resources, here is what that means.
+Things to keep in mind while reading the documentation.
 
-| Keyword  | Description                                                                      |
-| -------- | -------------------------------------------------------------------------------- |
-| Endpoint | A type of object that we can interact with, like `Participants` and `Positions`. |
-| Method   | An action to perform on an endpoint. See [Methods](#methods) below.              |
-| Resource | An instance of an endpoint, a single `Participant` or `Position` for example.    |
+| Keyword  | Description                                                                       |
+| -------- | --------------------------------------------------------------------------------- |
+| Endpoint | A type of object that you can interact with, like `Participants` and `Positions`. |
+| Method   | An action to perform on an endpoint, like `list()` and `get_id()`.                |
+| Resource | An instance of an endpoint, like `Participant` and `Position`.                    |
 
 ## Usage
 
@@ -58,7 +58,7 @@ prod = Connection("CALD", "PRD", "MyUserName", "MySuperSecretPassword", verify_s
 ```
 
 We'll use the `Participants` endpoint to get a list of all participants in the environment. The `list()` method returns
-a `generator`, to retrieve all `Participants`, we can convert the generator to a `list` or processes the `Participants`
+a `generator`, to retrieve all `Participants`, you can convert the generator to a `list` or processes the `Participants`
 one-by-one.
 
 ```py

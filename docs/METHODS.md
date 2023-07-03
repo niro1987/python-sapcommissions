@@ -60,9 +60,9 @@ first attribute, for simplicity, it can also be read from the `_seq` property.
 | `Resource` | Requested resource, single valid version |
 
 ```py
-# Let's say we retrieve a list of positions from the API. The manager attribute refers
+# Let's say you retrieve a list of positions from the API. The manager attribute refers
 # to a position, but does not contain any meaningfull information about the manager yet.
-# We can use the `get()` method to enrich the manager data.
+# You can use the `get()` method to enrich the manager data.
 positions = Positions(prod).list()
 
 for position in positions:
@@ -157,7 +157,7 @@ can also be used to end-date an existing resource. All pre-existing versions of 
 | `list[Resource]` | List of created resource versions |
 
 ```py
-# Let's create a new version of the position that we just created.
+# Let's create a new version of the position that you just created.
 first_version = Position(
   name="John Doe",
   effectiveStartDate=date(2020, 1, 1),
@@ -193,7 +193,7 @@ a single valid version, matching the effective date range provided.
 
 ```py
 # Say that you want to assign all positions with title 'Account Manager' or
-# 'Sales Manager' to a position group 'Sales'. We'll assume that the position group
+# 'Sales Manager' to a position group 'Sales'. Let's assume that the position group
 # already exists.
 
 # Get a list of all positions with title 'Account Manager' or 'Sales Manager'.
@@ -230,14 +230,14 @@ the current existing versions in the environment.
 ```py
 # Let's revisit our previous example where a position is promoted to a different title.
 # Our position already has two versions, the first with a title of 'Account Manager',
-# the second with a title of 'Sales Manager' and position group 'Sales'. We can update
+# the second with a title of 'Sales Manager' and position group 'Sales'. You can update
 # the position without any pre-existing knowledge of these versions.
 
-# We'll need to seq number for the position that we are going to update.
+# You'll need to seq number for the position that you are going to update.
 positions = Positions(prod).list(filter="name eq 'John Doe'")
 position = positions[0]
 
-# Now we can update the position
+# Now you can update the position
 updated_position = Position(
   name="John Doe",
   effectiveStartDate=date(2022, 1, 1),
