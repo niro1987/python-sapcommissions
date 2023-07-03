@@ -2,14 +2,13 @@
 
 A Python wrapper for the SAP Commissions API.
 
-- [SAP Commissions](#sap-commissions)
-  - [Installation](#installation)
-    - [REST API](#rest-api)
-    - [Terminology](#terminology)
-  - [Usage](#usage)
-  - [Endpoints](#endpoints)
-  - [Methods](#methods)
-  - [Legal Disclaimer](#legal-disclaimer)
+- [Installation](#installation)
+  - [REST API](#rest-api)
+  - [Terminology](#terminology)
+- [Usage](#usage)
+- [Endpoints](#endpoints)
+- [Methods](#methods)
+- [Legal Disclaimer](#legal-disclaimer)
 
 If you like this project, please consider to [BuyMeACoffee](https://www.buymeacoffee.com/niro1987) or
 [contact me](mailto:niels.perfors1987@gmail.com) directly.
@@ -42,8 +41,7 @@ Things to keep in mind while reading the documentation.
 
 ## Usage
 
-To get started, import `Connection` and an endpoint of your choosing. In this example, we'll use `Participants` as the
-endpoint.
+To get started, import `Connection` and an endpoint of your choosing. In this example, we'll use `Participants`.
 
 ```py
 from sapcommissions import Connection
@@ -51,23 +49,28 @@ from sapcommissions.endpoints import Participants
 ```
 
 Initialize a Connection by providing the tenant, environment, username, and password. Optionally, you can disable ssl
-verification, if you have problems connecting to the API from your corporate network.
+verification, if you are having problems connecting to the API from your network.
 
 ```python
-prod = Connection("CALD", "PRD", "MyUserName", "MySuperSecretPassword", verify_ssl=False)
+prod = Connection("CALD", "PRD", "MyUserName", "MySuperSecretPassword", verify_ssl=True)
 ```
 
-We'll use the `Participants` endpoint to get a list of all participants in the environment. The `list()` method returns
-a `generator`, to retrieve all `Participants`, you can convert the generator to a `list` or processes the `Participants`
-one-by-one.
+In this example we will use the `Participants` endpoint to get a list of all participants from the system. The `list()`
+method returns a `generator` object, to retrieve all `Participants`, you can convert the generator to a `list`,
+processes the `Participants` one-by-one in a `for-loop` or use a list comprehension to extract neccecery properties.
 
 ```py
-# List all Participants
-all_users = list(Participants(prod).list())
+participants = Participants(prod).list()
 
-# Process Participants one-by-one
-for participant in Participants(prod).list():
+# Convert to list
+all_users = list(participants)
+
+# For loop
+for participant in participants:
   ...  # Do something
+
+# List Comprehension
+participant_ids = [participant.payeeId for participant in participants]
 ```
 
 ## Endpoints
