@@ -321,7 +321,11 @@ class _Get(_Endpoint):
 
         assert isinstance(seq, (int, str))
 
-        response = self._client.get(self.url + f"({seq})")
+        query = {}
+        if expand := self.resource._expands:  # pylint: disable=protected-access
+            query["expand"] = ",".join(expand)
+
+        response = self._client.get(self.url + f"({seq})", query if query else None)
         item = self.resource.from_dict(response)
 
         return item
@@ -350,6 +354,8 @@ class _GetVersions(_Endpoint):
 
         query = {}
         assert isinstance(seq, int)
+        if expand := self.resource._expands:  # pylint: disable=protected-access
+            query["expand"] = ",".join(expand)
         if startDate:
             assert isinstance(startDate, date)
             query["startDate"] = startDate.strftime("%Y-%m-%d")
