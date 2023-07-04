@@ -215,21 +215,21 @@ class _Create(_Endpoint):
 
 class _CreateVersions(_Endpoint):
     def create_versions(
-        self, seq: int, versions: list[resources._Resource]
+        self, seq: int | str, versions: list[resources._Resource]
     ) -> list[resources._Resource]:
         """
         Create versions of an existing resource.
 
         Parameters
         ----------
-        seq : int
+        seq : int | str
             Resource system identifier.
         versions : list[resources._Resource]
             List of resource versions to create.
         """
         LOGGER.info("Create versions for %s with seq %s", self.name, seq)
 
-        assert isinstance(seq, int)
+        assert isinstance(seq, (int, str))
         assert isinstance(versions, list)
         for version in versions:
             assert isinstance(version, self.resource)
@@ -246,18 +246,18 @@ class _CreateVersions(_Endpoint):
 
 
 class _Delete(_Endpoint):
-    def delete(self, seq: int) -> str:
+    def delete(self, seq: int | str) -> str:
         """
         Delete an existing resource.
 
         Parameters
         ----------
-        seq : int
+        seq : int | str
             Resource system identifier to delete.
         """
         LOGGER.info("Delete %s with seq %s", self.name, seq)
 
-        assert isinstance(seq, int)
+        assert isinstance(seq, (int, str))
 
         response = self._client.delete(f"{self.url}({seq})")
         data = response[self.name]
@@ -269,7 +269,7 @@ class _Delete(_Endpoint):
 class _DeleteVersions(_Endpoint):
     def delete_versions(
         self,
-        seq: int,
+        seq: int | str,
         effectiveStartDate: date,
         effectiveEndDate: date,
         fillFromRight: bool = False,
@@ -279,7 +279,7 @@ class _DeleteVersions(_Endpoint):
 
         Parameters
         ----------
-        seq : int
+        seq : int | str
             Resource system identifier.
         effectiveStartDate : date
             Resource effectiveStartDate.
@@ -292,7 +292,7 @@ class _DeleteVersions(_Endpoint):
         LOGGER.info("Delete versions for %s with seq %s", self.name, seq)
 
         query = {}
-        assert isinstance(seq, int)
+        assert isinstance(seq, (int, str))
         assert isinstance(effectiveStartDate, date)
         query["effectiveStartDate"] = effectiveStartDate.strftime("%Y-%m-%d")
         assert isinstance(effectiveEndDate, date)
@@ -330,7 +330,7 @@ class _Get(_Endpoint):
 class _GetVersions(_Endpoint):
     def get_versions(
         self,
-        seq: int,
+        seq: int | str,
         startDate: date = None,
         endDate: date = None,
     ) -> list[resources._Resource]:
@@ -339,7 +339,7 @@ class _GetVersions(_Endpoint):
 
         Parameters
         ----------
-        seq : int
+        seq : int | str
             Resource system identifier.
         startDate : date
             Filter List for resources effective for startDate.
@@ -349,7 +349,7 @@ class _GetVersions(_Endpoint):
         LOGGER.info("Get versions of %s with seq %s", self.name, seq)
 
         query = {}
-        assert isinstance(seq, int)
+        assert isinstance(seq, (int, str))
         if startDate:
             assert isinstance(startDate, date)
             query["startDate"] = startDate.strftime("%Y-%m-%d")
@@ -575,20 +575,22 @@ class _Update(_Endpoint):
 
 
 class _UpdateVersions(_Endpoint):
-    def update_versions(self, seq: int, versions: list[resources._Resource]) -> list:
+    def update_versions(
+        self, seq: int | str, versions: list[resources._Resource]
+    ) -> list:
         """
         Update versions of an existing resource.
 
         Parameters
         ----------
-        seq : int
+        seq : int | str
             Resource system identifier.
         versions : list[resources._Resource]
             List of resource versions with attributes for the endpoint.
         """
         LOGGER.info("Update versions for %s with seq %s", self.name, seq)
 
-        assert isinstance(seq, int)
+        assert isinstance(seq, (int, str))
         assert isinstance(versions, list)
         for version in versions:
             assert isinstance(version, self.resource)
