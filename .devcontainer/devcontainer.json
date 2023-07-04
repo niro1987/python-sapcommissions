@@ -31,7 +31,8 @@
                 "github.vscode-github-actions",
                 "eamodio.gitlens",
                 "TabNine.tabnine-vscode",
-                "genieai.chatgpt-vscode"
+                "genieai.chatgpt-vscode",
+                "ms-vscode-remote.remote-containers"
             ]
         }
     },
