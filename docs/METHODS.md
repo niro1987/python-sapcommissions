@@ -51,9 +51,9 @@ The `get()` method is used to retrieve an existing resource, single (latest) ver
 parameter, `seq` (system unique identifier) of the object to retrieve. The `seq` value for a resource is stored in the
 first attribute, for simplicity, it can also be read from the `_seq` property.
 
-| Argument | Type  | Required | Description                                   |
-| -------- | ----- | -------- | --------------------------------------------- |
-| seq      | `int` | True     | The system unique identifier for the resource |
+| Argument | Type         | Required | Description                                   |
+| -------- | ------------ | -------- | --------------------------------------------- |
+| seq      | `int \| str` | True     | The system unique identifier for the resource |
 
 | Returns    | Description                              |
 | ---------- | ---------------------------------------- |
