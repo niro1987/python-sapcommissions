@@ -98,9 +98,9 @@ position = positions[0] if positions else None
 
 The `get_versions()` method is simmilar to the [Get](#get) method, it returns a list of all versions of the resource.
 
-| Argument | Type  | Required | Description                                   |
-| -------- | ----- | -------- | --------------------------------------------- |
-| seq      | `int` | True     | The system unique identifier for the resource |
+| Argument | Type         | Required | Description                                   |
+| -------- | ------------ | -------- | --------------------------------------------- |
+| seq      | `int \| str` | True     | The system unique identifier for the resource |
 
 | Returns          | Description                            |
 | ---------------- | -------------------------------------- |
@@ -149,7 +149,7 @@ can also be used to end-date an existing resource. All pre-existing versions of 
 
 | Argument  | Type             | Required | Description                                   |
 | --------- | ---------------- | -------- | --------------------------------------------- |
-| seq       | `int`            | True     | The system unique identifier for the resource |
+| seq       | `int \| str`     | True     | The system unique identifier for the resource |
 | instances | `list[Resource]` | True     | The list of resource instances to create      |
 
 | Returns          | Description                       |
@@ -218,7 +218,7 @@ the current existing versions in the environment.
 
 | Argument | Type             | Required | Description                                   |
 | -------- | ---------------- | -------- | --------------------------------------------- |
-| seq      | `int`            | True     | The system unique identifier for the resource |
+| seq      | `int \| str`     | True     | The system unique identifier for the resource |
 | versions | `list[Resource]` | True     | The list of resource version update to apply  |
 
 | Returns          | Description                                                |
@@ -277,9 +277,9 @@ Positions(prod).update_versions(position_seq, [updated_position])
 With the `delete()` method, you can fully delete a resource from the environment, all effective versions of the resource
 will be deleted.
 
-| Argument | Type  | Required | Description                                   |
-| -------- | ----- | -------- | --------------------------------------------- |
-| seq      | `int` | True     | The system unique identifier for the resource |
+| Argument | Type         | Required | Description                                   |
+| -------- | ------------ | -------- | --------------------------------------------- |
+| seq      | `int \| str` | True     | The system unique identifier for the resource |
 
 | Returns | Description                                                |
 | ------- | ---------------------------------------------------------- |
@@ -300,12 +300,12 @@ The `delete_versions()` method deletes the given versions of the resource. The r
 the previous or next available version of the resource. The effective dates provided must match an existing version of
 the resource.
 
-| Argument           | Type   | Required | Description                                          |
-| ------------------ | ------ | -------- | ---------------------------------------------------- |
-| seq                | `int`  | True     | The system unique identifier for the resource        |
-| effectiveStartDate | `date` | True     | The start date of the version to delete              |
-| effectiveEndDate   | `date` | True     | The end date of the version to delete                |
-| fillFromRight      | `bool` | False    | Default `True`, fill from the next available version |
+| Argument           | Type         | Required | Description                                          |
+| ------------------ | ------------ | -------- | ---------------------------------------------------- |
+| seq                | `int \| str` | True     | The system unique identifier for the resource        |
+| effectiveStartDate | `date`       | True     | The start date of the version to delete              |
+| effectiveEndDate   | `date`       | True     | The end date of the version to delete                |
+| fillFromRight      | `bool`       | False    | Default `True`, fill from the next available version |
 
 | Returns | Description                                                                  |
 | ------- | ---------------------------------------------------------------------------- |
