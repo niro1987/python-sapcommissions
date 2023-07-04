@@ -17,12 +17,8 @@ classifiers = [
     "Operating System :: OS Independent",
     "License :: OSI Approved :: MIT License",
 ]
-dependencies = [
-    "requests ~= 2.31.0",
-]
 readme = "docs/README.md"
-dynamic = ["version"]
-
+dynamic = ["version", "dependencies", "optional-dependencies"]
 
 [project.urls]
 "Homepage" = "https://github.com/niro1987/python-sapcommissions"
@@ -30,22 +26,17 @@ dynamic = ["version"]
 
 [tool.setuptools_scm]
 
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools.dynamic.optional-dependencies]
+dev = {file = ["requirements-dev.txt"]}
 
 [tool.setuptools.packages.find]
 exclude = [
     "tests",
 ]
 
-
-[project.optional-dependencies]
-dev = [
-    "pycodestyle",
-    "pylint",
-    "flake8",
-    "black",
-    "isort",
-    "pre-commit",
-]
 
 [tool.black]
 line-length = 88
