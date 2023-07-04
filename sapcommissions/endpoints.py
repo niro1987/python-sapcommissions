@@ -308,18 +308,18 @@ class _DeleteVersions(_Endpoint):
 
 
 class _Get(_Endpoint):
-    def get(self, seq: int) -> resources._Resource:
+    def get(self, seq: int | str) -> resources._Resource:
         """
         Reads all of the attributes of an existing resource.
 
         Parameters
         ----------
-        seq : int
+        seq : int | str
             Resource system identifier.
         """
         LOGGER.info("Get %s with seq %s", self.name, seq)
 
-        assert isinstance(seq, int)
+        assert isinstance(seq, (int, str))
 
         response = self._client.get(self.url + f"({seq})")
         item = self.resource.from_dict(response)
