@@ -26,8 +26,8 @@ pip install python-sapcommissions
 ### REST API
 
 This project mimics the usage of the SAP Commissions REST API. Visit
-`https://{CALD}-{ENV}.callidusondemand.com/APIDocument` to read the full specification, replacing `CALD` with your
-tenant name, and `ENV` with your environment name.
+`https://{TENANT}.callidusondemand.com/APIDocument` to read the full specification, replacing `TENANT` with your
+tenant-id.
 
 ### Terminology
 
@@ -48,11 +48,11 @@ from sapcommissions import Connection
 from sapcommissions.endpoints import Participants
 ```
 
-Initialize a Connection by providing the tenant, environment, username, and password. Optionally, you can disable ssl
-verification, if you are having problems connecting to the API from your network.
+Initialize a Connection by providing the tenant, username, and password. Optionally, you can disable ssl verification,
+if you are having problems connecting to the API from your network.
 
 ```python
-prod = Connection("CALD", "PRD", "MyUserName", "MySuperSecretPassword", verify_ssl=True)
+prod = Connection("CALD-PRD", "MyUserName", "MySuperSecretPassword", verify_ssl=True)
 ```
 
 In this example we will use the `Participants` endpoint to get a list of all participants from the system. The `list()`

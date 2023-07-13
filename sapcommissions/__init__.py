@@ -12,7 +12,6 @@ class Connection:
     """
 
     tenant: str = field(repr=True)
-    environment: str = field(repr=True)
     username: str = field(repr=True)
     password: str = field(repr=False)
     verifySsl: bool = field(default=True, repr=False)
@@ -20,7 +19,7 @@ class Connection:
     @property
     def url(self) -> str:
         """Return the Commissions URL."""
-        return f"https://{self.tenant}-{self.environment}.callidusondemand.com"
+        return f"https://{self.tenant}.callidusondemand.com"
 
     @property
     def apiUrl(self) -> str:
