@@ -1,0 +1,24 @@
+name: Issue Form
+description: Report an issue with python-sapcommissions
+title: "[Issue]: "
+labels: ["Issue"]
+body:
+  - type: markdown
+    attributes:
+      value: Thank you for taking the time to fill out this issue form!
+  - type: textarea
+    validations:
+      required: true
+    attributes:
+      label: The problem
+      description: >-
+        Please provide a clear and concise description of what the problem is.
+  - type: textarea
+    validations:
+      required: false
+    attributes:
+      label: Relevant logs
+      description: >-
+        Please copy and paste any relevant log output.
+        This will be automatically formatted into code, so no need for backticks.
+      render: Shell
