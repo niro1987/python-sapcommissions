@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: SAP for Me
+    url: https://me.sap.com/home
+    about: Visit SAP for Me for support with your SAP Commissions product.
+  - name: SAP Community
+    url: https://answers.sap.com/tags/73555000100800001602
+    about: Visit the SAP Community to find or ask a question about your SAP Commissions product.
+  - name: SAP Influence
+    url: https://influence.sap.com/sap/ino/#/campaign/2460
+    about: Visit SAP Influence to submit an Improvement Request for the SAP Commissions product.
