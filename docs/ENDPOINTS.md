@@ -961,12 +961,12 @@ with open(filename, "r") as file:
 
 <!-- Links -->
 
-[create]: README.md#create
-[create-versions]: README.md#create-versions
-[get]: README.md#get
-[get-versions]: README.md#get-versions
-[list]: README.md#list
-[update]: README.md#update
-[update-versions]: README.md#update-versions
-[delete]: README.md#delete
-[delete-versions]: README.md#delete-versions
+[create]: METHODS.md#create
+[create-versions]: METHODS.md#create-versions
+[get]: METHODS.md#get
+[get-versions]: METHODS.md#get-versions
+[list]: METHODS.md#list
+[update]: METHODS.md#update
+[update-versions]: METHODS.md#update-versions
+[delete]: METHODS.md#delete
+[delete-versions]: METHODS.md#delete-versions
