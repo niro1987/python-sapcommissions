@@ -1,7 +1,7 @@
-name: Report an issue with python-sapcommissions
+name: Issue Form
 description: Report an issue with python-sapcommissions
-title: "[Bug]: "
-labels: ["Bug"]
+title: "[Issue]: "
+labels: ["Issue"]
 body:
   - type: markdown
     attributes:
