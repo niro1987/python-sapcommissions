@@ -840,7 +840,7 @@ class Periods(_Create, _Delete, _Get, _List, _Update):
 
 
 class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
-    resource = resources.Pipeline
+    resource = resources.PipelineRun
 
     def _run_pipeline(
         self,
@@ -852,7 +852,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         removeStaleResults: bool | None = None,
         runStats: bool | None = None,
         processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
+    ) -> resources.PipelineRun:
         """Run a PipelineRun command."""
         command = {
             "command": "PipelineRun",
@@ -878,7 +878,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         response = self._client.post(self.url, [command])
         data = response[self.name]
         pipeline_seq = data["0"][0]
-        return resources.Pipeline(pipelineRunSeq=pipeline_seq)
+        return resources.PipelineRun(pipelineRunSeq=pipeline_seq)
 
     def generate_reports(
         self,
@@ -890,7 +890,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         positionSeqs: list[str] | None = None,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
+    ) -> resources.PipelineRun:
         """
         Run Reports Generation pipeline.
 
@@ -945,7 +945,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         response = self._client.post(self.url, [command])
         data = response[self.name]
         pipeline_seq = data["0"][0]
-        return resources.Pipeline(pipelineRunSeq=pipeline_seq)
+        return resources.PipelineRun(pipelineRunSeq=pipeline_seq)
 
     def classify(
         self,
@@ -954,7 +954,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         incremental: bool = False,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
+    ) -> resources.PipelineRun:
         """
         Run Classify pipeline.
 
@@ -990,7 +990,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         positionSeqs: list[str] | None = None,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
+    ) -> resources.PipelineRun:
         """
         Run Allocate pipeline.
 
@@ -1028,7 +1028,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         positionSeqs: list[str] | None = None,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
+    ) -> resources.PipelineRun:
         """
         Run Reward pipeline.
 
@@ -1060,7 +1060,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         periodSeq: str,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
+    ) -> resources.PipelineRun:
         """
         Run Pay pipeline.
 
@@ -1089,7 +1089,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         positionSeqs: list[str] | None = None,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
+    ) -> resources.PipelineRun:
         """
         Run Summarize pipeline.
 
@@ -1129,7 +1129,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         removeStaleResults: bool = False,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
+    ) -> resources.PipelineRun:
         """
         Run Compensate pipeline.
 
@@ -1172,7 +1172,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         removeStaleResults: bool = False,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
+    ) -> resources.PipelineRun:
         """
         Run Compensate And Pay pipeline.
 
@@ -1212,7 +1212,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         periodSeq: str,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
+    ) -> resources.PipelineRun:
         """
         Run Post pipeline.
 
@@ -1241,7 +1241,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         periodSeq: str,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
+    ) -> resources.PipelineRun:
         """
         Run Undo Post pipeline.
 
@@ -1270,7 +1270,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         periodSeq: str,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
+    ) -> resources.PipelineRun:
         """
         Run Finalize pipeline.
 
@@ -1299,7 +1299,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         periodSeq: str,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
+    ) -> resources.PipelineRun:
         """
         Run Undo Finalize pipeline.
 
@@ -1328,7 +1328,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         periodSeq: str,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
+    ) -> resources.PipelineRun:
         """
         Run Reset From Classify pipeline.
 
@@ -1357,7 +1357,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         periodSeq: str,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
+    ) -> resources.PipelineRun:
         """
         Run Reset From Allocate pipeline.
 
@@ -1386,7 +1386,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         periodSeq: str,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
+    ) -> resources.PipelineRun:
         """
         Run Reset From Reward pipeline.
 
@@ -1415,7 +1415,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         periodSeq: str,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
+    ) -> resources.PipelineRun:
         """
         Run Reset From Payment pipeline.
 
@@ -1440,7 +1440,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
 
     def cleanup_deferred_results(
         self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
-    ) -> resources.Pipeline:
+    ) -> resources.PipelineRun:
         """
         Run Cleanup Deferred Results pipeline.
 
@@ -1462,7 +1462,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
 
     def approve_calculated_data(
         self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
-    ) -> resources.Pipeline:
+    ) -> resources.PipelineRun:
         """
         Run Approve calculated data.
 
@@ -1484,7 +1484,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
 
     def purge_approved_data(
         self, calendarSeq: str, periodSeq: str, processingUnitSeq: str | None = None
-    ) -> resources.Pipeline:
+    ) -> resources.PipelineRun:
         """
         Run Purge approved data.
 
@@ -1542,7 +1542,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         revalidate: Revalidate | None = None,
         runStats: bool | None = None,
         processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
+    ) -> resources.PipelineRun:
         """Run a Import command."""
         stage_tables = _stage_tables(batchName)
         command = {
@@ -1564,7 +1564,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         response = self._client.post(self.url, [command])
         data = response[self.name]
         pipeline_seq = data["0"][0]
-        return resources.Pipeline(pipelineRunSeq=pipeline_seq)
+        return resources.PipelineRun(pipelineRunSeq=pipeline_seq)
 
     def validate(
         self,
@@ -1574,7 +1574,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         revalidate: Revalidate | None = None,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
+    ) -> resources.PipelineRun:
         """
         Validate data from stage.
 
@@ -1611,7 +1611,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         runMode: ImportRunMode = ImportRunMode.ALL,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
+    ) -> resources.PipelineRun:
         """
         Transfer data from stage, leave invalid data.
 
@@ -1644,7 +1644,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         runMode: ImportRunMode = ImportRunMode.ALL,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
+    ) -> resources.PipelineRun:
         """
         Transfer data from stage only if all data is valid.
 
@@ -1678,7 +1678,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         revalidate: Revalidate | None = None,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
+    ) -> resources.PipelineRun:
         """
         Validate and Transfer data from stage, leave invalid data.
 
@@ -1716,7 +1716,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         revalidate: Revalidate | None = None,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
+    ) -> resources.PipelineRun:
         """
         Validate and Transfer data from stage only if all data is valid.
 
@@ -1753,7 +1753,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         batchName: str | None = None,
         runStats: bool = True,
         processingUnitSeq: str | None = None,
-    ) -> resources.Pipeline:
+    ) -> resources.PipelineRun:
         """
         Run Reset From Validate.
 
@@ -1783,7 +1783,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         response = self._client.post(self.url + "/resetfromvalidate", [command])
         data = response[self.name]
         pipeline_seq = data["0"][0]
-        return resources.Pipeline(pipelineRunSeq=pipeline_seq)
+        return resources.PipelineRun(pipelineRunSeq=pipeline_seq)
 
     def purge(self, batchName: str):
         """
@@ -1806,7 +1806,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         response = self._client.post(self.url, [command])
         data = response[self.name]
         pipeline_seq = data["0"][0]
-        return resources.Pipeline(pipelineRunSeq=pipeline_seq)
+        return resources.PipelineRun(pipelineRunSeq=pipeline_seq)
 
     def xml_import(
         self, xmlFileName: str, xmlFileContent: str, updateExistingObjects: bool = False
@@ -1834,7 +1834,7 @@ class Pipelines(_Get, _List):  # pylint disable=too-many-public-methods
         response = self._client.post(self.url, [command])
         data = response[self.name]
         pipeline_seq = data["0"][0]
-        return resources.Pipeline(pipelineRunSeq=pipeline_seq)
+        return resources.PipelineRun(pipelineRunSeq=pipeline_seq)
 
 
 class Plans(_Get, _List):
