@@ -130,6 +130,7 @@ class _Resource:
             fld.name
             for fld in fields(cls)
             if fld.type not in ("str", "int", "date", "datetime", "bool", "Value")
+            and fld.metadata.get("expand") is not False
             or fld.metadata.get("expand") is True
         )
 
