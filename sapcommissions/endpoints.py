@@ -374,6 +374,45 @@ class _GetVersions(_Endpoint):
 
 
 class _List(_Endpoint):
+    def get_id(
+        self,
+        id: str,  # pylint: disable=redefined-builtin
+        raw: bool = False,
+        expand: list[str] = None,
+    ) -> resources._Resource:
+        """
+        Reads all of the attributes of an existing resource.
+
+        Parameters
+        ----------
+        id : str
+            User unique identifier.
+        raw : bool
+            If true, then the response is returned as is, otherwise it is converted
+            to resource objects. Default is False.
+        """
+        LOGGER.info("Get %s with id %s", self.name, id)
+
+        assert isinstance(id, str)
+        # pylint: disable-next=protected-access
+        if (id_attr := self.resource._idAttr) is None:
+            LOGGER.warning("%s has no id attribute.", self.name)
+            return None
+
+        query = {"top": 10}
+        if expand is not None:  # pylint: disable=protected-access
+            query["expand"] = ",".join(expand)
+        query["$filter"] = f"{id_attr} eq '{id}'"
+
+        response = self._client.get(self.url, query)
+        data = response[self.name]
+        items = data if raw else [self.resource.from_dict(item) for item in data]
+        if len(data) > 1:
+            LOGGER.warning("Returned %s items for id %s.", len(data), id)
+        item = items[0] if items else None
+
+        return item
+
     def list(
         self,
         filter: str = None,  # pylint: disable=redefined-builtin
@@ -460,45 +499,6 @@ class _List(_Endpoint):
                 yield_count += 1
                 if limit and yield_count >= limit:
                     return
-
-    def get_id(
-        self,
-        id: str,  # pylint: disable=redefined-builtin
-        raw: bool = False,
-        expand: list[str] = None,
-    ) -> resources._Resource:
-        """
-        Reads all of the attributes of an existing resource.
-
-        Parameters
-        ----------
-        id : str
-            User unique identifier.
-        raw : bool
-            If true, then the response is returned as is, otherwise it is converted
-            to resource objects. Default is False.
-        """
-        LOGGER.info("Get %s with id %s", self.name, id)
-
-        assert isinstance(id, str)
-        # pylint: disable-next=protected-access
-        if (id_attr := self.resource._idAttr) is None:
-            LOGGER.warning("%s has no id attribute.", self.name)
-            return None
-
-        query = {"top": 10}
-        if expand is not None:  # pylint: disable=protected-access
-            query["expand"] = ",".join(expand)
-        query["$filter"] = f"{id_attr} eq '{id}'"
-
-        response = self._client.get(self.url, query)
-        data = response[self.name]
-        items = data if raw else [self.resource.from_dict(item) for item in data]
-        if len(data) > 1:
-            LOGGER.warning("Returned %s items for id %s.", len(data), id)
-        item = items[0] if items else None
-
-        return item
 
     def count(
         self,
