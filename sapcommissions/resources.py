@@ -130,6 +130,7 @@ class _Resource:
             fld.name
             for fld in fields(cls)
             if fld.type not in ("str", "int", "date", "datetime", "bool", "Value")
+            and fld.metadata.get("expand") is not False
             or fld.metadata.get("expand") is True
         )
 
@@ -1880,7 +1881,9 @@ class SalesTransaction(_Resource):
     productName: str = field(default=None, repr=False)
     productDescription: str = field(default=None, repr=False)
     paymentTerms: str = field(default=None, repr=False)
-    processingUnit: ProcessingUnit = field(default=None, repr=False)
+    processingUnit: ProcessingUnit = field(
+        default=None, metadata=_meta(expand=False), repr=False
+    )
     unitValue: Value = field(default=None, repr=False)
     accountingDate: date = field(default=None, repr=False)
     discountPercent: Value = field(default=None, repr=False)
