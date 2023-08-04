@@ -308,7 +308,7 @@ class _DeleteVersions(_Endpoint):
 
 
 class _Get(_Endpoint):
-    def get(self, seq: int | str) -> resources._Resource:
+    def get(self, seq: int | str, expand: list[str] = None) -> resources._Resource:
         """
         Reads all of the attributes of an existing resource.
 
@@ -322,7 +322,7 @@ class _Get(_Endpoint):
         assert isinstance(seq, (int, str))
 
         query = {}
-        if expand := self.resource._expands:  # pylint: disable=protected-access
+        if expand is not None:  # pylint: disable=protected-access
             query["expand"] = ",".join(expand)
 
         response = self._client.get(self.url + f"({seq})", query if query else None)
@@ -337,6 +337,7 @@ class _GetVersions(_Endpoint):
         seq: int | str,
         startDate: date = None,
         endDate: date = None,
+        expand: list[str] = None,
     ) -> list[resources._Resource]:
         """
         Returns all of the versions of a resource.
@@ -355,7 +356,7 @@ class _GetVersions(_Endpoint):
         assert isinstance(seq, (int, str))
 
         query = {}
-        if expand := self.resource._expands:  # pylint: disable=protected-access
+        if expand is not None:  # pylint: disable=protected-access
             query["expand"] = ",".join(expand)
 
         if startDate:
@@ -380,6 +381,7 @@ class _List(_Endpoint):
         endDate: date = None,
         limit: int = None,
         raw: bool = False,
+        expand: list[str] = None,
         **filter_kwargs: dict,
     ) -> list[resources._Resource]:
         """
@@ -416,7 +418,7 @@ class _List(_Endpoint):
         LOGGER.info("List %s", self.name)
 
         query = {"top": limit if limit and limit < 100 else 100}
-        if expand := self.resource._expands:  # pylint: disable=protected-access
+        if expand is not None:  # pylint: disable=protected-access
             query["expand"] = ",".join(expand)
         if filter:
             assert isinstance(filter, str)
@@ -463,6 +465,7 @@ class _List(_Endpoint):
         self,
         id: str,  # pylint: disable=redefined-builtin
         raw: bool = False,
+        expand: list[str] = None,
     ) -> resources._Resource:
         """
         Reads all of the attributes of an existing resource.
@@ -484,7 +487,7 @@ class _List(_Endpoint):
             return None
 
         query = {"top": 10}
-        if expand := self.resource._expands:  # pylint: disable=protected-access
+        if expand is not None:  # pylint: disable=protected-access
             query["expand"] = ",".join(expand)
         query["$filter"] = f"{id_attr} eq '{id}'"
 
