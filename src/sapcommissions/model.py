@@ -696,12 +696,12 @@ class Pipeline(_Pipeline):
 class Classify(_PipelineRunJob):
     """Run a Classify pipeline."""
 
-    stageTypeSeq: Literal[
+    stageTypeSeq: Literal[const.PipelineRunStages.Classify] = (
         const.PipelineRunStages.Classify
-    ] = const.PipelineRunStages.Classify
-    runMode: Literal[
-        const.PipelineRunMode.Full, const.PipelineRunMode.Incremental
-    ] = const.PipelineRunMode.Full
+    )
+    runMode: Literal[const.PipelineRunMode.Full, const.PipelineRunMode.Incremental] = (
+        const.PipelineRunMode.Full
+    )
     positionGroups: None = None
     positionSeqs: None = None
 
@@ -709,88 +709,88 @@ class Classify(_PipelineRunJob):
 class Allocate(_PipelineRunJob):
     """Run an Allocate pipeline."""
 
-    stageTypeSeq: Literal[
+    stageTypeSeq: Literal[const.PipelineRunStages.Allocate] = (
         const.PipelineRunStages.Allocate
-    ] = const.PipelineRunStages.Allocate
+    )
 
 
 class Reward(_PipelineRunJob):
     """Run a Reward pipeline."""
 
-    stageTypeSeq: Literal[
+    stageTypeSeq: Literal[const.PipelineRunStages.Reward] = (
         const.PipelineRunStages.Reward
-    ] = const.PipelineRunStages.Reward
-    runMode: Literal[
-        const.PipelineRunMode.Full, const.PipelineRunMode.Positions
-    ] = const.PipelineRunMode.Full
+    )
+    runMode: Literal[const.PipelineRunMode.Full, const.PipelineRunMode.Positions] = (
+        const.PipelineRunMode.Full
+    )
 
 
 class Pay(_PipelineRunJob):
     """Run a Pay pipeline."""
 
     stageTypeSeq: Literal[const.PipelineRunStages.Pay] = const.PipelineRunStages.Pay
-    runMode: Literal[
-        const.PipelineRunMode.Full, const.PipelineRunMode.Positions
-    ] = const.PipelineRunMode.Full
+    runMode: Literal[const.PipelineRunMode.Full, const.PipelineRunMode.Positions] = (
+        const.PipelineRunMode.Full
+    )
     positionSeqs: None = None
 
 
 class Summarize(_PipelineRunJob):
     """Run a Summarize pipeline."""
 
-    stageTypeSeq: Literal[
+    stageTypeSeq: Literal[const.PipelineRunStages.Summarize] = (
         const.PipelineRunStages.Summarize
-    ] = const.PipelineRunStages.Summarize
+    )
 
 
 class Compensate(_PipelineRunJob):
     """Run a Compensate pipeline."""
 
-    stageTypeSeq: Literal[
+    stageTypeSeq: Literal[const.PipelineRunStages.Compensate] = (
         const.PipelineRunStages.Compensate
-    ] = const.PipelineRunStages.Compensate
+    )
     removeStaleResults: bool = False
 
 
 class CompensateAndPay(_PipelineRunJob):
     """Run a CompensateAndPay pipeline."""
 
-    stageTypeSeq: Literal[
+    stageTypeSeq: Literal[const.PipelineRunStages.CompensateAndPay] = (
         const.PipelineRunStages.CompensateAndPay
-    ] = const.PipelineRunStages.CompensateAndPay
+    )
     removeStaleResults: bool = False
 
 
 class ResetFromClassify(_PipelineRunJob):
     """Run a ResetFromClassify pipeline."""
 
-    stageTypeSeq: Literal[
+    stageTypeSeq: Literal[const.PipelineRunStages.ResetFromClassify] = (
         const.PipelineRunStages.ResetFromClassify
-    ] = const.PipelineRunStages.ResetFromClassify
+    )
 
 
 class ResetFromAllocate(_PipelineRunJob):
     """Run a ResetFromAllocate pipeline."""
 
-    stageTypeSeq: Literal[
+    stageTypeSeq: Literal[const.PipelineRunStages.ResetFromAllocate] = (
         const.PipelineRunStages.ResetFromAllocate
-    ] = const.PipelineRunStages.ResetFromAllocate
+    )
 
 
 class ResetFromReward(_PipelineRunJob):
     """Run a ResetFromReward pipeline."""
 
-    stageTypeSeq: Literal[
+    stageTypeSeq: Literal[const.PipelineRunStages.ResetFromReward] = (
         const.PipelineRunStages.ResetFromReward
-    ] = const.PipelineRunStages.ResetFromReward
+    )
 
 
 class ResetFromPay(_PipelineRunJob):
     """Run a ResetFromPay pipeline."""
 
-    stageTypeSeq: Literal[
+    stageTypeSeq: Literal[const.PipelineRunStages.ResetFromPay] = (
         const.PipelineRunStages.ResetFromPay
-    ] = const.PipelineRunStages.ResetFromPay
+    )
 
 
 class Post(_PipelineRunJob):
@@ -802,57 +802,57 @@ class Post(_PipelineRunJob):
 class Finalize(_PipelineRunJob):
     """Run a Finalize pipeline."""
 
-    stageTypeSeq: Literal[
+    stageTypeSeq: Literal[const.PipelineRunStages.Finalize] = (
         const.PipelineRunStages.Finalize
-    ] = const.PipelineRunStages.Finalize
+    )
 
 
 class ReportsGeneration(_PipelineRunJob):
     """Run a ReportsGeneration pipeline."""
 
-    stageTypeSeq: Literal[
+    stageTypeSeq: Literal[const.PipelineRunStages.ReportsGeneration] = (
         const.PipelineRunStages.ReportsGeneration
-    ] = const.PipelineRunStages.ReportsGeneration
+    )
     generateODSReports: Literal[True] = True
     reportTypeName: const.ReportType = const.ReportType.Crystal
     reportFormatsList: list[const.ReportFormat]
     odsReportList: list[str]
     boGroupsList: list[str]
-    runMode: Literal[
-        const.PipelineRunMode.Full, const.PipelineRunMode.Positions
-    ] = const.PipelineRunMode.Full
+    runMode: Literal[const.PipelineRunMode.Full, const.PipelineRunMode.Positions] = (
+        const.PipelineRunMode.Full
+    )
 
 
 class UndoPost(_PipelineRunJob):
     """Run a UndoPost pipeline."""
 
-    stageTypeSeq: Literal[
+    stageTypeSeq: Literal[const.PipelineRunStages.UndoPost] = (
         const.PipelineRunStages.UndoPost
-    ] = const.PipelineRunStages.UndoPost
+    )
 
 
 class UndoFinalize(_PipelineRunJob):
     """Run a UndoFinalize pipeline."""
 
-    stageTypeSeq: Literal[
+    stageTypeSeq: Literal[const.PipelineRunStages.UndoFinalize] = (
         const.PipelineRunStages.UndoFinalize
-    ] = const.PipelineRunStages.UndoFinalize
+    )
 
 
 class CleanupDefferedResults(_PipelineRunJob):
     """Run a CleanupDefferedResults pipeline."""
 
-    stageTypeSeq: Literal[
+    stageTypeSeq: Literal[const.PipelineRunStages.CleanupDefferedResults] = (
         const.PipelineRunStages.CleanupDefferedResults
-    ] = const.PipelineRunStages.CleanupDefferedResults
+    )
 
 
 class UpdateAnalytics(_PipelineRunJob):
     """Run a UpdateAnalytics pipeline."""
 
-    stageTypeSeq: Literal[
+    stageTypeSeq: Literal[const.PipelineRunStages.UpdateAnalytics] = (
         const.PipelineRunStages.UpdateAnalytics
-    ] = const.PipelineRunStages.UpdateAnalytics
+    )
 
 
 class _XMLImportJob(_PipelineJob):
@@ -865,9 +865,9 @@ class _XMLImportJob(_PipelineJob):
 class XMLImport(_XMLImportJob):
     """Run an XML Import pipeline."""
 
-    stageTypeSeq: Literal[
+    stageTypeSeq: Literal[const.XMLImportStages.XMLImport] = (
         const.XMLImportStages.XMLImport
-    ] = const.XMLImportStages.XMLImport
+    )
     xmlFileName: str
     xmlFileContent: str
     updateExistingObjects: bool = False
@@ -923,24 +923,24 @@ class Transfer(_ImportJob):
 class ValidateAndTransfer(_ImportJob):
     """Run a ValidateAndTransfer pipeline."""
 
-    stageTypeSeq: Literal[
+    stageTypeSeq: Literal[const.ImportStages.ValidateAndTransfer] = (
         const.ImportStages.ValidateAndTransfer
-    ] = const.ImportStages.ValidateAndTransfer
+    )
     revalidate: const.RevalidateMode = const.RevalidateMode.All
 
 
 class ValidateAndTransferIfAllValid(_ImportJob):
     """Run a ValidateAndTransferIfAllValid pipeline."""
 
-    stageTypeSeq: Literal[
+    stageTypeSeq: Literal[const.ImportStages.ValidateAndTransferIfAllValid] = (
         const.ImportStages.ValidateAndTransferIfAllValid
-    ] = const.ImportStages.ValidateAndTransferIfAllValid
+    )
     revalidate: const.RevalidateMode = const.RevalidateMode.All
 
 
 class TransferIfAllValid(_ImportJob):
     """Run a TransferIfAllValid pipeline."""
 
-    stageTypeSeq: Literal[
+    stageTypeSeq: Literal[const.ImportStages.TransferIfAllValid] = (
         const.ImportStages.TransferIfAllValid
-    ] = const.ImportStages.TransferIfAllValid
+    )
