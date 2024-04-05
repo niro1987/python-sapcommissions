@@ -1,4 +1,5 @@
 """CLI entry point for Python SAP Commissions Client."""
+
 import asyncio
 import logging
 import os
@@ -16,7 +17,7 @@ LOGGER = logging.getLogger(__package__)
 
 
 def setup_logging(logfile: Path | None = None, verbose: bool = False) -> None:
-    """Setup logging, add filehandler if logfile is provided."""
+    """Set up logging and add filehandler if logfile is provided."""
     config = {
         "version": 1,
         "formatters": {
@@ -52,6 +53,20 @@ async def async_deploy(
     auth: BasicAuth,
     verify_ssl: bool = True,
 ) -> int:
+    """Deploy rule elements asynchronously from a directory to the tenant.
+
+    Args:
+    ----
+        path (Path): The path to the directory containing the rule elements.
+        tenant (str): The tenant to deploy the rule elements to.
+        auth (BasicAuth): The authentication credentials for the tenant.
+        verify_ssl (bool, optional): Whether to verify SSL certificates. Defaults to True.
+
+    Returns:
+    -------
+        int: The result of the deployment process.
+
+    """
     async with ClientSession(auth=auth) as session:
         client = CommissionsClient(tenant, session, verify_ssl)
         await deploy_from_path(client, path)
@@ -68,15 +83,13 @@ async def async_deploy(
         dir_okay=False,
         writable=True,
         resolve_path=False,
-        path_type=Path
+        path_type=Path,
     ),
-    help="Enable logging to a file."
+    help="Enable logging to a file.",
 )
 @click.option("-v", is_flag=True, help="Increase logging verbosity.")
 def cli(logfile: Path | None = None, v: bool = False) -> None:
-    """
-    SAP Commissions command-line entry.
-    """
+    """Command-line interface for sapcommissions."""
     setup_logging(logfile, v)
     LOGGER.info("sapcommissions command-line interface")
 
@@ -90,8 +103,8 @@ def cli(logfile: Path | None = None, v: bool = False) -> None:
         dir_okay=True,
         readable=True,
         resolve_path=False,
-        path_type=Path
-    )
+        path_type=Path,
+    ),
 )
 @click.option("-t", "--tenant", type=str, help="Tenant, for example `CALD-DEV`.")
 @click.option("-u", "--username", type=str, help="Username for tenant.")
@@ -104,20 +117,20 @@ def deploy(
     password: str | None = None,
     no_ssl: bool = False,
 ):
-    """
-    Deploy rule elements from a directory to the tenant.
+    """Deploy rule elements from a directory to the tenant.
 
-    \b
-    PATH    is the directory containing the rule elements to deploy.
+    Args:
+    ----
+        path (Path): The path to the directory containing the rule elements.
+        tenant (str, optional): The tenant to deploy the rule elements to. Defaults to None.
+        username (str, optional): The username for the tenant. Defaults to None.
+        password (str, optional): The password for the tenant. Defaults to None.
+        no_ssl (bool, optional): Whether to disable SSL validation. Defaults to False.
 
-    \b
-    Example usage: `sap deploy . -t CALD-DEV -u spamm -p eggs`
+    Returns:
+    -------
+        int: The result of the deployment process.
 
-    \b
-    Tenant, Username and password can also be set using environment variables:
-    SAP_TENANT      Tenant, for example `CALD-DEV`.
-    SAP_USERNAME    Username for the tenant.
-    SAP_PASSWORD    Password for the tenant.
     """
     sap_tenant: str = tenant or os.environ.get("SAP_TENANT")
     sap_username: str = username or os.environ.get("SAP_USERNAME")
@@ -125,7 +138,7 @@ def deploy(
     if not (sap_tenant and sap_username and sap_password):
         LOGGER.error("Tenant, Username or password not set")
         return 1
-    LOGGER.info(f"deploy '{path}' on '{sap_tenant}' by '{sap_username}'")
+    LOGGER.info("deploy '%s' on '%s' by '%s'", path, sap_tenant, sap_username)
     auth = BasicAuth(sap_username, sap_password)
 
     if no_ssl:
@@ -134,6 +147,7 @@ def deploy(
 
     asyncio.run(async_deploy(path, sap_tenant, auth, verify_ssl))
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(cli())

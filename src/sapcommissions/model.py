@@ -1,4 +1,5 @@
 """Data models for Python SAP Commissions Client."""
+
 from datetime import datetime
 from typing import Literal
 
@@ -8,25 +9,29 @@ from sapcommissions import const
 
 
 class ValueUnitType(pydantic.BaseModel):
-    """Model for UnitType."""
+    """BaseModel for UnitType."""
+
     name: str
     unitTypeSeq: str
 
 
 class Value(pydantic.BaseModel):
-    """Model for Value."""
+    """BaseModel for Value."""
+
     value: int | float
     unitType: ValueUnitType
 
 
 class RuleUsage(pydantic.BaseModel):
-    """Model for RuleUsage."""
+    """BaseModel for RuleUsage."""
+
     id: str
     name: str
 
 
 class _Base(pydantic.BaseModel):
-    """Base model."""
+    """BaseModel."""
+
     _endpoint: str
     _attr_seq: str
 
@@ -47,7 +52,8 @@ class _Base(pydantic.BaseModel):
 
 
 class _Resource(_Base):
-    """BaseModel for any Resource."""
+    """Base class for a Resource."""
+
     createDate: datetime | None = pydantic.Field(None, exclude=True, repr=False)
     createdBy: str | None = pydantic.Field(None, exclude=True, repr=False)
     modifiedBy: str | None = pydantic.Field(None, exclude=True, repr=False)
@@ -55,33 +61,40 @@ class _Resource(_Base):
 
 class _DataType(_Resource):
     """Base class for Data Type resources."""
+
     _attr_seq: str = "dataTypeSeq"
     dataTypeSeq: str | None = None
-    description: str | None = pydantic.Field(None, validation_alias=pydantic.AliasChoices("description", "Description"))
+    description: str | None = pydantic.Field(
+        None, validation_alias=pydantic.AliasChoices("description", "Description")
+    )
     notAllowUpdate: bool | None = pydantic.Field(None, repr=False)
 
 
 class _RuleElement(_Resource):
     """Base class for Rule Element resources."""
+
     _attr_seq: str = "ruleElementSeq"
     ruleElementSeq: str | None = None
 
 
 class _RuleElementOwner(_Resource):
     """Base class for Rule Element Owner resources."""
+
     _attr_seq: str = "ruleElementOwnerSeq"
     ruleElementOwnerSeq: str | None = None
 
 
 class _Pipeline(_Base):
     """Base class for Pipeline resources."""
+
     _endpoint: str = "api/v2/pipelines"
     _attr_seq: str = "pipelineRunSeq"
     pipelineRunSeq: str | None = None
 
 
 class _PipelineJob(_Pipeline):
-    """Base class for a Pipeline Job"""
+    """Base class for a Pipeline Job."""
+
     command: Literal["PipelineRun", "Import", "XMLImport", "ModelRun", "MaintenanceRun"]
     pipelineRunSeq: None = None
     runStats: bool = False
@@ -89,6 +102,7 @@ class _PipelineJob(_Pipeline):
 
 class _PipelineRunJob(_PipelineJob):
     """Base class for a PipelineRun job."""
+
     command: Literal["PipelineRun"] = "PipelineRun"
     periodSeq: str
     calendarSeq: str
@@ -101,16 +115,22 @@ class _PipelineRunJob(_PipelineJob):
     @pydantic.model_validator(mode="after")
     def check_runmode(self) -> "_PipelineRunJob":
         """If runMode is 'positions', positionGroups or positionSeqs must be list."""
-        if self.runMode in (const.PipelineRunMode.FULL, const.PipelineRunMode.INCREMENTAL):
+        if self.runMode in (
+            const.PipelineRunMode.FULL,
+            const.PipelineRunMode.INCREMENTAL,
+        ):
             if not (self.positionGroups is None and self.positionSeqs is None):
-                raise ValueError("When runMode is 'full' or 'incremental', positionGroups and positionSeqs must be None")
+                raise ValueError(
+                    "When runMode is 'full' or 'incremental', positionGroups and positionSeqs must be None"
+                )
 
         if self.runMode == const.PipelineRunMode.POSITIONS:
-            if (
-                not (self.positionGroups and self.positionSeqs)
-                or (self.positionGroups and self.positionSeqs)
+            if not (self.positionGroups and self.positionSeqs) or (
+                self.positionGroups and self.positionSeqs
             ):
-                raise ValueError("When runMode is 'positions', provide either positionGroups or positionSeqs")
+                raise ValueError(
+                    "When runMode is 'positions', provide either positionGroups or positionSeqs"
+                )
             if isinstance(self.positionGroups, list) and not len(self.positionGroups):
                 raise ValueError("positionGroups cannot be an empty list")
             if isinstance(self.positionSeqs, list) and not len(self.positionSeqs):
@@ -120,42 +140,61 @@ class _PipelineRunJob(_PipelineJob):
 
 class EventType(_DataType):
     """Class representation of an Event Type."""
+
     _endpoint: str = "api/v2/eventTypes"
-    eventTypeId: str = pydantic.Field(validation_alias=pydantic.AliasChoices("eventTypeId", "ID"))
+    eventTypeId: str = pydantic.Field(
+        validation_alias=pydantic.AliasChoices("eventTypeId", "ID")
+    )
 
 
 class CreditType(_DataType):
     """Credit Type."""
+
     _endpoint: str = "api/v2/creditTypes"
-    creditTypeId: str = pydantic.Field(validation_alias=pydantic.AliasChoices("creditTypeId", "ID", "Credit Type ID"))
+    creditTypeId: str = pydantic.Field(
+        validation_alias=pydantic.AliasChoices("creditTypeId", "ID", "Credit Type ID")
+    )
 
 
 class EarningCode(_DataType):
     """Earning Code."""
+
     _endpoint: str = "api/v2/earningCodes"
-    earningCodeId: str = pydantic.Field(validation_alias=pydantic.AliasChoices("earningCodeId", "ID"))
+    earningCodeId: str = pydantic.Field(
+        validation_alias=pydantic.AliasChoices("earningCodeId", "ID")
+    )
 
 
 class EarningGroup(_DataType):
     """Earning Group."""
+
     _endpoint: str = "api/v2/earningGroups"
-    earningGroupId: str = pydantic.Field(validation_alias=pydantic.AliasChoices("earningGroupId", "ID"))
+    earningGroupId: str = pydantic.Field(
+        validation_alias=pydantic.AliasChoices("earningGroupId", "ID")
+    )
 
 
 class FixedValueType(_DataType):
     """Fixed Value Type."""
+
     _endpoint: str = "api/v2/fixedValueTypes"
-    fixedValueTypeId: str = pydantic.Field(validation_alias=pydantic.AliasChoices("fixedValueTypeId", "ID"))
+    fixedValueTypeId: str = pydantic.Field(
+        validation_alias=pydantic.AliasChoices("fixedValueTypeId", "ID")
+    )
 
 
 class ReasonCode(_DataType):
     """Reason Code."""
+
     _endpoint: str = "api/v2/reasons"
-    reasonId: str = pydantic.Field(validation_alias=pydantic.AliasChoices("reasonId", "ID"))
+    reasonId: str = pydantic.Field(
+        validation_alias=pydantic.AliasChoices("reasonId", "ID")
+    )
 
 
 class BusinessUnit(_Resource):
     """Business Unit."""
+
     _endpoint: str = "api/v2/businessUnits"
     _attr_seq: str = "businessUnitSeq"
     businessUnitSeq: str | None = None
@@ -166,6 +205,7 @@ class BusinessUnit(_Resource):
 
 class ProcessingUnit(_Resource):
     """Processing Unit."""
+
     _endpoint: str = "api/v2/processingUnits"
     _attr_seq: str = "processingUnitSeq"
     processingUnitSeq: str | None = None
@@ -175,6 +215,7 @@ class ProcessingUnit(_Resource):
 
 class PeriodType(_Resource):
     """Period Type."""
+
     _endpoint: str = "api/v2/periodTypes"
     _attr_seq: str = "periodTypeSeq"
     periodTypeSeq: str | None = None
@@ -185,6 +226,7 @@ class PeriodType(_Resource):
 
 class Calendar(_Resource):
     """Calendar."""
+
     _endpoint: str = "api/v2/calendars"
     _attr_seq: str = "calendarSeq"
     calendarSeq: str | None = None
@@ -197,6 +239,7 @@ class Calendar(_Resource):
 
 class Period(_Resource):
     """Period."""
+
     _endpoint: str = "api/v2/periods"
     _attr_seq: str = "periodSeq"
     periodSeq: str | None = None
@@ -211,12 +254,15 @@ class Period(_Resource):
 
 
 class Assignment(pydantic.BaseModel):
+    """BaseModel for Assignment."""
+
     key: str | None = None
     ownedKey: str | None = None
 
 
 class Title(_RuleElementOwner):
     """Title."""
+
     _endpoint: str = "api/v2/titles"
     name: str
     description: str | None = None
@@ -264,6 +310,7 @@ class Title(_RuleElementOwner):
 
 class Position(_RuleElementOwner):
     """Position."""
+
     _endpoint: str = "api/v2/positions"
     name: str
     description: str | None = None
@@ -321,6 +368,7 @@ class Position(_RuleElementOwner):
 
 class PositionGroup(_Resource):
     """Position."""
+
     _endpoint: str = "api/v2/positionGroups"
     _attr_seq: str = "positionGroupSeq"
     positionGroupSeq: str | None = None
@@ -330,6 +378,7 @@ class PositionGroup(_Resource):
 
 class AppliedDeposit(_Resource):
     """AppliedDeposit."""
+
     _endpoint: str = "api/v2/appliedDeposits"
     _attr_seq: str = "appliedDepositSeq"
     appliedDepositSeq: str | None = None
@@ -349,6 +398,7 @@ class AppliedDeposit(_Resource):
 
 class Balance(_Resource):
     """Balance."""
+
     _endpoint: str = "api/v2/balances"
     _attr_seq: str = "balanceSeq"
     balanceSeq: str | None = None
@@ -370,6 +420,7 @@ class Balance(_Resource):
 
 class Category(_RuleElement):
     """Category."""
+
     _endpoint: str = "api/v2/categories"
     name: str
     description: str | None = None
@@ -422,6 +473,7 @@ class Category(_RuleElement):
 
 class categoryClassifier(_Resource):
     """categoryClassifier."""
+
     _endpoint: str = "api/v2/categoryClassifiers"
     _attr_seq: str = "categoryClassifiersSeq"
     categoryClassifiersSeq: str | None = None
@@ -434,6 +486,7 @@ class categoryClassifier(_Resource):
 
 class CategoryTree(_Resource):
     """CategoryTree."""
+
     _endpoint: str = "api/v2/categoryTrees"
     _attr_seq: str = "categoryTreeSeq"
     categoryTreeSeq: str | None = None
@@ -447,8 +500,11 @@ class CategoryTree(_Resource):
 
 
 class Commission(_Resource):
-    """Commission."""
-    # TODO: No results.
+    """Commission.
+
+    TODO: No results.
+    """
+
     _endpoint: str = "api/v2/commissions"
     _attr_seq: str = "commissionSeq"
     commissionSeq: str | None = None
@@ -470,6 +526,7 @@ class Commission(_Resource):
 
 class Credit(_Resource):
     """Credit."""
+
     _endpoint: str = "api/v2/credits"
     _attr_seq: str = "creditSeq"
     creditSeq: str | None = None
@@ -535,6 +592,7 @@ class Credit(_Resource):
 
 class ResetFromValidate(_Pipeline):
     """Run a ResetFromValidate pipeline."""
+
     _endpoint: str = "api/v2/pipelines/resetfromvalidate"
     pipelineRunSeq: None = None
     calendarSeq: str
@@ -545,6 +603,7 @@ class ResetFromValidate(_Pipeline):
 
 class Purge(_Pipeline):
     """Run a Purge pipeline."""
+
     _endpoint: str = "api/v2/pipelines"
     pipelineRunSeq: None = None
     command: Literal["PipelineRun"] = "PipelineRun"
@@ -560,9 +619,26 @@ class Purge(_Pipeline):
 
 class Pipeline(_Pipeline):
     """Pipeline."""
+
     pipelineRunSeq: str
-    command: Literal["PipelineRun", "Import", "XMLImport", "ModelRun", "MaintenanceRun", "CleanupDeferredPipelineResults"] | None
-    stageType: const.PipelineRunStages | const.ImportStages | const.XMLImportStages | const.MaintenanceStages | None
+    command: (
+        Literal[
+            "PipelineRun",
+            "Import",
+            "XMLImport",
+            "ModelRun",
+            "MaintenanceRun",
+            "CleanupDeferredPipelineResults",
+        ]
+        | None
+    )
+    stageType: (
+        const.PipelineRunStages
+        | const.ImportStages
+        | const.XMLImportStages
+        | const.MaintenanceStages
+        | None
+    )
     dateSubmitted: datetime
     state: const.PipelineState
     userId: str
@@ -579,7 +655,9 @@ class Pipeline(_Pipeline):
     message: str | None = pydantic.Field(None, repr=False)
     numErrors: int | None = pydantic.Field(repr=False)
     numWarnings: int | None = pydantic.Field(repr=False)
-    runMode: const.ImportRunMode | const.PipelineRunMode | None = pydantic.Field(None, repr=False)
+    runMode: const.ImportRunMode | const.PipelineRunMode | None = pydantic.Field(
+        None, repr=False
+    )
 
     @pydantic.field_validator("runProgress", mode="before")
     @classmethod
@@ -590,116 +668,179 @@ class Pipeline(_Pipeline):
 
 class Classify(_PipelineRunJob):
     """Run a Classify pipeline."""
-    stageTypeSeq: Literal[const.PipelineRunStages.Classify] = const.PipelineRunStages.Classify
-    runMode: Literal[const.PipelineRunMode.FULL, const.PipelineRunMode.INCREMENTAL] = const.PipelineRunMode.FULL
+
+    stageTypeSeq: Literal[
+        const.PipelineRunStages.Classify
+    ] = const.PipelineRunStages.Classify
+    runMode: Literal[
+        const.PipelineRunMode.FULL, const.PipelineRunMode.INCREMENTAL
+    ] = const.PipelineRunMode.FULL
     positionGroups: None = None
     positionSeqs: None = None
 
 
 class Allocate(_PipelineRunJob):
     """Run an Allocate pipeline."""
-    stageTypeSeq: Literal[const.PipelineRunStages.Allocate] = const.PipelineRunStages.Allocate
+
+    stageTypeSeq: Literal[
+        const.PipelineRunStages.Allocate
+    ] = const.PipelineRunStages.Allocate
 
 
 class Reward(_PipelineRunJob):
     """Run a Reward pipeline."""
-    stageTypeSeq: Literal[const.PipelineRunStages.Reward] = const.PipelineRunStages.Reward
-    runMode: Literal[const.PipelineRunMode.FULL, const.PipelineRunMode.POSITIONS] = const.PipelineRunMode.FULL
+
+    stageTypeSeq: Literal[
+        const.PipelineRunStages.Reward
+    ] = const.PipelineRunStages.Reward
+    runMode: Literal[
+        const.PipelineRunMode.FULL, const.PipelineRunMode.POSITIONS
+    ] = const.PipelineRunMode.FULL
 
 
 class Pay(_PipelineRunJob):
     """Run a Pay pipeline."""
+
     stageTypeSeq: Literal[const.PipelineRunStages.Pay] = const.PipelineRunStages.Pay
-    runMode: Literal[const.PipelineRunMode.FULL, const.PipelineRunMode.POSITIONS] = const.PipelineRunMode.FULL
+    runMode: Literal[
+        const.PipelineRunMode.FULL, const.PipelineRunMode.POSITIONS
+    ] = const.PipelineRunMode.FULL
     positionSeqs: None = None
 
 
 class Summarize(_PipelineRunJob):
     """Run a Summarize pipeline."""
-    stageTypeSeq: Literal[const.PipelineRunStages.Summarize] = const.PipelineRunStages.Summarize
+
+    stageTypeSeq: Literal[
+        const.PipelineRunStages.Summarize
+    ] = const.PipelineRunStages.Summarize
 
 
 class Compensate(_PipelineRunJob):
     """Run a Compensate pipeline."""
-    stageTypeSeq: Literal[const.PipelineRunStages.Compensate] = const.PipelineRunStages.Compensate
+
+    stageTypeSeq: Literal[
+        const.PipelineRunStages.Compensate
+    ] = const.PipelineRunStages.Compensate
     removeStaleResults: bool = False
 
 
 class CompensateAndPay(_PipelineRunJob):
     """Run a CompensateAndPay pipeline."""
-    stageTypeSeq: Literal[const.PipelineRunStages.CompensateAndPay] = const.PipelineRunStages.CompensateAndPay
+
+    stageTypeSeq: Literal[
+        const.PipelineRunStages.CompensateAndPay
+    ] = const.PipelineRunStages.CompensateAndPay
     removeStaleResults: bool = False
 
 
 class ResetFromClassify(_PipelineRunJob):
     """Run a ResetFromClassify pipeline."""
-    stageTypeSeq: Literal[const.PipelineRunStages.ResetFromClassify] = const.PipelineRunStages.ResetFromClassify
+
+    stageTypeSeq: Literal[
+        const.PipelineRunStages.ResetFromClassify
+    ] = const.PipelineRunStages.ResetFromClassify
 
 
 class ResetFromAllocate(_PipelineRunJob):
     """Run a ResetFromAllocate pipeline."""
-    stageTypeSeq: Literal[const.PipelineRunStages.ResetFromAllocate] = const.PipelineRunStages.ResetFromAllocate
+
+    stageTypeSeq: Literal[
+        const.PipelineRunStages.ResetFromAllocate
+    ] = const.PipelineRunStages.ResetFromAllocate
 
 
 class ResetFromReward(_PipelineRunJob):
     """Run a ResetFromReward pipeline."""
-    stageTypeSeq: Literal[const.PipelineRunStages.ResetFromReward] = const.PipelineRunStages.ResetFromReward
+
+    stageTypeSeq: Literal[
+        const.PipelineRunStages.ResetFromReward
+    ] = const.PipelineRunStages.ResetFromReward
 
 
 class ResetFromPay(_PipelineRunJob):
     """Run a ResetFromPay pipeline."""
-    stageTypeSeq: Literal[const.PipelineRunStages.ResetFromPay] = const.PipelineRunStages.ResetFromPay
+
+    stageTypeSeq: Literal[
+        const.PipelineRunStages.ResetFromPay
+    ] = const.PipelineRunStages.ResetFromPay
 
 
 class Post(_PipelineRunJob):
     """Run a Post pipeline."""
+
     stageTypeSeq: Literal[const.PipelineRunStages.Post] = const.PipelineRunStages.Post
 
 
 class Finalize(_PipelineRunJob):
     """Run a Finalize pipeline."""
-    stageTypeSeq: Literal[const.PipelineRunStages.Finalize] = const.PipelineRunStages.Finalize
+
+    stageTypeSeq: Literal[
+        const.PipelineRunStages.Finalize
+    ] = const.PipelineRunStages.Finalize
 
 
 class ReportsGeneration(_PipelineRunJob):
     """Run a ReportsGeneration pipeline."""
-    stageTypeSeq: Literal[const.PipelineRunStages.ReportsGeneration] = const.PipelineRunStages.ReportsGeneration
+
+    stageTypeSeq: Literal[
+        const.PipelineRunStages.ReportsGeneration
+    ] = const.PipelineRunStages.ReportsGeneration
     generateODSReports: Literal[True] = True
     reportTypeName: const.ReportType = const.ReportType.Crystal
     reportFormatsList: list[const.ReportFormat]
     odsReportList: list[str]
     boGroupsList: list[str]
-    runMode: Literal[const.PipelineRunMode.FULL, const.PipelineRunMode.POSITIONS] = const.PipelineRunMode.FULL
+    runMode: Literal[
+        const.PipelineRunMode.FULL, const.PipelineRunMode.POSITIONS
+    ] = const.PipelineRunMode.FULL
 
 
 class UndoPost(_PipelineRunJob):
     """Run a UndoPost pipeline."""
-    stageTypeSeq: Literal[const.PipelineRunStages.UndoPost] = const.PipelineRunStages.UndoPost
+
+    stageTypeSeq: Literal[
+        const.PipelineRunStages.UndoPost
+    ] = const.PipelineRunStages.UndoPost
 
 
 class UndoFinalize(_PipelineRunJob):
     """Run a UndoFinalize pipeline."""
-    stageTypeSeq: Literal[const.PipelineRunStages.UndoFinalize] = const.PipelineRunStages.UndoFinalize
+
+    stageTypeSeq: Literal[
+        const.PipelineRunStages.UndoFinalize
+    ] = const.PipelineRunStages.UndoFinalize
 
 
 class CleanupDefferedResults(_PipelineRunJob):
     """Run a CleanupDefferedResults pipeline."""
-    stageTypeSeq: Literal[const.PipelineRunStages.CleanupDefferedResults] = const.PipelineRunStages.CleanupDefferedResults
+
+    stageTypeSeq: Literal[
+        const.PipelineRunStages.CleanupDefferedResults
+    ] = const.PipelineRunStages.CleanupDefferedResults
 
 
 class UpdateAnalytics(_PipelineRunJob):
     """Run a UpdateAnalytics pipeline."""
-    stageTypeSeq: Literal[const.PipelineRunStages.UpdateAnalytics] = const.PipelineRunStages.UpdateAnalytics
+
+    stageTypeSeq: Literal[
+        const.PipelineRunStages.UpdateAnalytics
+    ] = const.PipelineRunStages.UpdateAnalytics
+
 
 class _XMLImportJob(_PipelineJob):
     """Base class for an XMLImport Pipeline job."""
+
     command: Literal["XMLImport"] = "XMLImport"
     stageTypeSeq: const.XMLImportStages
 
 
 class XMLImport(_XMLImportJob):
     """Run an XML Import pipeline."""
-    stageTypeSeq: Literal[const.XMLImportStages.XMLImport] = const.XMLImportStages.XMLImport
+
+    stageTypeSeq: Literal[
+        const.XMLImportStages.XMLImport
+    ] = const.XMLImportStages.XMLImport
     xmlFileName: str
     xmlFileContent: str
     updateExistingObjects: bool = False
@@ -707,6 +848,7 @@ class XMLImport(_XMLImportJob):
 
 class _ImportJob(_PipelineJob):
     """Base class for an Import job."""
+
     command: Literal["Import"] = "Import"
     stageTypeSeq: const.ImportStages
     calendarSeq: str
@@ -721,43 +863,57 @@ class _ImportJob(_PipelineJob):
 
     @pydantic.model_validator(mode="after")
     def validate_conditional_fields(self) -> "_ImportJob":
-        """
-        Validate conditional required fields.
+        """Validate conditional required fields.
 
+        Validations:
+        -----------
         - runMode can only be 'new' when importing TransactionalData
         """
         if (
             self.module != const.StageTables.TransactionalData
             and self.runMode == const.ImportRunMode.NEW
         ):
-            raise ValueError("runMode can only be 'new' when importing TransactionalData")
+            raise ValueError(
+                "runMode can only be 'new' when importing TransactionalData"
+            )
 
         return self
 
 
 class Validate(_ImportJob):
     """Run a Validate pipeline."""
+
     stageTypeSeq: Literal[const.ImportStages.Validate] = const.ImportStages.Validate
     revalidate: const.RevalidateMode = const.RevalidateMode.ALL
 
 
 class Transfer(_ImportJob):
     """Run a Transfer pipeline."""
+
     stageTypeSeq: Literal[const.ImportStages.Transfer] = const.ImportStages.Transfer
 
 
 class ValidateAndTransfer(_ImportJob):
     """Run a ValidateAndTransfer pipeline."""
-    stageTypeSeq: Literal[const.ImportStages.ValidateAndTransfer] = const.ImportStages.ValidateAndTransfer
+
+    stageTypeSeq: Literal[
+        const.ImportStages.ValidateAndTransfer
+    ] = const.ImportStages.ValidateAndTransfer
     revalidate: const.RevalidateMode = const.RevalidateMode.ALL
 
 
 class ValidateAndTransferIfAllValid(_ImportJob):
     """Run a ValidateAndTransferIfAllValid pipeline."""
-    stageTypeSeq: Literal[const.ImportStages.ValidateAndTransferIfAllValid] = const.ImportStages.ValidateAndTransferIfAllValid
+
+    stageTypeSeq: Literal[
+        const.ImportStages.ValidateAndTransferIfAllValid
+    ] = const.ImportStages.ValidateAndTransferIfAllValid
     revalidate: const.RevalidateMode = const.RevalidateMode.ALL
 
 
 class TransferIfAllValid(_ImportJob):
     """Run a TransferIfAllValid pipeline."""
-    stageTypeSeq: Literal[const.ImportStages.TransferIfAllValid] = const.ImportStages.TransferIfAllValid
+
+    stageTypeSeq: Literal[
+        const.ImportStages.TransferIfAllValid
+    ] = const.ImportStages.TransferIfAllValid

@@ -1,48 +1,37 @@
 """Config for Pytest."""
+
 from collections.abc import AsyncGenerator
 
 import pytest
 from aiohttp import BasicAuth, ClientSession
 from dotenv import dotenv_values
+
 from sapcommissions import CommissionsClient
 
 
+@pytest.fixture(name="config")
+def fixture_config() -> dict[str, str]:
+    """Return the configuration values from the .env file."""
+    return dotenv_values("tests/.env")
+
+
+@pytest.fixture(name="session")
+async def fixture_session(
+    config: dict[str, str],
+) -> AsyncGenerator[ClientSession, None]:
+    """Yield an async client session."""
+    username: str = config["SAP_USERNAME"]
+    password: str = config["SAP_PASSWORD"]
+    auth: BasicAuth = BasicAuth(username, password)
+    async with ClientSession(auth=auth) as session:
+        yield session
+
+
 @pytest.fixture(name="client")
-async def fixture_client() -> AsyncGenerator[CommissionsClient, None]:
-    tenant: str = "VFNL-MDEV"
-    username, password = dotenv_values("tests/.env").values()
-    auth: BasicAuth = BasicAuth(username, password)
-    async with ClientSession(auth=auth) as session:
-        yield CommissionsClient(tenant, session, verify_ssl=False)
-
-@pytest.fixture(name="client_dev")
-async def fixture_client_dev() -> AsyncGenerator[CommissionsClient, None]:
-    tenant: str = "VFNL-MDEV"
-    username, password = dotenv_values("tests/.env").values()
-    auth: BasicAuth = BasicAuth(username, password)
-    async with ClientSession(auth=auth) as session:
-        yield CommissionsClient(tenant, session, verify_ssl=False)
-
-@pytest.fixture(name="client_tst")
-async def fixture_client_tst() -> AsyncGenerator[CommissionsClient, None]:
-    tenant: str = "VFNL-MTST"
-    username, password = dotenv_values("tests/.env").values()
-    auth: BasicAuth = BasicAuth(username, password)
-    async with ClientSession(auth=auth) as session:
-        yield CommissionsClient(tenant, session, verify_ssl=False)
-
-@pytest.fixture(name="client_uat")
-async def fixture_client_uat() -> AsyncGenerator[CommissionsClient, None]:
-    tenant: str = "VFNL-MUAT"
-    username, password = dotenv_values("tests/.env").values()
-    auth: BasicAuth = BasicAuth(username, password)
-    async with ClientSession(auth=auth) as session:
-        yield CommissionsClient(tenant, session, verify_ssl=False)
-
-@pytest.fixture(name="client_prd")
-async def fixture_client_prd() -> AsyncGenerator[CommissionsClient, None]:
-    tenant: str = "VFNL-MPRD"
-    username, password = dotenv_values("tests/.env").values()
-    auth: BasicAuth = BasicAuth(username, password)
-    async with ClientSession(auth=auth) as session:
-        yield CommissionsClient(tenant, session, verify_ssl=False)
+async def fixture_client(
+    config: dict[str, str],
+    session: ClientSession,
+) -> AsyncGenerator[CommissionsClient, None]:
+    """Yield a CommissionsClient instance."""
+    tenant: str = config["SAP_TENANT"]
+    yield CommissionsClient(tenant, session, verify_ssl=False)

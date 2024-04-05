@@ -19,7 +19,7 @@ repos:
           - --ignore-words-list=perfors
           - --skip="./.*,*.csv,*.json,*.txt,*.xml"
           - --quiet-level=2
-        exclude_types: [csv, json, txt, xml]
+        exclude_types: [csv, json, text, xml]
         exclude: ^tests/fixtures/.*$
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0

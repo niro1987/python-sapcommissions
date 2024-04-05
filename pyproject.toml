@@ -51,7 +51,9 @@ ignore = ["tests"]
 load-plugins = ["pylint.extensions.code_style", "pylint.extensions.typing"]
 
 [tool.pylint."MESSAGES CONTROL"]
-disable = []
+disable = [
+    "C0103", # invalid-name
+]
 enable = ["use-symbolic-message-instead"]
 
 [tool.pylint.REPORTS]
@@ -95,7 +97,6 @@ select = [
     "ICN001",  # import concentions; {name} should be imported as {asname}
     "N804",    # First argument of a class method should be named cls
     "N805",    # First argument of a method should be named self
-    "N815",    # Variable {name} in class scope should not be mixedCase
     "S307",    # No builtin eval() allowed
     "PGH004",  # Use specific rule codes when using noqa
     "PLC0414", # Useless import alias. Import alias does not rename original package.
@@ -165,7 +166,6 @@ ignore = [
 ]
 
 [tool.ruff.lint.isort]
-force-sort-within-sections = true
 known-first-party = ["sapcommissions"]
 combine-as-imports = true
 split-on-trailing-comma = true

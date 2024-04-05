@@ -1,10 +1,12 @@
 """Constants for Python SAP Commissions Client."""
+
 from enum import StrEnum
 from typing import Final
 
 
 class HTTPMETHOD(StrEnum):
     """StrEnum for HTTP request methods."""
+
     GET = "GET"
     POST = "POST"
     PUT = "PUT"
@@ -13,6 +15,7 @@ class HTTPMETHOD(StrEnum):
 
 class PipelineRunStages(StrEnum):
     """StrEnum for PipelineRun stages."""
+
     Classify = "21673573206720515"
     Allocate = "21673573206720516"
     Reward = "21673573206720518"
@@ -33,8 +36,10 @@ class PipelineRunStages(StrEnum):
     CleanupDefferedResults = "21673573206720540"
     UpdateAnalytics = "21673573206720701"
 
+
 class ImportStages(StrEnum):
     """StrEnum for Import stages."""
+
     Validate = "21673573206720533"
     Transfer = "21673573206720534"
     ValidateAndTransfer = "21673573206720536"
@@ -45,34 +50,19 @@ class ImportStages(StrEnum):
 
 class XMLImportStages(StrEnum):
     """StrEnum for XMLImport stage."""
+
     XMLImport = "21673573206720693"
 
 
 class MaintenanceStages(StrEnum):
     """StrEnum for Maintenance stage."""
+
     Maintenance = "21673573206720692"
 
 
-class PipelineRunMode(StrEnum):
-    """StrEnum for PipelineRun RunMode."""
-    FULL = "full"
-    POSITIONS = "positions"
-    INCREMENTAL = "incremental"
-
-
-class ImportRunMode(StrEnum):
-    """StrEnum for Import RunMode."""
-    ALL = "all"
-    NEW = "new"
-
-
-class RevalidateMode(StrEnum):
-    """StrEnum for Import Revalidate."""
-    ALL = "all"
-    ERRORS = "onlyError"
-
-
 class StageTables(StrEnum):
+    """StrEnum for StageTables."""
+
     TransactionalData = "TransactionalData"
     OrganizationData = "OrganizationData"
     ClassificationData = "ClassificationData"
@@ -80,18 +70,45 @@ class StageTables(StrEnum):
 
 
 class ReportType(StrEnum):
+    """StrEnum for ReportType."""
+
     Crystal = "Crystal"
     WebI = "Webi"
 
 
 class ReportFormat(StrEnum):
+    """StrEnum for ReportFormat."""
+
     Native = "native"
     Excel = "excel"
     PDF = "pdf"
 
 
+class PipelineRunMode(StrEnum):
+    """StrEnum for PipelineRun RunMode."""
+
+    FULL = "full"
+    POSITIONS = "positions"
+    INCREMENTAL = "incremental"
+
+
+class ImportRunMode(StrEnum):
+    """StrEnum for Import RunMode."""
+
+    ALL = "all"
+    NEW = "new"
+
+
+class RevalidateMode(StrEnum):
+    """StrEnum for Import Revalidate."""
+
+    ALL = "all"
+    ERRORS = "onlyError"
+
+
 class PipelineState(StrEnum):
     """StrEnum for Pipeline state."""
+
     SCHEDULED = "Scheduled"
     RUNNING = "Running"
     DONE = "Done"
@@ -100,6 +117,7 @@ class PipelineState(StrEnum):
 
 class PipelineStatus(StrEnum):
     """StrEnum for Pipeline status."""
+
     RUNNING = "Running"
     SUCCESSFUL = "Successful"
     CANCELED = "Cancel"
@@ -138,6 +156,9 @@ ERROR_REMOVE_FAILED: Final[str] = "TCMP_35243"
 
 MSG_PERIOD_TYPE: Final[str] = "Period Type mismatch"
 MSG_SUCCESS_DELETE: Final[str] = "successfully deleted"
+
+MAX_ATTEMPTS: Final[int] = 3
+MAX_PAGE_SIZE: Final[int] = 100
 
 STAGETABLES: Final[dict[str, list[str]]] = {
     "TransactionalData": [

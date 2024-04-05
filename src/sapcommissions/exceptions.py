@@ -1,4 +1,5 @@
 """Exceptions for Python SAP Commissions Client."""
+
 from typing import Any
 
 

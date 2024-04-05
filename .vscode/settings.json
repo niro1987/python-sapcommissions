@@ -1,14 +1,13 @@
 {
   "files.exclude": {
     "**/__pycache__": true,
-    "**/*.egg-info": true
+    "**/*.egg-info": true,
+    "**/.pytest_cache": true
   },
   "python.defaultInterpreterPath": "/usr/local/bin/python",
   "python.testing.pytestEnabled": true,
   "python.testing.unittestEnabled": false,
-  "python.testing.pytestArgs": [
-    "tests"
-  ],
+  "python.testing.pytestArgs": ["tests"],
   "editor.formatOnPaste": false,
   "editor.formatOnSave": true,
   "editor.formatOnType": true,
@@ -20,6 +19,10 @@
   },
   "terminal.integrated.defaultProfile.linux": "zsh",
   "[python]": {
-    "editor.defaultFormatter": "charliermarsh.ruff"
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit",
+      "source.organizeImports": "explicit"
+    }
   }
 }

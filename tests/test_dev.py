@@ -1,4 +1,7 @@
 """Some tests for development."""
+# ruff: noqa
+# pylint: disable-all
+
 import asyncio
 import logging
 from collections.abc import AsyncGenerator
@@ -7,16 +10,12 @@ from typing import Any
 
 import pytest
 from pydantic import ValidationError
+
 from sapcommissions import CommissionsClient, model
 from sapcommissions.helpers import And, Equals, GreaterThenOrEqual
 
 LOGGER = logging.getLogger(__name__)
 
-async def aenumerate(aiterable):
-    index = 0
-    async for item in aiterable:
-        yield (index, item)
-        index += 1
 
 async def test_endpoint_response(client_dev: CommissionsClient) -> None:
     """Perform list operation on an endpoint and analyse result."""
@@ -50,7 +49,9 @@ async def test_endpoint_response(client_dev: CommissionsClient) -> None:
 
     for key, values in dict_of_list.items():
         if key not in cls.model_fields and key != "etag":
-            if not key in [info.alias for info in cls.model_fields.values() if info.alias]:
+            if key not in [
+                info.alias for info in cls.model_fields.values() if info.alias
+            ]:
                 unmapped_fields.add(key)
         if all(value is None for value in values):
             empty_fields.add(key)
@@ -88,7 +89,7 @@ async def test_endpoint_response(client_dev: CommissionsClient) -> None:
             errors = exc.errors()
             for error in errors:
                 LOGGER.debug(error)
-                loc = error['loc'][0]
+                loc = error["loc"][0]
                 msg = error["msg"]
                 input = error["input"]
                 validation_errors.setdefault(loc, set())
