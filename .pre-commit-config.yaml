@@ -1,8 +1,26 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 default_language_version:
-  python: python3.10
+  python: python3.11
 repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.15
+    hooks:
+      - id: ruff
+        args:
+          - --fix
+      - id: ruff-format
+        files: ^((src|tests)/.+)?[^/]+\.py$
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.2
+    hooks:
+      - id: codespell
+        args:
+          - --ignore-words-list=perfors
+          - --skip="./.*,*.csv,*.json,*.txt,*.xml"
+          - --quiet-level=2
+        exclude_types: [csv, json, txt, xml]
+        exclude: ^tests/fixtures/.*$
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
@@ -17,30 +35,16 @@ repos:
         args:
           - --pytest-test-first
       - id: no-commit-to-branch
-      - id: trailing-whitespace
-
-  - repo: https://github.com/PyCQA/flake8
-    rev: 6.0.0
-    hooks:
-      - id: flake8
         args:
-          - --config=tox.ini
-
-  - repo: https://github.com/psf/black
-    rev: 23.3.0
+          - --branch=main
+      - id: trailing-whitespace
+      - id: check-json
+        exclude: (.vscode|.devcontainer)
+  - repo: https://github.com/adrienverge/yamllint.git
+    rev: v1.32.0
     hooks:
-      - id: black
-
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.12.0
+      - id: yamllint
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.0.3
     hooks:
-      - id: isort
-
-  - repo: local
-    hooks:
-      - id: pylint
-        name: pylint
-        entry: .venv/Scripts/pylint.exe
-        language: system
-        types: [python]
-        require_serial: true
+      - id: prettier

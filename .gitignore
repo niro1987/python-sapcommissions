@@ -3,4 +3,6 @@ __pycache__/
 .venv/
 dist/
 build/
-main.py
+.env
+*.log
+tests/deploy/
