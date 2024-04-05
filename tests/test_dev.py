@@ -14,7 +14,7 @@ from pydantic import ValidationError
 from sapcommissions import CommissionsClient, model
 from sapcommissions.helpers import And, Equals, GreaterThenOrEqual
 
-LOGGER = logging.getLogger(__name__)
+LOGGER: logging.Logger = logging.getLogger(__name__)
 
 
 async def test_endpoint_response(client_dev: CommissionsClient) -> None:

@@ -12,7 +12,7 @@ from pydantic.fields import FieldInfo, ModelPrivateAttr
 
 from sapcommissions import model
 
-LOGGER = logging.getLogger(__name__)
+LOGGER: logging.Logger = logging.getLogger(__name__)
 T = TypeVar("T", bound="model._Resource")
 
 

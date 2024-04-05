@@ -7,7 +7,7 @@ import pytest
 
 from sapcommissions import CommissionsClient, const, helpers, model
 
-LOGGER = logging.getLogger(__name__)
+LOGGER: logging.Logger = logging.getLogger(__name__)
 
 
 @pytest.mark.parametrize(

@@ -8,7 +8,7 @@ from dotenv import dotenv_values
 
 from sapcommissions import CommissionsClient, deploy
 
-LOGGER = logging.getLogger(__name__)
+LOGGER: logging.Logger = logging.getLogger(__name__)
 
 
 async def test_deploy_from_path() -> None:

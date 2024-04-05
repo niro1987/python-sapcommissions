@@ -4,16 +4,44 @@ import asyncio
 import logging
 from collections.abc import AsyncGenerator
 from dataclasses import dataclass
-from typing import Any, Final, TypeVar
+from typing import Any, TypeVar
 
 from aiohttp import ClientError, ClientSession
 from pydantic import ValidationError
 
 from sapcommissions import const, exceptions, model
-from sapcommissions.helpers import BooleanOperator, LogicalOperator
+from sapcommissions.helpers import BooleanOperator, LogicalOperator, retry
 
-LOGGER: Final[logging.Logger] = logging.getLogger(__name__)
+LOGGER: logging.Logger = logging.getLogger(__name__)
 T = TypeVar("T", bound="model._Resource")
+
+REQUEST_TIMEOUT: int = 30
+STATUS_NOT_MODIFIED: int = 304
+STATUS_BAD_REQUEST: int = 400
+STATUS_SERVER_ERROR: int = 500
+REQUIRED_STATUS: dict[str, tuple[int]] = {
+    "GET": (200,),
+    "POST": (200, 201, STATUS_NOT_MODIFIED),
+    "PUT": (200, STATUS_NOT_MODIFIED),
+    "DELETE": (200,),
+}
+ATTR_ERROR: str = "_ERROR_"
+ATTR_EXPAND: str = "expand"
+ATTR_FILTER: str = "$filter"
+ATTR_ORDERBY: str = "orderBy"
+ATTR_INLINECOUNT: str = "inlineCount"
+ATTR_NEXT: str = "next"
+ATTR_SKIP: str = "skip"
+ATTR_TOP: str = "top"
+ATTR_TOTAL: str = "total"
+ERROR_ALREADY_EXISTS: str = "TCMP_35004"
+ERROR_DELETE_PIPELINE: str = "TCMP_60255"
+ERROR_MISSING_FIELD: str = "TCMP_1002"
+ERROR_NOT_FOUND: str = "TCMP_09007"
+ERROR_REFERRED_BY: str = "TCMP_35001"
+ERROR_REMOVE_FAILED: str = "TCMP_35243"
+MIN_PAGE_SIZE: int = 1
+MAX_PAGE_SIZE: int = 100
 
 
 @dataclass
@@ -23,7 +51,7 @@ class CommissionsClient:
     tenant: str
     session: ClientSession
     verify_ssl: bool = True
-    request_timeout: int = const.REQUEST_TIMEOUT
+    request_timeout: int = REQUEST_TIMEOUT
 
     @property
     def host(self) -> str:
@@ -256,26 +284,25 @@ class CommissionsClient:
         LOGGER.debug("Reload %s(%s)", type(resource).__name__, resource.seq)
         return await self.read_seq(type(resource), resource.seq)
 
-    async def list(  # noqa: C901, PLR0912, PLR0913
+    async def list(
         self,
         resource_cls: type[T],
         *,
         filters: BooleanOperator | LogicalOperator | str | None = None,
         order_by: list[str] | None = None,
         page_size: int = 10,
-        raw: bool = False,
     ) -> AsyncGenerator[T | dict[str, Any], None]:
         """List resources of a specified type with optional filtering and sorting."""
         LOGGER.debug(
             "List %s filters=%s order_by=%s page_size=%s",
             resource_cls.__name__,
-            filters,
-            order_by,
+            str(filters),
+            ",".join(order_by) if order_by else "None",
             page_size,
         )
-        if page_size < 1 or page_size > const.MAX_PAGE_SIZE:
+        if page_size < MIN_PAGE_SIZE or page_size > MAX_PAGE_SIZE:
             raise ValueError(
-                f"page_size ({page_size}) must be between 1 and {const.MAX_PAGE_SIZE}"
+                f"page_size ({page_size}) must be between {MIN_PAGE_SIZE} and {MAX_PAGE_SIZE}"
             )
 
         endpoint: str = resource_cls.get_endpoint()
@@ -286,25 +313,14 @@ class CommissionsClient:
         if order_by:
             params[const.ATTR_ORDERBY] = ",".join(order_by)
 
-        uri: str = endpoint
-        attempt: int = 0
-        while uri:
-            try:
-                response = await self._request("GET", uri=uri, params=params)
-            except exceptions.SAPConnectionError:
-                attempt += 1
-                if attempt > const.MAX_ATTEMPTS:
-                    raise
-                await asyncio.sleep(2.0)
-                continue
-            else:
-                attempt = 0
-
-            if next_uri := response.get(const.ATTR_NEXT):
-                params = None
-                uri = "?".join([endpoint, next_uri.split("?", 1)[-1]])
-            else:
-                uri = None
+        while endpoint:
+            response = await retry(
+                self._request,
+                "GET",
+                uri=endpoint,
+                params=params,
+                exceptions=exceptions.SAPConnectionError,
+            )
 
             if attr_resource not in response:
                 msg = f"Unexpected payload. {response}"
@@ -314,11 +330,17 @@ class CommissionsClient:
             json: list[dict[str, Any]] = response[attr_resource]
             for item in json:
                 try:
-                    yield item if raw else resource_cls(**item)
+                    yield resource_cls(**item)
                 except ValidationError as exc:
                     for error in exc.errors():
                         LOGGER.error("%s on %s", error, item)
                     raise
+
+            if next_uri := response.get(const.ATTR_NEXT):
+                params = None
+                endpoint = "?".join([endpoint, next_uri.split("?", 1)[-1]])
+            else:
+                break
 
     async def run_pipeline(self, job: model._Pipeline) -> model.Pipeline:
         """Run a pipeline and retrieves the created Pipeline."""

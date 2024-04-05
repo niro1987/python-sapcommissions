@@ -4,15 +4,15 @@ import asyncio
 import csv
 import logging
 import re
-from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Final
+from typing import Final
 
 from sapcommissions import CommissionsClient, model
 from sapcommissions.const import PipelineState, PipelineStatus
 from sapcommissions.exceptions import SAPAlreadyExists, SAPConnectionError
+from sapcommissions.helpers import retry
 
-LOGGER: Final[logging.Logger] = logging.getLogger(__name__)
+LOGGER: logging.Logger = logging.getLogger(__name__)
 
 RE_CREDIT_TYPE: Final[re.Pattern] = re.compile(
     r"^([a-z0-9_.-]+)?(Credit Type)\.txt$", re.IGNORECASE
@@ -52,30 +52,6 @@ def _file_cls(file: Path) -> model._Resource:
         if re.match(pattern, file.name):
             return resource_cls
     raise ValueError("Unidentified filetype", file.name)
-
-
-async def _retry(
-    coroutine_function: Callable,
-    *args,
-    exceptions: type[BaseException] | tuple[type[BaseException], ...] | None = None,
-    retries: int = 3,
-    delay: float = 3.0,
-    **kwargs,
-) -> Any:
-    """Retry a coroutine function a specified number of times."""
-    if exceptions is not None and not isinstance(exceptions, tuple):
-        exceptions = (exceptions,)
-
-    for attempt in range(retries):
-        try:
-            return await coroutine_function(*args, **kwargs)
-        except Exception as err:  # pylint: disable=broad-except
-            if not isinstance(err, exceptions):
-                raise
-            LOGGER.debug("Failed attempt %s: %s", attempt + 1, err)
-            if attempt + 1 >= retries:
-                raise
-            await asyncio.sleep(delay)
 
 
 async def deploy_from_path(
@@ -122,14 +98,14 @@ async def deploy_resource(
 
     result: model._Resource | None = None
     try:
-        result = await _retry(
+        result = await retry(
             client.create,
             resource,
             exceptions=SAPConnectionError,
         )
         LOGGER.info("%s created: %s", resource_cls.__name__, result)
     except SAPAlreadyExists:  # Resource exists, update instead
-        result = await _retry(
+        result = await retry(
             client.update,
             resource,
             exceptions=SAPConnectionError,
@@ -150,20 +126,20 @@ async def deploy_xml(
         xmlFileContent=file.read_text("UTF-8"),
         updateExistingObjects=True,
     )
-    result: model.Pipeline = await _retry(
+    result: model.Pipeline = await retry(
         client.run_pipeline,
         job,
         exceptions=SAPConnectionError,
     )
-    while result.state != PipelineState.DONE:
+    while result.state != PipelineState.Done:
         await asyncio.sleep(2)
-        result = await _retry(
+        result = await retry(
             client.reload,
             result,
             exceptions=SAPConnectionError,
         )
 
-    if result.status != PipelineStatus.SUCCESSFUL:
+    if result.status != PipelineStatus.Successful:
         LOGGER.error("XML Import failed (errors: %s)!", result.numErrors)
     else:
         LOGGER.info("Plan data imported: %s", file)

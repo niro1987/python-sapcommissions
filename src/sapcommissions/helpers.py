@@ -1,8 +1,13 @@
 """Helpers for Python SAP Commissions Client."""
 
+import asyncio
+import logging
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import date
-from typing import Union
+from typing import Any, Union
+
+LOGGER: logging.Logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -127,3 +132,27 @@ class Or(BooleanOperator):
     """Any condition must be true."""
 
     _operator: str = "or"
+
+
+async def retry(
+    coroutine_function: Callable,
+    *args,
+    exceptions: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    retries: int = 3,
+    delay: float = 3.0,
+    **kwargs,
+) -> Any:
+    """Retry a coroutine function a specified number of times."""
+    if exceptions is not None and not isinstance(exceptions, tuple):
+        exceptions = (exceptions,)
+
+    for attempt in range(retries):
+        try:
+            return await coroutine_function(*args, **kwargs)
+        except Exception as err:  # pylint: disable=broad-except
+            if not isinstance(err, exceptions):
+                raise
+            LOGGER.debug("Failed attempt %s: %s", attempt + 1, err)
+            if attempt + 1 >= retries:
+                raise
+            await asyncio.sleep(delay)

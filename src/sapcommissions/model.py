@@ -7,6 +7,33 @@ import pydantic
 
 from sapcommissions import const
 
+STAGETABLES: dict[str, list[str]] = {
+    "TransactionalData": [
+        "TransactionAndCredit",
+        "Deposit",
+    ],
+    "OrganizationData": [
+        "Participant",
+        "Position",
+        "Title",
+        "PositionRelation",
+    ],
+    "ClassificationData": [
+        "Category",
+        "Category_Classifiers",
+        "Customer",
+        "Product",
+        "PostalCode",
+        "GenericClassifier",
+    ],
+    "PlanRelatedData": [
+        "FixedValue",
+        "VariableAssignment",
+        "Quota",
+        "RelationalMDLT",
+    ],
+}
+
 
 class ValueUnitType(pydantic.BaseModel):
     """BaseModel for UnitType."""
@@ -107,7 +134,7 @@ class _PipelineRunJob(_PipelineJob):
     periodSeq: str
     calendarSeq: str
     stageTypeSeq: const.PipelineRunStages
-    runMode: const.PipelineRunMode = const.PipelineRunMode.FULL
+    runMode: const.PipelineRunMode = const.PipelineRunMode.Full
     positionGroups: list[str] | None = None
     positionSeqs: list[str] | None = None
     processingUnitSeq: str | None = None
@@ -116,15 +143,15 @@ class _PipelineRunJob(_PipelineJob):
     def check_runmode(self) -> "_PipelineRunJob":
         """If runMode is 'positions', positionGroups or positionSeqs must be list."""
         if self.runMode in (
-            const.PipelineRunMode.FULL,
-            const.PipelineRunMode.INCREMENTAL,
+            const.PipelineRunMode.Full,
+            const.PipelineRunMode.Incremental,
         ):
             if not (self.positionGroups is None and self.positionSeqs is None):
                 raise ValueError(
                     "When runMode is 'full' or 'incremental', positionGroups and positionSeqs must be None"
                 )
 
-        if self.runMode == const.PipelineRunMode.POSITIONS:
+        if self.runMode == const.PipelineRunMode.Positions:
             if not (self.positionGroups and self.positionSeqs) or (
                 self.positionGroups and self.positionSeqs
             ):
@@ -614,7 +641,7 @@ class Purge(_Pipeline):
     @pydantic.computed_field
     def stageTables(self) -> list[str]:
         """Compute stageTables field based on module."""
-        return const.STAGETABLES[self.module]
+        return STAGETABLES[self.module]
 
 
 class Pipeline(_Pipeline):
@@ -673,8 +700,8 @@ class Classify(_PipelineRunJob):
         const.PipelineRunStages.Classify
     ] = const.PipelineRunStages.Classify
     runMode: Literal[
-        const.PipelineRunMode.FULL, const.PipelineRunMode.INCREMENTAL
-    ] = const.PipelineRunMode.FULL
+        const.PipelineRunMode.Full, const.PipelineRunMode.Incremental
+    ] = const.PipelineRunMode.Full
     positionGroups: None = None
     positionSeqs: None = None
 
@@ -694,8 +721,8 @@ class Reward(_PipelineRunJob):
         const.PipelineRunStages.Reward
     ] = const.PipelineRunStages.Reward
     runMode: Literal[
-        const.PipelineRunMode.FULL, const.PipelineRunMode.POSITIONS
-    ] = const.PipelineRunMode.FULL
+        const.PipelineRunMode.Full, const.PipelineRunMode.Positions
+    ] = const.PipelineRunMode.Full
 
 
 class Pay(_PipelineRunJob):
@@ -703,8 +730,8 @@ class Pay(_PipelineRunJob):
 
     stageTypeSeq: Literal[const.PipelineRunStages.Pay] = const.PipelineRunStages.Pay
     runMode: Literal[
-        const.PipelineRunMode.FULL, const.PipelineRunMode.POSITIONS
-    ] = const.PipelineRunMode.FULL
+        const.PipelineRunMode.Full, const.PipelineRunMode.Positions
+    ] = const.PipelineRunMode.Full
     positionSeqs: None = None
 
 
@@ -792,8 +819,8 @@ class ReportsGeneration(_PipelineRunJob):
     odsReportList: list[str]
     boGroupsList: list[str]
     runMode: Literal[
-        const.PipelineRunMode.FULL, const.PipelineRunMode.POSITIONS
-    ] = const.PipelineRunMode.FULL
+        const.PipelineRunMode.Full, const.PipelineRunMode.Positions
+    ] = const.PipelineRunMode.Full
 
 
 class UndoPost(_PipelineRunJob):
@@ -854,12 +881,12 @@ class _ImportJob(_PipelineJob):
     calendarSeq: str
     batchName: str
     module: const.StageTables
-    runMode: const.ImportRunMode = const.ImportRunMode.ALL
+    runMode: const.ImportRunMode = const.ImportRunMode.All
 
     @pydantic.computed_field
     def stageTables(self) -> list[str]:
         """Compute stageTables field based on module."""
-        return const.STAGETABLES[self.module]
+        return STAGETABLES[self.module]
 
     @pydantic.model_validator(mode="after")
     def validate_conditional_fields(self) -> "_ImportJob":
@@ -871,7 +898,7 @@ class _ImportJob(_PipelineJob):
         """
         if (
             self.module != const.StageTables.TransactionalData
-            and self.runMode == const.ImportRunMode.NEW
+            and self.runMode == const.ImportRunMode.New
         ):
             raise ValueError(
                 "runMode can only be 'new' when importing TransactionalData"
@@ -884,7 +911,7 @@ class Validate(_ImportJob):
     """Run a Validate pipeline."""
 
     stageTypeSeq: Literal[const.ImportStages.Validate] = const.ImportStages.Validate
-    revalidate: const.RevalidateMode = const.RevalidateMode.ALL
+    revalidate: const.RevalidateMode = const.RevalidateMode.All
 
 
 class Transfer(_ImportJob):
@@ -899,7 +926,7 @@ class ValidateAndTransfer(_ImportJob):
     stageTypeSeq: Literal[
         const.ImportStages.ValidateAndTransfer
     ] = const.ImportStages.ValidateAndTransfer
-    revalidate: const.RevalidateMode = const.RevalidateMode.ALL
+    revalidate: const.RevalidateMode = const.RevalidateMode.All
 
 
 class ValidateAndTransferIfAllValid(_ImportJob):
@@ -908,7 +935,7 @@ class ValidateAndTransferIfAllValid(_ImportJob):
     stageTypeSeq: Literal[
         const.ImportStages.ValidateAndTransferIfAllValid
     ] = const.ImportStages.ValidateAndTransferIfAllValid
-    revalidate: const.RevalidateMode = const.RevalidateMode.ALL
+    revalidate: const.RevalidateMode = const.RevalidateMode.All
 
 
 class TransferIfAllValid(_ImportJob):

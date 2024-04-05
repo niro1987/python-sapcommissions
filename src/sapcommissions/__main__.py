@@ -13,7 +13,7 @@ from aiohttp import BasicAuth, ClientSession
 from sapcommissions import CommissionsClient
 from sapcommissions.deploy import deploy_from_path
 
-LOGGER = logging.getLogger(__package__)
+LOGGER: logging.Logger = logging.getLogger(__package__)
 
 
 def setup_logging(logfile: Path | None = None, verbose: bool = False) -> None:
