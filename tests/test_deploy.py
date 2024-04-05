@@ -3,28 +3,23 @@
 import logging
 from pathlib import Path
 
-from aiohttp import BasicAuth, ClientSession
-from dotenv import dotenv_values
+from aiohttp import ClientSession
 
 from sapcommissions import CommissionsClient, deploy
 
 LOGGER: logging.Logger = logging.getLogger(__name__)
 
 
-async def test_deploy_from_path() -> None:
+async def test_deploy_from_path(
+    config: dict[str, str],
+    session: ClientSession,
+) -> None:
     """Test the deploy_from_path function."""
-    config: dict[str, str] = dotenv_values("tests/.env")
-    auth: BasicAuth = BasicAuth(
-        login=config["SAP_USERNAME"],
-        password=config["SAP_PASSWORD"],
-    )
     path: Path = Path("tests/deploy")
-
-    async with ClientSession(auth=auth) as session:
-        client = CommissionsClient(
-            tenant=config["SAP_TENANT"],
-            session=session,
-            verify_ssl=False,
-        )
-        result = await deploy.deploy_from_path(client, path)
-        LOGGER.info(result)
+    client = CommissionsClient(
+        tenant=config["SAP_TENANT"],
+        session=session,
+        verify_ssl=False,
+    )
+    result = await deploy.deploy_from_path(client, path)
+    LOGGER.info(result)

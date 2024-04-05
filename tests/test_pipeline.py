@@ -2,12 +2,14 @@
 
 import logging
 from pathlib import Path
+from typing import TypeVar
 
 import pytest
 
 from sapcommissions import CommissionsClient, const, helpers, model
 
 LOGGER: logging.Logger = logging.getLogger(__name__)
+T = TypeVar("T", bound=model._PipelineRunJob)  # pylint: disable=protected-access
 
 
 @pytest.mark.parametrize(
@@ -34,45 +36,45 @@ LOGGER: logging.Logger = logging.getLogger(__name__)
 )
 async def test_pipelinerun(
     client: CommissionsClient,
-    pipeline_job: model._PipelineRunJob,
+    pipeline_job: type[T],
 ) -> None:
     """Test running a pipeline on a calendar period."""
-    period: model.Period = await client.read(
+    period: model.Period = await client.read_first(
         model.Period,
         filters=helpers.Equals("name", "202401 W1"),
     )
-    job: model._PipelineRunJob = pipeline_job(
-        calendarSeq=period.calendar,
-        periodSeq=period.periodSeq,
+    job: T = pipeline_job(  # type: ignore[call-arg]
+        calendar_seq=period.calendar,
+        period_seq=period.period_seq,
     )
     result: model.Pipeline = await client.run_pipeline(job)
     LOGGER.info(result)
     assert result.command == job.command
-    assert result.stageType == job.stageTypeSeq
-    assert result.period == period.periodSeq
+    assert result.stage_type == job.stage_type_seq
+    assert result.period == period.period_seq
 
 
 async def test_pipelinerun_report(
     client: CommissionsClient,
 ) -> None:
     """Test running a pipeline on a calendar period."""
-    period: model.Period = await client.read(
+    period: model.Period = await client.read_first(
         model.Period,
         filters=helpers.Equals("name", "202401 W1"),
     )
     job: model.ReportsGeneration = model.ReportsGeneration(
-        calendarSeq=period.calendar,
-        periodSeq=period.periodSeq,
-        reportTypeName=const.ReportType.Crystal,
-        reportFormatsList=[const.ReportFormat.Excel],
-        odsReportList=["Outbound Files"],
-        boGroupsList=["VFNL Compensation Reports Admin Group"],
+        calendar_seq=period.calendar,
+        period_seq=period.period_seq,
+        report_type_name=const.ReportType.Crystal,
+        report_formats_list=[const.ReportFormat.Excel],
+        ods_report_list=["Outbound Files"],
+        bo_groups_list=["VFNL Compensation Reports Admin Group"],
     )
     result: model.Pipeline = await client.run_pipeline(job)
     LOGGER.info(result)
     assert result.command == job.command
-    assert result.stageType == job.stageTypeSeq
-    assert result.period == period.periodSeq
+    assert result.stage_type == job.stage_type_seq
+    assert result.period == period.period_seq
 
 
 async def test_xmlimport(
@@ -83,14 +85,14 @@ async def test_xmlimport(
     assert file.is_file()
 
     job = model.XMLImport(
-        xmlFileName=file.name,
-        xmlFileContent=file.read_text("UTF-8"),
-        updateExistingObjects=True,
+        xml_file_name=file.name,
+        xml_file_content=file.read_text("UTF-8"),
+        update_existing_objects=True,
     )
     result: model.Pipeline = await client.run_pipeline(job)
     LOGGER.info(result)
     assert result.command == job.command
-    assert result.stageType == job.stageTypeSeq
+    assert result.stage_type == job.stage_type_seq
 
 
 @pytest.mark.parametrize(
@@ -105,24 +107,24 @@ async def test_xmlimport(
 )
 async def test_import(
     client: CommissionsClient,
-    pipeline_job: model._ImportJob,
+    pipeline_job: type[model._ImportJob],
 ) -> None:
     """Test running an import job."""
     batch_name: str = "test.txt"
-    calendar: model.Calendar = await client.read(
+    calendar: model.Calendar = await client.read_first(
         model.Calendar,
         filters=helpers.Equals("name", "Main Weekly Calendar"),
     )
     job: model._ImportJob = pipeline_job(
-        calendarSeq=calendar.calendarSeq,
-        batchName=batch_name,
+        calendar_seq=calendar.calendar_seq,
+        batch_name=batch_name,
         module=const.StageTables.TransactionalData,
     )
     result: model.Pipeline = await client.run_pipeline(job)
     LOGGER.info(result)
-    assert result.stageType == job.stageTypeSeq
+    assert result.stage_type == job.stage_type_seq
     assert result.command == job.command
-    assert result.batchName == job.batchName
+    assert result.batch_name == job.batch_name
 
 
 async def test_purge(
@@ -131,14 +133,14 @@ async def test_purge(
     """Test running a Purge pipeline."""
     batch_name: str = "test.txt"
     job = model.Purge(
-        batchName=batch_name,
+        batch_name=batch_name,
         module=const.StageTables.TransactionalData,
     )
     result: model.Pipeline = await client.run_pipeline(job)
     LOGGER.info(result)
-    assert result.stageType == job.stageTypeSeq
+    assert result.stage_type == job.stage_type_seq
     assert result.command == job.command
-    assert result.batchName == job.batchName
+    assert result.batch_name == job.batch_name
 
 
 async def test_resetfromvalidate(
@@ -146,36 +148,36 @@ async def test_resetfromvalidate(
 ) -> None:
     """Test running a ResetFromValidate pipeline."""
     batch_name: str = "test.txt"
-    period: model.Period = await client.read(
+    period: model.Period = await client.read_first(
         model.Period,
         filters=helpers.Equals("name", "202001 W1"),
     )
     job: model.ResetFromValidate = model.ResetFromValidate(
-        calendarSeq=period.calendar,
-        periodSeq=period.periodSeq,
-        batchName=batch_name,
+        calendar_seq=period.calendar,
+        period_seq=period.period_seq,
+        batch_name=batch_name,
     )
     result: model.Pipeline = await client.run_pipeline(job)
     LOGGER.info(result)
-    assert result.stageType == const.ImportStages.ResetFromValidate
+    assert result.stage_type == const.ImportStages.ResetFromValidate
     assert result.command == "Import"
-    assert result.batchName == job.batchName
+    assert result.batch_name == job.batch_name
 
 
 async def test_resetfromvalidate_no_batch(
     client: CommissionsClient,
 ) -> None:
-    """Test running a ResetFromValidate pipeline without batchName."""
-    period: model.Period = await client.read(
+    """Test running a ResetFromValidate pipeline without batch_name."""
+    period: model.Period = await client.read_first(
         model.Period,
         filters=helpers.Equals("name", "202001 W1"),
     )
     job: model.ResetFromValidate = model.ResetFromValidate(
-        calendarSeq=period.calendar,
-        periodSeq=period.periodSeq,
+        calendar_seq=period.calendar,
+        period_seq=period.period_seq,
     )
     result: model.Pipeline = await client.run_pipeline(job)
     LOGGER.info(result)
-    assert result.stageType == const.ImportStages.ResetFromValidate
+    assert result.stage_type == const.ImportStages.ResetFromValidate
     assert result.command == "Import"
-    assert result.batchName is None
+    assert result.batch_name is None

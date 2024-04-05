@@ -9,7 +9,7 @@ from typing import Any, TypeVar
 from aiohttp import ClientError, ClientSession
 from pydantic import ValidationError
 
-from sapcommissions import const, exceptions, model
+from sapcommissions import exceptions, model
 from sapcommissions.helpers import BooleanOperator, LogicalOperator, retry
 
 LOGGER: logging.Logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ REQUEST_TIMEOUT: int = 30
 STATUS_NOT_MODIFIED: int = 304
 STATUS_BAD_REQUEST: int = 400
 STATUS_SERVER_ERROR: int = 500
-REQUIRED_STATUS: dict[str, tuple[int]] = {
+REQUIRED_STATUS: dict[str, tuple[int, ...]] = {
     "GET": (200,),
     "POST": (200, 201, STATUS_NOT_MODIFIED),
     "PUT": (200, STATUS_NOT_MODIFIED),
@@ -86,13 +86,13 @@ class CommissionsClient:
             LOGGER.error(msg)
             raise exceptions.SAPConnectionError(msg) from err
 
-        if method in ("POST", "PUT") and response.status == const.STATUS_NOT_MODIFIED:
+        if method in ("POST", "PUT") and response.status == STATUS_NOT_MODIFIED:
             msg = "Resource not modified"
             raise exceptions.SAPNotModified(msg)
 
         if (
-            response.status not in const.REQUIRED_STATUS[method]
-            and response.status != const.STATUS_BAD_REQUEST
+            response.status not in REQUIRED_STATUS[method]
+            and response.status != STATUS_BAD_REQUEST
         ):
             text = await response.text()
             msg = f"Unexpected status. {response.status}: {text}"
@@ -105,10 +105,10 @@ class CommissionsClient:
             LOGGER.error(msg)
             raise exceptions.SAPResponseError(msg)
 
-        json = await response.json()
-        if response.status in (const.STATUS_BAD_REQUEST, const.STATUS_SERVER_ERROR):
-            raise exceptions.SAPBadRequest(json)
-        return json
+        json_data = await response.json()
+        if response.status in (STATUS_BAD_REQUEST, STATUS_SERVER_ERROR):
+            raise exceptions.SAPBadRequest(json_data)
+        return json_data
 
     async def create(self, resource: T) -> T:
         """Create a new resource."""
@@ -133,10 +133,10 @@ class CommissionsClient:
 
             error_data: list[dict[str, Any]] = err.data[attr_resource]
             for errors in error_data:
-                if error_message := errors.get(const.ATTR_ERROR):
-                    if const.ERROR_ALREADY_EXISTS in error_message:
+                if error_message := errors.get(ATTR_ERROR):
+                    if ERROR_ALREADY_EXISTS in error_message:
                         raise exceptions.SAPAlreadyExists(error_message) from err
-                if any(const.ERROR_MISSING_FIELD in value for value in errors.values()):
+                if any(ERROR_MISSING_FIELD in value for value in errors.values()):
                     LOGGER.error(errors)
                     raise exceptions.SAPMissingField(errors) from err
             msg = f"Unexpected error. {error_data}"
@@ -148,8 +148,8 @@ class CommissionsClient:
             LOGGER.error(msg)
             raise exceptions.SAPResponseError(msg)
 
-        json: list[dict[str, Any]] = response[attr_resource]
-        data: dict[str, Any] = json[0]
+        json_data: list[dict[str, Any]] = response[attr_resource]
+        data: dict[str, Any] = json_data[0]
         try:
             return cls(**data)
         except ValidationError as exc:
@@ -182,7 +182,7 @@ class CommissionsClient:
 
             error_data: list[dict[str, Any]] = err.data[attr_resource]
             for errors in error_data:
-                if error_message := errors.get(const.ATTR_ERROR):
+                if error_message := errors.get(ATTR_ERROR):
                     LOGGER.error(error_message)
                     raise exceptions.SAPResponseError(error_message) from err
             msg = f"Unexpected error. {error_data}"
@@ -194,8 +194,8 @@ class CommissionsClient:
             LOGGER.error(msg)
             raise exceptions.SAPResponseError(msg)
 
-        json: list[dict[str, Any]] = response[attr_resource]
-        data: dict[str, Any] = json[0]
+        json_data: list[dict[str, Any]] = response[attr_resource]
+        data: dict[str, Any] = json_data[0]
         try:
             return cls(**data)
         except ValidationError as exc:
@@ -210,7 +210,8 @@ class CommissionsClient:
 
         endpoint: str = resource.get_endpoint()
         attr_resource: str = endpoint.split("/")[-1]
-        seq: str = resource.seq
+        if not (seq := resource.seq):
+            raise ValueError(f"Resource {cls.__name__} has no unique identifier")
         uri: str = f"{endpoint}({seq})"
 
         try:
@@ -247,52 +248,15 @@ class CommissionsClient:
 
         return True
 
-    async def read(
-        self,
-        resource_cls: type[T],
-        *,
-        filters: BooleanOperator | LogicalOperator | str | None = None,
-        order_by: list[str] | None = None,
-    ) -> T:
-        """Read the first matching resource."""
-        LOGGER.debug("Read %s %s", resource_cls.__name__, f"filters={filters}")
-        list_resources = self.list(
-            resource_cls,
-            filters=filters,
-            order_by=order_by,
-            page_size=1,
-        )
-        return await anext(list_resources)
-
-    async def read_seq(self, resource_cls: type[T], seq: str) -> T:
-        """Read the specified resource."""
-        LOGGER.debug("Read %s(%s)", resource_cls.__name__, seq)
-
-        endpoint: str = resource_cls.get_endpoint()
-        uri: str = f"{endpoint}({seq})"
-
-        response: dict[str, Any] = await self._request("GET", uri=uri)
-        try:
-            return resource_cls(**response)
-        except ValidationError as exc:
-            for error in exc.errors():
-                LOGGER.error("%s on %s", error, response)
-            raise
-
-    async def reload(self, resource: T) -> T:
-        """Reload a fully initiated resource."""
-        LOGGER.debug("Reload %s(%s)", type(resource).__name__, resource.seq)
-        return await self.read_seq(type(resource), resource.seq)
-
-    async def list(
+    async def read_all(
         self,
         resource_cls: type[T],
         *,
         filters: BooleanOperator | LogicalOperator | str | None = None,
         order_by: list[str] | None = None,
         page_size: int = 10,
-    ) -> AsyncGenerator[T | dict[str, Any], None]:
-        """List resources of a specified type with optional filtering and sorting."""
+    ) -> AsyncGenerator[T, None]:
+        """Read all matching resources."""
         LOGGER.debug(
             "List %s filters=%s order_by=%s page_size=%s",
             resource_cls.__name__,
@@ -307,11 +271,11 @@ class CommissionsClient:
 
         endpoint: str = resource_cls.get_endpoint()
         attr_resource: str = endpoint.split("/")[-1]
-        params: dict[str, str] | None = {const.ATTR_TOP: page_size}
+        params: dict[str, str | int] = {ATTR_TOP: page_size}
         if filters:
-            params[const.ATTR_FILTER] = str(filters)
+            params[ATTR_FILTER] = str(filters)
         if order_by:
-            params[const.ATTR_ORDERBY] = ",".join(order_by)
+            params[ATTR_ORDERBY] = ",".join(order_by)
 
         while endpoint:
             response = await retry(
@@ -336,13 +300,56 @@ class CommissionsClient:
                         LOGGER.error("%s on %s", error, item)
                     raise
 
-            if next_uri := response.get(const.ATTR_NEXT):
-                params = None
+            if next_uri := response.get(ATTR_NEXT):
+                params = {}
                 endpoint = "?".join([endpoint, next_uri.split("?", 1)[-1]])
             else:
                 break
 
-    async def run_pipeline(self, job: model._Pipeline) -> model.Pipeline:
+    async def read_first(
+        self,
+        resource_cls: type[T],
+        *,
+        filters: BooleanOperator | LogicalOperator | str | None = None,
+        order_by: list[str] | None = None,
+    ) -> T:
+        """Read the first matching resource.
+
+        TODO: Get rid of type error
+        """
+        LOGGER.debug("Read %s %s", resource_cls.__name__, f"filters={filters}")
+        list_resources = self.read_all(
+            resource_cls,
+            filters=filters,
+            order_by=order_by,
+            page_size=1,
+        )
+        return await anext(list_resources)  # type: ignore[arg-type]
+
+    async def read_seq(self, resource_cls: type[T], seq: str) -> T:
+        """Read the specified resource."""
+        LOGGER.debug("Read %s(%s)", resource_cls.__name__, seq)
+
+        endpoint: str = resource_cls.get_endpoint()
+        uri: str = f"{endpoint}({seq})"
+
+        response: dict[str, Any] = await self._request("GET", uri=uri)
+        try:
+            return resource_cls(**response)
+        except ValidationError as exc:
+            for error in exc.errors():
+                LOGGER.error("%s on %s", error, response)
+            raise
+
+    async def reload(self, resource: T) -> T:
+        """Reload a fully initiated resource."""
+        cls = type(resource)
+        LOGGER.debug("Reload %s(%s)", cls.__name__, resource.seq)
+        if not (seq := resource.seq):
+            raise ValueError(f"Resource {cls.__name__} has no unique identifier")
+        return await self.read_seq(cls, seq)
+
+    async def run_pipeline(self, job: model._PipelineJob) -> model.Pipeline:
         """Run a pipeline and retrieves the created Pipeline."""
         LOGGER.debug("Run pipeline %s", type(job).__name__)
         endpoint: str = job.get_endpoint()
@@ -376,21 +383,21 @@ class CommissionsClient:
             LOGGER.error(msg)
             raise exceptions.SAPResponseError(msg)
 
-        json: dict[str, list[str]] = response["pipelines"]
-        if "0" not in json:
-            msg = f"Unexpected payload. {json}"
+        json_data: dict[str, list[str]] = response["pipelines"]
+        if "0" not in json_data:
+            msg = f"Unexpected payload. {json_data}"
             LOGGER.error(msg)
             raise exceptions.SAPResponseError(msg)
 
-        seq: str = json["0"][0]
+        seq: str = json_data["0"][0]
         return await self.read_seq(model.Pipeline, seq)
 
     async def cancel_pipeline(self, job: model.Pipeline) -> bool:
         """Cancel a running pipeline."""
-        LOGGER.debug("Cancel %s(%s)", job.command, job.pipelineRunSeq)
+        LOGGER.debug("Cancel %s(%s)", job.command, job.pipeline_run_seq)
 
         endpoint: str = job.get_endpoint()
-        uri: str = f"{endpoint}({job.pipelineRunSeq})"
+        uri: str = f"{endpoint}({job.pipeline_run_seq})"
 
         try:
             response: dict[str, Any] = await self._request(
@@ -398,20 +405,20 @@ class CommissionsClient:
                 uri=uri,
             )
         except exceptions.SAPBadRequest as err:
-            if job.pipelineRunSeq not in err.data:
+            if job.pipeline_run_seq not in err.data:
                 msg = f"Unexpected payload. {err.data}"
                 LOGGER.error(msg)
                 raise exceptions.SAPResponseError(msg) from err
 
-            error_message: str = err.data[job.pipelineRunSeq]
-            if const.ERROR_DELETE_PIPELINE in error_message:
+            error_message: str = err.data[job.pipeline_run_seq]
+            if ERROR_DELETE_PIPELINE in error_message:
                 LOGGER.debug(error_message)
                 return True
             msg = f"Unexpected payload. {error_message}"
             LOGGER.error(msg)
             raise exceptions.SAPResponseError(msg) from err
 
-        if job.pipelineRunSeq not in response:
+        if job.pipeline_run_seq not in response:
             msg = f"Unexpected payload. {response}"
             LOGGER.error(msg)
             raise exceptions.SAPResponseError(msg)

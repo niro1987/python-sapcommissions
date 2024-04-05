@@ -8,7 +8,8 @@ from typing import TypeVar
 
 import pytest
 from pydantic import BaseModel
-from pydantic.fields import FieldInfo, ModelPrivateAttr
+from pydantic.fields import FieldInfo
+from pydantic_core import PydanticUndefined
 
 from sapcommissions import model
 
@@ -38,36 +39,34 @@ def test_resource_basics(
     """Test list resources."""
     assert issubclass(resource_cls, BaseModel), "resource is not a pydantic model"
     assert issubclass(
-        resource_cls, model._Base
+        resource_cls, model._Endpoint
     ), "resource is not a subclass of '_Base'"
 
     # _endpoint
     assert hasattr(
         resource_cls, "_endpoint"
     ), "resource does not have attribute '_endpoint'"
-    endpoint: ModelPrivateAttr = resource_cls.__private_attributes__["_endpoint"]
+    endpoint: str = resource_cls._endpoint
     assert isinstance(
-        endpoint.default, str
+        endpoint, str
     ), "resource does not have a default value for '_endpoint'"
-    assert endpoint.default.startswith(
-        "api/v2/"
-    ), "_endpoint should start with 'api/v2/'"
+    assert endpoint.startswith("api/v2/"), "_endpoint should start with 'api/v2/'"
 
     # _attr_seq
     assert hasattr(
         resource_cls, "_attr_seq"
     ), "resource does not have attribute '_attr_seq'"
-    attr_seq: ModelPrivateAttr = resource_cls.__private_attributes__["_attr_seq"]
+    attr_seq: str = resource_cls._attr_seq
     assert isinstance(
-        attr_seq.default, str
+        attr_seq, str
     ), "resource does not have a default value for '_attr_seq'"
-    assert len(attr_seq.default), "_attr_seq should not be an emptry string"
-    assert attr_seq.default.endswith("Seq"), "_attr_seq should end with 'Seq'"
+    assert len(attr_seq), "_attr_seq should not be an emptry string"
+    assert attr_seq.endswith("_seq"), "_attr_seq should end with 'Seq'"
     if issubclass(resource_cls, model._RuleElementOwner):
-        assert attr_seq.default == "ruleElementOwnerSeq"
+        assert attr_seq == "rule_element_owner_seq"
 
     # seq field
-    assert attr_seq.default in resource_cls.model_fields
-    seq_field: FieldInfo = resource_cls.model_fields[attr_seq.default]
-    assert seq_field.annotation == str | None
-    assert seq_field.default is None
+    assert attr_seq in resource_cls.model_fields
+    seq_field: FieldInfo = resource_cls.model_fields[attr_seq]
+    assert seq_field.annotation == str
+    assert seq_field.default is PydanticUndefined

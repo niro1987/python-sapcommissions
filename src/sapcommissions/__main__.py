@@ -132,9 +132,9 @@ def deploy(
         int: The result of the deployment process.
 
     """
-    sap_tenant: str = tenant or os.environ.get("SAP_TENANT")
-    sap_username: str = username or os.environ.get("SAP_USERNAME")
-    sap_password: str = password or os.environ.get("SAP_PASSWORD")
+    sap_tenant: str | None = tenant or os.environ.get("SAP_TENANT")
+    sap_username: str | None = username or os.environ.get("SAP_USERNAME")
+    sap_password: str | None = password or os.environ.get("SAP_PASSWORD")
     if not (sap_tenant and sap_username and sap_password):
         LOGGER.error("Tenant, Username or password not set")
         return 1

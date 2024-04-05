@@ -101,7 +101,7 @@ class BooleanOperator:
 
         Args:
         ----
-            *conditions: Variable number of conditions that are instances of LogicalOperator or BooleanOperator.
+            *conditions: Instances of LogicalOperator or BooleanOperator.
 
         """
         if not all(
@@ -150,9 +150,9 @@ async def retry(
         try:
             return await coroutine_function(*args, **kwargs)
         except Exception as err:  # pylint: disable=broad-except
-            if not isinstance(err, exceptions):
+            if exceptions is not None and not isinstance(err, exceptions):
                 raise
             LOGGER.debug("Failed attempt %s: %s", attempt + 1, err)
-            if attempt + 1 >= retries:
+            if attempt >= retries - 1:
                 raise
             await asyncio.sleep(delay)

@@ -51,9 +51,7 @@ ignore = ["tests"]
 load-plugins = ["pylint.extensions.code_style", "pylint.extensions.typing"]
 
 [tool.pylint."MESSAGES CONTROL"]
-disable = [
-    "C0103", # invalid-name
-]
+disable = []
 enable = ["use-symbolic-message-instead"]
 
 [tool.pylint.REPORTS]
@@ -149,20 +147,20 @@ ignore = [
     "D213", # Multi-line docstring summary should start at the second line
 
     # May conflict with the formatter, https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
-    "W191",
-    "E111",
-    "E114",
-    "E117",
-    "D206",
-    "D300",
-    "Q000",
-    "Q001",
-    "Q002",
-    "Q003",
-    "COM812",
-    "COM819",
-    "ISC001",
-    "ISC002",
+    "W191",   # Indentation contains tabs
+    "E111",   # Indentation is not a multiple of four
+    "E114",   # Indentation is not a multiple of four (comment)
+    "E117",   # Over-indented for comment
+    "D206",   # Docstring does not start with an uppercase letter
+    "D300",   # Use """triple double quotes""" (found '''triple single quotes''')
+    "Q000",   # Remove bad quotes
+    "Q001",   # Remove bad quotes
+    "Q002",   # Remove bad quotes
+    "Q003",   # Remove bad quotes
+    "COM812", # Missing trailing comma
+    "COM819", # Missing trailing comma
+    "ISC001", # Use a single space after the "#" in a comment
+    "ISC002", # Use a single space after the "#" in a comment
 ]
 
 [tool.ruff.lint.isort]

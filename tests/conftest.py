@@ -12,7 +12,8 @@ from sapcommissions import CommissionsClient
 @pytest.fixture(name="config")
 def fixture_config() -> dict[str, str]:
     """Return the configuration values from the .env file."""
-    return dotenv_values("tests/.env")
+    config: dict[str, str | None] = dotenv_values("tests/.env")
+    return {key: value for key, value in config.items() if value}
 
 
 @pytest.fixture(name="session")
