@@ -41,6 +41,6 @@
       ]
     }
   },
-  "postCreateCommand": ".devcontainer/post-create.sh",
-  "postStartCommand": ".devcontainer/post-start.sh"
+  "postCreateCommand": "git config --global --add safe.directory /workspaces/python-sapcommissions && pre-commit install --install-hooks",
+  "postStartCommand": "pip install -e ."
 }
