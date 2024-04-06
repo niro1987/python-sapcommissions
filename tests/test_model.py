@@ -2,8 +2,6 @@
 # pylint: disable=protected-access
 
 import logging
-from collections.abc import Generator
-from inspect import isclass
 from typing import Any, ClassVar, TypeVar
 
 import pytest
@@ -11,47 +9,12 @@ from pydantic import AliasChoices, BaseModel, Field
 from pydantic.fields import FieldInfo
 
 from sapcommissions import model
+from tests.conftest import list_endpoint_cls, list_pipeline_job_cls, list_resource_cls
 
 LOGGER: logging.Logger = logging.getLogger(__name__)
 T = TypeVar("T", bound="model._Endpoint")
 U = TypeVar("U", bound="model._Resource")
 V = TypeVar("V", bound="model._PipelineJob")
-
-
-def list_endpoint_cls() -> Generator[type[model._Endpoint], None, None]:
-    """List all endpoint classes in the model module."""
-    for name in dir(model):
-        obj = getattr(model, name)
-        if (
-            isclass(obj)
-            and issubclass(obj, model._Endpoint)
-            and not obj.__name__.startswith("_")
-        ):
-            yield obj
-
-
-def list_resource_cls() -> Generator[type[model._Resource], None, None]:
-    """List all resource classes in the model module."""
-    for name in dir(model):
-        obj = getattr(model, name)
-        if (
-            isclass(obj)
-            and issubclass(obj, model._Resource)
-            and not obj.__name__.startswith("_")
-        ):
-            yield obj
-
-
-def list_pipeline_job_cls() -> Generator[type[model._PipelineJob], None, None]:
-    """List all pipeline job classes in the model module."""
-    for name in dir(model):
-        obj = getattr(model, name)
-        if (
-            isclass(obj)
-            and issubclass(obj, model._PipelineJob)
-            and not obj.__name__.startswith("_")
-        ):
-            yield obj
 
 
 @pytest.mark.parametrize(

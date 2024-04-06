@@ -1,13 +1,72 @@
 """Config for Pytest."""
 
+# pylint: disable=protected-access
+
 import os
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncGenerator, Generator
+from inspect import isclass
 
 import pytest
 from aiohttp import BasicAuth, ClientSession
 from dotenv import load_dotenv
 
-from sapcommissions import CommissionsClient
+from sapcommissions import CommissionsClient, model
+
+
+class AsyncLimitedGenerator:
+    """Async generator to limit the number of yielded items."""
+
+    def __init__(self, iterable, limit: int):
+        """Initialize the async iterator."""
+        self.iterable = iterable
+        self.limit = limit
+
+    def __aiter__(self):
+        """Return the async iterator."""
+        return self
+
+    async def __anext__(self):
+        """Return the next item in the async iterator."""
+        if self.limit <= 0:
+            raise StopAsyncIteration
+        self.limit -= 1
+        return await self.iterable.__anext__()
+
+
+def list_endpoint_cls() -> Generator[type[model._Endpoint], None, None]:
+    """List all endpoint classes in the model module."""
+    for name in dir(model):
+        obj = getattr(model, name)
+        if (
+            isclass(obj)
+            and issubclass(obj, model._Endpoint)
+            and not obj.__name__.startswith("_")
+        ):
+            yield obj
+
+
+def list_resource_cls() -> Generator[type[model._Resource], None, None]:
+    """List all resource classes in the model module."""
+    for name in dir(model):
+        obj = getattr(model, name)
+        if (
+            isclass(obj)
+            and issubclass(obj, model._Resource)
+            and not obj.__name__.startswith("_")
+        ):
+            yield obj
+
+
+def list_pipeline_job_cls() -> Generator[type[model._PipelineJob], None, None]:
+    """List all pipeline job classes in the model module."""
+    for name in dir(model):
+        obj = getattr(model, name)
+        if (
+            isclass(obj)
+            and issubclass(obj, model._PipelineJob)
+            and not obj.__name__.startswith("_")
+        ):
+            yield obj
 
 
 @pytest.fixture(name="session")
