@@ -40,8 +40,13 @@ class _BaseModel(pydantic.BaseModel):
     """BaseModel for SAP Commissions."""
 
     model_config: ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(
+        str_strip_whitespace=True,
+        str_min_length=1,
         extra="allow",
-        alias_generator=to_camel,
+        populate_by_name=True,
+        use_enum_values=True,
+        validate_assignment=True,
+        alias_generator=pydantic.AliasGenerator(alias=to_camel),
     )
 
 
@@ -81,7 +86,7 @@ class _Endpoint(_BaseModel):
     @classmethod
     def get_endpoint(cls) -> str:
         """Return the class endpoint."""
-        return cls.__private_attributes__["_endpoint"].default
+        return cls._endpoint
 
 
 class _Resource(_Endpoint):
@@ -95,7 +100,7 @@ class _Resource(_Endpoint):
     @classmethod
     def get_attr_seq(cls) -> str:
         """Return the seq attribute name."""
-        return cls.__private_attributes__["_attr_seq"].default
+        return cls._attr_seq
 
     @property
     def seq(self) -> str | None:
