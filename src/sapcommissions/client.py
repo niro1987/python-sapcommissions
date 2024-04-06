@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from typing import Any, TypeVar
 
 from aiohttp import ClientError, ClientSession
-from pydantic import ValidationError
+from pydantic_core import ValidationError
 
 from sapcommissions import exceptions, model
 from sapcommissions.helpers import BooleanOperator, LogicalOperator, retry
@@ -248,14 +248,15 @@ class CommissionsClient:
 
         return True
 
-    async def read_all(
+    async def read_all(  # pylint: disable=too-many-arguments,too-many-locals  # noqa: PLR0913
         self,
         resource_cls: type[T],
         *,
         filters: BooleanOperator | LogicalOperator | str | None = None,
         order_by: list[str] | None = None,
         page_size: int = 10,
-    ) -> AsyncGenerator[T, None]:
+        raw: bool = False,
+    ) -> AsyncGenerator[T | dict[str, Any], None]:
         """Read all matching resources."""
         LOGGER.debug(
             "List %s filters=%s order_by=%s page_size=%s",
@@ -277,7 +278,7 @@ class CommissionsClient:
         if order_by:
             params[ATTR_ORDERBY] = ",".join(order_by)
 
-        while endpoint:
+        while True:
             response = await retry(
                 self._request,
                 "GET",
@@ -294,17 +295,17 @@ class CommissionsClient:
             json: list[dict[str, Any]] = response[attr_resource]
             for item in json:
                 try:
-                    yield resource_cls(**item)
+                    yield item if raw else resource_cls(**item)
                 except ValidationError as exc:
                     for error in exc.errors():
                         LOGGER.error("%s on %s", error, item)
                     raise
 
-            if next_uri := response.get(ATTR_NEXT):
-                params = {}
-                endpoint = "?".join([endpoint, next_uri.split("?", 1)[-1]])
-            else:
+            if not (next_uri := response.get(ATTR_NEXT)):
                 break
+
+            params = {}
+            endpoint = "api" + next_uri
 
     async def read_first(
         self,
