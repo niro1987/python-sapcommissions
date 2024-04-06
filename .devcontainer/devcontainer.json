@@ -41,6 +41,6 @@
       ]
     }
   },
-  "postCreateCommand": "pre-commit install --install-hooks",
-  "postStartCommand": "python -m pip install -e ."
+  "postCreateCommand": ".devcontainer/post-create.sh",
+  "postStartCommand": ".devcontainer/post-start.sh"
 }
