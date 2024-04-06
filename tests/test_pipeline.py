@@ -43,6 +43,7 @@ async def test_pipelinerun(
         model.Period,
         filters=helpers.Equals("name", "202401 W1"),
     )
+    assert period.period_seq is not None, "period_seq not found."
     job: T = pipeline_job(  # type: ignore[call-arg]
         calendar_seq=period.calendar,
         period_seq=period.period_seq,
@@ -62,6 +63,7 @@ async def test_pipelinerun_report(
         model.Period,
         filters=helpers.Equals("name", "202401 W1"),
     )
+    assert period.period_seq is not None, "period_seq not found."
     job: model.ReportsGeneration = model.ReportsGeneration(
         calendar_seq=period.calendar,
         period_seq=period.period_seq,
@@ -115,7 +117,8 @@ async def test_import(
         model.Calendar,
         filters=helpers.Equals("name", "Main Weekly Calendar"),
     )
-    job: model._ImportJob = pipeline_job(
+    assert calendar.calendar_seq is not None, "calendar_seq not found."
+    job: model._ImportJob = pipeline_job(  # type: ignore[call-arg]
         calendar_seq=calendar.calendar_seq,
         batch_name=batch_name,
         module=const.StageTables.TransactionalData,
@@ -152,6 +155,7 @@ async def test_resetfromvalidate(
         model.Period,
         filters=helpers.Equals("name", "202001 W1"),
     )
+    assert period.period_seq is not None, "period_seq not found."
     job: model.ResetFromValidate = model.ResetFromValidate(
         calendar_seq=period.calendar,
         period_seq=period.period_seq,
@@ -172,6 +176,7 @@ async def test_resetfromvalidate_no_batch(
         model.Period,
         filters=helpers.Equals("name", "202001 W1"),
     )
+    assert period.period_seq is not None, "period_seq not found."
     job: model.ResetFromValidate = model.ResetFromValidate(
         calendar_seq=period.calendar,
         period_seq=period.period_seq,
