@@ -375,7 +375,7 @@ class CreditType(_DataType):
 
     _endpoint: ClassVar[str] = "api/v2/creditTypes"
     credit_type_id: str = pydantic.Field(
-        validation_alias=pydantic.AliasChoices("credit_type_id", "ID", "Credit Type ID")
+        validation_alias=pydantic.AliasChoices("creditTypeId", "ID", "Credit Type ID")
     )
 
 
@@ -402,7 +402,7 @@ class EventType(_DataType):
 
     _endpoint: ClassVar[str] = "api/v2/eventTypes"
     event_type_id: str = pydantic.Field(
-        validation_alias=pydantic.AliasChoices("event_type_id", "ID"),
+        validation_alias=pydantic.AliasChoices("eventTypeId", "ID"),
     )
 
 
@@ -411,7 +411,7 @@ class FixedValueType(_DataType):
 
     _endpoint: ClassVar[str] = "api/v2/fixedValueTypes"
     fixed_value_type_id: str = pydantic.Field(
-        validation_alias=pydantic.AliasChoices("fixedValue_type_id", "ID")
+        validation_alias=pydantic.AliasChoices("fixedValueTypeId", "ID")
     )
 
 
