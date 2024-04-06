@@ -117,7 +117,7 @@ class CommissionsClient:
 
         endpoint: str = resource.get_endpoint()
         attr_resource: str = endpoint.split("/")[-1]
-        json: dict[str, Any] = resource.model_dump(exclude_none=True)
+        json: dict[str, Any] = resource.model_dump(by_alias=True, exclude_none=True)
 
         try:
             response: dict[str, Any] = await self._request(
@@ -164,7 +164,7 @@ class CommissionsClient:
 
         endpoint: str = resource.get_endpoint()
         attr_resource: str = endpoint.split("/")[-1]
-        json: dict[str, Any] = resource.model_dump(exclude_none=True)
+        json: dict[str, Any] = resource.model_dump(by_alias=True, exclude_none=True)
 
         try:
             response: dict[str, Any] = await self._request(
@@ -353,8 +353,7 @@ class CommissionsClient:
         """Run a pipeline and retrieves the created Pipeline."""
         LOGGER.debug("Run pipeline %s", type(job).__name__)
         endpoint: str = job.get_endpoint()
-        json: dict[str, Any] = job.model_dump(exclude_none=True)
-        LOGGER.debug("model_dump: %s", json)
+        json: dict[str, Any] = job.model_dump(by_alias=True, exclude_none=True)
 
         try:
             response: dict[str, Any] = await self._request(
