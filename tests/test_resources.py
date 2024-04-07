@@ -2,7 +2,7 @@
 # pylint: disable=protected-access
 
 import logging
-from typing import TypeVar
+from typing import Any, TypeVar
 
 import pytest
 from pydantic_core import ValidationError
@@ -22,7 +22,8 @@ async def test_list_resources(client: CommissionsClient, resource_cls: type[T]) 
     """Test listing resources."""
     LOGGER.info("Testing list %s", resource_cls.__name__)
 
-    # Limit fetched resources to 10_000
+    extra: dict[str, set[Any]] = {}
+
     generator = client.read_all(resource_cls, page_size=100, raw=True)
     async for resource in AsyncLimitedGenerator(generator, 1_000):
         # LOGGER.info("Resource: %s", resource)
@@ -33,3 +34,14 @@ async def test_list_resources(client: CommissionsClient, resource_cls: type[T]) 
                 LOGGER.error("%s(%s): %s", err["msg"], err["loc"][0], err["input"])
             raise
         assert isinstance(instance, resource_cls)
+
+        if model_extra := instance.model_extra:
+            for key, value in model_extra.items():
+                if key not in ("etag",):
+                    if key not in extra:
+                        extra[key] = set()
+                    try:
+                        extra[key].add(value)
+                    except TypeError:
+                        extra[key].add(str(value))
+    assert not extra, f"Extra keys: {extra}"
