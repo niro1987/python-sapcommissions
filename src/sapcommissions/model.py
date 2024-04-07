@@ -184,6 +184,7 @@ class BusinessUnit(_Resource):
     business_unit_seq: str | None = None
     name: str
     description: str | None = None
+    mask: str | None = None
     processing_unit: str | None = None
 
 
@@ -250,6 +251,8 @@ class Category(_RuleElement):
     gb4: bool | None = pydantic.Field(None, alias="genericBoolean4")
     gb5: bool | None = pydantic.Field(None, alias="genericBoolean5")
     gb6: bool | None = pydantic.Field(None, alias="genericBoolean6")
+    not_allow_update: bool = pydantic.Field(False, repr=False)
+    model_seq: str | None = pydantic.Field(None, repr=False)
 
 
 class CategoryClassifier(_Resource):
@@ -355,12 +358,12 @@ class Credit(_Resource):
     gn4: Value | None = pydantic.Field(None, alias="genericNumber4")
     gn5: Value | None = pydantic.Field(None, alias="genericNumber5")
     gn6: Value | None = pydantic.Field(None, alias="genericNumber6")
-    gd1: datetime | None = pydantic.Field(None, alias="generic_date1")
-    gd2: datetime | None = pydantic.Field(None, alias="generic_date2")
-    gd3: datetime | None = pydantic.Field(None, alias="generic_date3")
-    gd4: datetime | None = pydantic.Field(None, alias="generic_date4")
-    gd5: datetime | None = pydantic.Field(None, alias="generic_date5")
-    gd6: datetime | None = pydantic.Field(None, alias="generic_date6")
+    gd1: datetime | None = pydantic.Field(None, alias="genericDate1")
+    gd2: datetime | None = pydantic.Field(None, alias="genericDate2")
+    gd3: datetime | None = pydantic.Field(None, alias="genericDate3")
+    gd4: datetime | None = pydantic.Field(None, alias="genericDate4")
+    gd5: datetime | None = pydantic.Field(None, alias="genericDate5")
+    gd6: datetime | None = pydantic.Field(None, alias="genericDate6")
     gb1: bool | None = pydantic.Field(None, alias="genericBoolean1")
     gb2: bool | None = pydantic.Field(None, alias="genericBoolean2")
     gb3: bool | None = pydantic.Field(None, alias="genericBoolean3")
@@ -485,6 +488,24 @@ class Pipeline(_Resource):
     run_mode: const.ImportRunMode | const.PipelineRunMode | None = pydantic.Field(
         None, repr=False
     )
+    product_version: str | None = pydantic.Field(None, repr=False)
+    stored_proc_version: str | None = pydantic.Field(None, repr=False)
+    schema_version: str | None = pydantic.Field(None, repr=False)
+    remove_date: datetime | None = pydantic.Field(None, repr=False)
+    end_date_scheduled: datetime | None = pydantic.Field(None, repr=False)
+    run_parameters: str | None = pydantic.Field(None, repr=False)
+    trace_level: str | None = pydantic.Field(None, repr=False)
+    report_type_name: str | None = pydantic.Field(None, repr=False)
+    target_database: str | None = pydantic.Field(None, repr=False)
+    schedule_frequency: str | None = pydantic.Field(None, repr=False)
+    group_name: str | None = pydantic.Field(None, repr=False)
+    isolation_level: str | None = pydantic.Field(None, repr=False)
+    schedule_day: str | None = pydantic.Field(None, repr=False)
+    stage_tables: Assignment | list[Assignment] | None = pydantic.Field(
+        None, repr=False
+    )
+    model_seq: str | None = pydantic.Field(None, repr=False)
+    model_run: str | None = pydantic.Field(None, repr=False)
 
     @pydantic.field_validator("run_progress", mode="before")
     @classmethod
@@ -548,6 +569,7 @@ class Position(_RuleElementOwner):
     gb4: bool | None = pydantic.Field(None, alias="genericBoolean4")
     gb5: bool | None = pydantic.Field(None, alias="genericBoolean5")
     gb6: bool | None = pydantic.Field(None, alias="genericBoolean6")
+    model_seq: str | None = pydantic.Field(None, repr=False)
 
 
 class PositionGroup(_Resource):
@@ -624,6 +646,7 @@ class Title(_RuleElementOwner):
     gb4: bool | None = pydantic.Field(None, alias="genericBoolean4")
     gb5: bool | None = pydantic.Field(None, alias="genericBoolean5")
     gb6: bool | None = pydantic.Field(None, alias="genericBoolean6")
+    model_seq: str | None = pydantic.Field(None, repr=False)
 
 
 class _PipelineJob(_Endpoint):
