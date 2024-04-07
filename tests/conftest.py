@@ -27,7 +27,7 @@ class AsyncLimitedGenerator:
 
     async def __anext__(self):
         """Return the next item in the async iterator."""
-        if self.limit <= 0:
+        if self.limit == 0:
             raise StopAsyncIteration
         self.limit -= 1
         return await self.iterable.__anext__()

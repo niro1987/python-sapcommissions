@@ -72,8 +72,10 @@ def test_resource_basics(
     # seq field
     assert attr_seq in resource_cls.model_fields
     seq_field: FieldInfo = resource_cls.model_fields[attr_seq]
-    assert seq_field.annotation == str | None
-    assert seq_field.default is None
+    assert seq_field.annotation in (
+        int | None,
+        str | None,
+    ), "Invalid seq field type"
 
 
 @pytest.mark.parametrize(

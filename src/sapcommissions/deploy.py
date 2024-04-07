@@ -45,7 +45,7 @@ def _file_cls(file: Path) -> type[model._Endpoint]:
         RE_EARNING_GROUP: model.EarningGroup,
         RE_EVENT_TYPE: model.EventType,
         RE_FIXED_VALUE_TYPE: model.FixedValueType,
-        RE_REASON_CODE: model.ReasonCode,
+        RE_REASON_CODE: model.Reason,
         RE_XML: model.XMLImport,
     }
     for pattern, resource_cls in file_mapping.items():
