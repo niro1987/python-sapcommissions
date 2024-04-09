@@ -193,6 +193,7 @@ class _Resource(_Endpoint):
     """Base class for a Resource."""
 
     _attr_seq: ClassVar[str]
+    _expand: ClassVar[list[str]] = []
     create_date: datetime | None = pydantic.Field(None, exclude=True, repr=False)
     created_by: str | None = pydantic.Field(None, exclude=True, repr=False)
     modified_by: str | None = pydantic.Field(None, exclude=True, repr=False)
@@ -206,6 +207,18 @@ class _Resource(_Endpoint):
     def seq(self) -> str | None:
         """Return the `seq` attribute value for the resource."""
         return getattr(self, self._attr_seq)
+
+    @classmethod
+    def get_expand(cls) -> list[str]:
+        """Return the expand attribute for the resource."""
+        expands: list[str] = []
+        for field in cls._expand:
+            if not (field_info := cls.model_fields.get(field)):
+                raise ValueError(f"'{field}' not found in {cls.__name__}")
+            if not (field_alias := field_info.alias):
+                raise ValueError(f"'{field}' has no alias in {cls.__name__}")
+            expands.append(field_alias)
+        return expands
 
 
 class _DataType(_Resource):
@@ -1034,6 +1047,7 @@ class SalesTransaction(_Resource, Generic32Mixin):
 
     _endpoint: ClassVar[str] = "api/v2/salesTransactions"
     _attr_seq: ClassVar[str] = "sales_transaction_seq"
+    _expand: ClassVar[list[str]] = ["transaction_assignments"]
     sales_transaction_seq: str | None = None
     sales_order: str
     line_number: Value
