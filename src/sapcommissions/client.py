@@ -276,6 +276,8 @@ class CommissionsClient:
             params[ATTR_FILTER] = str(filters)
         if order_by:
             params[ATTR_ORDERBY] = ",".join(order_by)
+        if expand := resource_cls.get_expand():
+            params[ATTR_EXPAND] = ",".join(expand)
 
         while True:
             response = await retry(
@@ -315,7 +317,7 @@ class CommissionsClient:
     ) -> T:
         """Read the first matching resource.
 
-        TODO: Get rid of type error
+        TODO: Fix type error
         """
         LOGGER.debug("Read %s %s", resource_cls.__name__, f"filters={filters}")
         list_resources = self.read_all(
@@ -332,8 +334,11 @@ class CommissionsClient:
 
         endpoint: str = resource_cls.get_endpoint()
         uri: str = f"{endpoint}({seq})"
+        params: dict[str, str] = {}
+        if expand := resource_cls.get_expand():
+            params[ATTR_EXPAND] = ",".join(expand)
 
-        response: dict[str, Any] = await self._request("GET", uri=uri)
+        response: dict[str, Any] = await self._request("GET", uri=uri, params=params)
         try:
             return resource_cls(**response)
         except ValidationError as exc:
