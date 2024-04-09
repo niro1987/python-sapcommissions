@@ -876,7 +876,7 @@ class Pipeline(_Resource):
     group_name: str | None = None
     isolation_level: str | None = None
     schedule_day: str | None = None
-    stage_tables: Assignment | list[Assignment] | None = pydantic.Field(
+    stage_tables: list[Assignment] | Assignment | None = pydantic.Field(
         None, repr=False
     )
     model_seq: str | None = None
@@ -905,7 +905,7 @@ class Position(_RuleElementOwner, Generic16Mixin):
     plan: str | None = None
     position_group: str | None = None
     payee: str | None = None
-    variable_assignments: Assignment | list[Assignment] | None = None
+    variable_assignments: list[Assignment] | Assignment | None = None
     model_seq: str | None = None
 
 
@@ -1047,7 +1047,6 @@ class SalesTransaction(_Resource, Generic32Mixin):
 
     _endpoint: ClassVar[str] = "api/v2/salesTransactions"
     _attr_seq: ClassVar[str] = "sales_transaction_seq"
-    _expand: ClassVar[list[str]] = ["transaction_assignments"]
     sales_transaction_seq: str | None = None
     sales_order: str
     line_number: Value
@@ -1068,7 +1067,7 @@ class SalesTransaction(_Resource, Generic32Mixin):
     ship_to_address: str | None = None
     bill_to_address: str | None = None
     other_to_address: str | None = None
-    transaction_assignments: Assignment | list[Assignment] | None = None
+    transaction_assignments: list[Assignment] | Assignment | None = None
     payment_terms: str | None = None
     accounting_date: datetime | None = None
     discount_percent: Value | None = None
@@ -1139,7 +1138,7 @@ class Title(_RuleElementOwner, Generic16Mixin):
     _endpoint: ClassVar[str] = "api/v2/titles"
     business_units: list[str] | None = None
     plan: str | None = None
-    variable_assignments: Assignment | list[Assignment | str] | None = None
+    variable_assignments: list[Assignment] | Assignment | None = None
     model_seq: str | None = None
 
 
@@ -1244,7 +1243,7 @@ class Plan(_RuleElementOwner):
     _endpoint: ClassVar[str] = "api/v2/plans"
     calendar: str
     business_units: list[str] | None = None
-    variable_assignments: Assignment | list[Assignment] | None = None
+    variable_assignments: list[Assignment] | Assignment | None = None
     model_seq: str | None = None
 
 
@@ -1275,7 +1274,7 @@ class Rule(_Resource):
     calendar: str
     effective_start_date: datetime
     effective_end_date: datetime
-    business_unit: BusinessUnitAssignment | list[BusinessUnitAssignment] | None = None
+    business_unit: list[BusinessUnitAssignment] | BusinessUnitAssignment | None = None
     type: RuleUsage | None = None
     not_allow_update: bool = False
     model_seq: str | None = None
