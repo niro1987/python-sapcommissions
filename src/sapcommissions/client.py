@@ -255,8 +255,7 @@ class CommissionsClient:
         filters: BooleanOperator | LogicalOperator | str | None = None,
         order_by: list[str] | None = None,
         page_size: int = 10,
-        raw: bool = False,
-    ) -> AsyncGenerator[T | dict[str, Any], None]:
+    ) -> AsyncGenerator[T, None]:
         """Read all matching resources."""
         LOGGER.debug(
             "List %s filters=%s order_by=%s page_size=%s",
@@ -295,7 +294,7 @@ class CommissionsClient:
             json: list[dict[str, Any]] = response[attr_resource]
             for item in json:
                 try:
-                    yield item if raw else resource_cls(**item)
+                    yield resource_cls(**item)
                 except ValidationError as exc:
                     for error in exc.errors():
                         LOGGER.error("%s on %s", error, item)
