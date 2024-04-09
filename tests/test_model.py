@@ -77,6 +77,29 @@ def test_resource_basics(
         str | None,
     ), "Invalid seq field type"
 
+    # _exapand
+    assert hasattr(
+        resource_cls,
+        "_expand",
+    ), "resource does not have attribute '_expand'"
+    expand: list[str] = resource_cls._expand
+    assert isinstance(expand, list), "_expand should be a list"
+    assert all(isinstance(field, str) for field in expand), "Invalid _expand field type"
+
+    # get_expand
+    assert hasattr(
+        resource_cls,
+        "get_expand",
+    ), "resource does not have method 'get_expand'"
+    expand_alias: list[str] = resource_cls.get_expand()
+    assert isinstance(expand_alias, list), "get_expand should return a list"
+    assert all(
+        isinstance(field, str) for field in expand_alias
+    ), "Invalid get_expand field type"
+    assert len(expand) == len(
+        expand_alias
+    ), "get_expand should return same length as _expand"
+
 
 @pytest.mark.parametrize(
     "pipeline_job",
