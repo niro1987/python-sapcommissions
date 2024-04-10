@@ -1,0 +1,24 @@
+### Environment Variables
+@tentant = {{$dotenv [%]SAP_TENANT}}
+@username = {{$dotenv [%]SAP_USERNAME}}
+@password = {{$dotenv [%]SAP_PASSWORD}}
+
+### List - Expand transactionAssignments with page size 1
+# @name list_salesTransaction
+GET https://{{tentant}}.callidusondemand.com/api/v2/salesTransactions
+    ?expand=transactionAssignments
+    &top=1
+Authorization: Basic {{username}}:{{password}}
+
+### Get - Expand transactionAssignments
+@salesTransactionSeq = {{list_salesTransaction.response.body.$.salesTransactions.[0].salesTransactionSeq}}
+# @name get_salesTransaction
+GET https://{{tentant}}.callidusondemand.com/api/v2/salesTransactions({{salesTransactionSeq}})
+    ?expand=transactionAssignments
+Authorization: Basic {{username}}:{{password}}
+
+### Expand transactionAssignments with page size > 1
+GET https://{{tentant}}.callidusondemand.com/api/v2/salesTransactions
+    ?expand=transactionAssignments
+    &top=2
+Authorization: Basic {{username}}:{{password}}

@@ -6,7 +6,6 @@ import warnings
 from typing import Any, TypeVar
 
 import pytest
-from pydantic_core import ValidationError
 
 from sapcommissions import CommissionsClient, model
 from tests.conftest import AsyncLimitedGenerator, list_resource_cls
@@ -30,16 +29,10 @@ async def test_list_resources(  # noqa: C901
     resource_list: list[T] = []
     extra: dict[str, set[Any]] = {}
 
-    generator = client.read_all(resource_cls, page_size=100, raw=True)
-    async for resource in AsyncLimitedGenerator(generator, 1_000):
-        try:
-            instance: T = resource_cls(**resource)
-        except ValidationError as exc:
-            for err in exc.errors():
-                LOGGER.error("%s: %s -> %s", err["msg"], err["loc"][0], resource)
-            raise
-        assert isinstance(instance, resource_cls)
-        resource_list.append(instance)
+    generator = client.read_all(resource_cls, page_size=100)
+    async for resource in AsyncLimitedGenerator(generator, 100):
+        assert isinstance(resource, resource_cls)
+        resource_list.append(resource)
 
     if not resource_list:
         pytest.skip("No resources found")

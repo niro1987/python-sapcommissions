@@ -1,6 +1,7 @@
 """Tests for running pipelines."""
 
 import logging
+from collections.abc import AsyncGenerator
 from pathlib import Path
 from typing import TypeVar
 
@@ -10,6 +11,22 @@ from sapcommissions import CommissionsClient, const, helpers, model
 
 LOGGER: logging.Logger = logging.getLogger(__name__)
 T = TypeVar("T", bound=model._PipelineRunJob)  # pylint: disable=protected-access
+
+
+@pytest.fixture(name="cleanup", scope="module")
+async def fixture_delete_pipeline(
+    client: CommissionsClient,
+) -> AsyncGenerator[list[model.Pipeline], None]:
+    """Fixture to delete the created pipeline."""
+
+    pipelines: list[model.Pipeline] = []
+    yield pipelines
+
+    for pipeline in pipelines:
+        try:
+            await client.cancel_pipeline(pipeline)
+        except Exception as exc:  # pylint: disable=broad-except
+            LOGGER.error("Error deleting pipeline: %s", exc)
 
 
 @pytest.mark.parametrize(
