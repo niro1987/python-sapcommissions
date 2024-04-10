@@ -330,7 +330,7 @@ class CommissionsClient:
 
     async def read_seq(self, resource_cls: type[T], seq: str) -> T:
         """Read the specified resource."""
-        LOGGER.debug("Read %s(%s)", resource_cls.__name__, seq)
+        LOGGER.debug("Read Seq %s(%s)", resource_cls.__name__, seq)
 
         endpoint: str = resource_cls.get_endpoint()
         uri: str = f"{endpoint}({seq})"
@@ -346,10 +346,10 @@ class CommissionsClient:
                 LOGGER.error("%s on %s", error, response)
             raise
 
-    async def reload(self, resource: T) -> T:
+    async def read(self, resource: T) -> T:
         """Reload a fully initiated resource."""
         cls = type(resource)
-        LOGGER.debug("Reload %s(%s)", cls.__name__, resource.seq)
+        LOGGER.debug("Read %s(%s)", cls.__name__, resource.seq)
         if not (seq := resource.seq):
             raise ValueError(f"Resource {cls.__name__} has no unique identifier")
         return await self.read_seq(cls, seq)

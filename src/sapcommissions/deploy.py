@@ -137,7 +137,7 @@ async def deploy_xml(
     while result.state != PipelineState.Done:
         await asyncio.sleep(2)
         result = await retry(
-            client.reload,
+            client.read,
             result,
             exceptions=SAPConnectionError,
         )
