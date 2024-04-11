@@ -9,6 +9,7 @@ from inspect import isclass
 import pytest
 from aiohttp import BasicAuth, ClientSession
 from dotenv import load_dotenv
+from pytest_asyncio import is_async_test
 
 from sapcommissions import CommissionsClient, model
 
@@ -31,6 +32,14 @@ class AsyncLimitedGenerator:
             raise StopAsyncIteration
         self.limit -= 1
         return await self.iterable.__anext__()
+
+
+def pytest_collection_modifyitems(items):
+    """Add the session scope marker to async tests."""
+    pytest_asyncio_tests = (item for item in items if is_async_test(item))
+    session_scope_marker = pytest.mark.asyncio(scope="session")
+    for async_test in pytest_asyncio_tests:
+        async_test.add_marker(session_scope_marker, append=False)
 
 
 def list_endpoint_cls() -> Generator[type[model._Endpoint], None, None]:
@@ -69,7 +78,7 @@ def list_pipeline_job_cls() -> Generator[type[model._PipelineJob], None, None]:
             yield obj
 
 
-@pytest.fixture(name="session")
+@pytest.fixture(name="session", scope="session")
 async def fixture_session() -> AsyncGenerator[ClientSession, None]:
     """Yield an async client session."""
     load_dotenv("tests/.env")
@@ -84,7 +93,7 @@ async def fixture_session() -> AsyncGenerator[ClientSession, None]:
         yield session
 
 
-@pytest.fixture(name="client")
+@pytest.fixture(name="client", scope="session")
 async def fixture_client(
     session: ClientSession,
 ) -> AsyncGenerator[CommissionsClient, None]:
