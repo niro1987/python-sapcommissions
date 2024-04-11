@@ -61,17 +61,14 @@ def test_resource_basics(
         model._Endpoint,
     ), "resource is not a subclass of '_Endpoint'"
 
-    # _attr_seq
+    # attr_seq
     assert hasattr(
         resource_cls,
-        "_attr_seq",
-    ), "resource does not have attribute '_attr_seq'"
-    attr_seq: str = resource_cls._attr_seq
-    assert attr_seq.endswith("_seq"), "_attr_seq should end with '_seq'"
-
-    # seq field
-    assert attr_seq in resource_cls.model_fields
-    seq_field: FieldInfo = resource_cls.model_fields[attr_seq]
+        "attr_seq",
+    ), "resource does not have attribute 'attr_seq'"
+    assert resource_cls.attr_seq.endswith("_seq"), "_attr_seq should end with '_seq'"
+    assert resource_cls.attr_seq in resource_cls.model_fields
+    seq_field: FieldInfo = resource_cls.model_fields[resource_cls.attr_seq]
     assert seq_field.annotation in (
         int | None,
         str | None,
@@ -129,7 +126,7 @@ def test_resource_model() -> None:
     class DummyResource(model._Resource):
         """Dummy resource model."""
 
-        _attr_seq: ClassVar[str] = "dummy_seq"
+        attr_seq: ClassVar[str] = "dummy_seq"
         dummy_seq: str | None = None
         name: str
         dummy_int: int
