@@ -3,6 +3,7 @@
 
 import logging
 import warnings
+from json import dumps
 from typing import Any, TypeVar
 
 import pytest
@@ -27,27 +28,43 @@ async def test_list_resources(  # noqa: C901
     LOGGER.info("Testing list %s", resource_cls.__name__)
 
     resource_list: list[T] = []
-    extra: dict[str, set[Any]] = {}
 
-    generator = client.read_all(resource_cls, page_size=100)
-    async for resource in AsyncLimitedGenerator(generator, 100):
+    page_size: int = 1 if resource_cls is model.Pipeline else 100
+    generator = client.read_all(resource_cls, page_size=page_size)
+    async for resource in AsyncLimitedGenerator(generator, page_size * 2):
         assert isinstance(resource, resource_cls)
         resource_list.append(resource)
 
     if not resource_list:
         pytest.skip("No resources found")
 
-    LOGGER.info("Resource example: %s", resource_list[-1])
+    extra_keys: dict[str, set[Any]] = {}
     for instance in resource_list:
         if model_extra := instance.model_extra:
+            model_extra.pop("etag", None)
             for key, value in model_extra.items():
-                if key not in ("etag",):
-                    if key not in extra:
-                        extra[key] = set()
-                    try:
-                        extra[key].add(value)
-                    except TypeError:
-                        extra[key].add(str(value))
+                extra_keys.setdefault(key, set())
+                extra_keys[key].add(str(value))
 
-    LOGGER.info("Extra keys: %s", extra)
-    assert not extra, f"Extra keys: {extra}"
+    LOGGER.info("Extra keys: %s", extra_keys)
+    assert not extra_keys, f"Extra keys: {extra_keys}"
+
+
+@pytest.mark.parametrize(
+    "resource_cls",
+    list_resource_cls(),
+)
+async def test_model_raw(
+    client: CommissionsClient,
+    resource_cls: type[T],
+) -> None:
+    """Test the raw model."""
+    LOGGER.info("Testing raw model %s", resource_cls.__name__)
+
+    expand = ",".join(resource_cls.attr_expand)
+    params: dict[str, int | str] = {"top": 1}
+    if expand:
+        params["expand"] = expand
+    LOGGER.info("Params: %s", params)
+    data = await client._request("GET", resource_cls.attr_endpoint, params=params)
+    LOGGER.info("Data: %s", dumps(data, indent=2))

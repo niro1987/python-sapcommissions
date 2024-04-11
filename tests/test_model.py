@@ -60,6 +60,10 @@ def test_resource_basics(
         resource_cls,
         model._Endpoint,
     ), "resource is not a subclass of '_Endpoint'"
+    assert issubclass(
+        resource_cls,
+        model._Resource,
+    ), "resource is not a subclass of '_Resource'"
 
     # attr_seq
     assert hasattr(
@@ -98,6 +102,10 @@ def test_pipeline_job_basics(
         pipeline_job,
         model._Endpoint,
     ), "pipeline job is not a subclass of '_Endpoint'"
+    assert issubclass(
+        pipeline_job,
+        model._PipelineJob,
+    ), "pipeline job is not a subclass of '_PipelineJob'"
 
     # command
     assert (
@@ -126,18 +134,15 @@ def test_resource_model() -> None:
     }
 
     dummy_resource: DummyResource = DummyResource(**dummy_data)
-    LOGGER.info("Resource: %s", dummy_resource)
     assert dummy_resource.dummy_seq == "spam"
     assert dummy_resource.name == "eggs"
     assert dummy_resource.dummy_int == 42
 
     dump: dict[str, Any] = dummy_resource.model_dump(by_alias=True, exclude_none=True)
-    LOGGER.info("Dump: %s", dump)
     assert dump == dummy_data
 
     extra: dict[str, Any] | None = dummy_resource.model_extra
     assert extra is not None
-    LOGGER.info("Extra: %s", extra)
     # pylint: disable=unsupported-membership-test
     assert "dummySeq" not in extra
     assert "name" not in extra

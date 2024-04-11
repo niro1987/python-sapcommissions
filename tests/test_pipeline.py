@@ -2,7 +2,6 @@
 
 import logging
 from collections.abc import AsyncGenerator
-from pathlib import Path
 from typing import TypeVar
 
 import pytest
@@ -112,12 +111,9 @@ async def test_xmlimport(
     cleanup: list[model.Pipeline],
 ) -> None:
     """Test running an XML import."""
-    file: Path = Path("tests/deploy/07_CR_TEST.xml")
-    assert file.is_file()
-
     job = model.XMLImport(
-        xml_file_name=file.name,
-        xml_file_content=file.read_text("UTF-8"),
+        xml_file_name="test.xml",
+        xml_file_content="<xml></xml>",
         update_existing_objects=True,
     )
     result: model.Pipeline = await client.run_pipeline(job)
