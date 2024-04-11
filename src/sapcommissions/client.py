@@ -409,7 +409,10 @@ class CommissionsClient:
 
             error_message: str = err.data[job.pipeline_run_seq]
             if ERROR_DELETE_PIPELINE in error_message:
-                LOGGER.debug(error_message)
+                # TCMP_60255:E: An error occurred while attempting to delete a job.
+                # The Grid Server returned with the message:
+                # [GSVRH] Setting Job runStatus to Cancel, but the Controller returned
+                # the following error: ++-error::[Controller] unknown command: delJob
                 return True
             msg = f"Unexpected payload. {error_message}"
             LOGGER.error(msg)
