@@ -1463,7 +1463,10 @@ class ReportsGeneration(_PipelineRunJob):
     stage_type_seq: Literal[const.PipelineRunStages.ReportsGeneration] = (
         const.PipelineRunStages.ReportsGeneration
     )
-    generate_ods_reports: Literal[True] = True
+    generate_ods_reports: Literal[True] = pydantic.Field(
+        default=True,
+        alias="generateODSReports",
+    )
     report_type_name: const.ReportType = const.ReportType.Crystal
     report_formats_list: list[const.ReportFormat]
     ods_report_list: list[str]
