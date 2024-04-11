@@ -115,14 +115,13 @@ class CommissionsClient:
         cls = type(resource)
         LOGGER.debug("Create %s(%s)", cls.__name__, resource)
 
-        endpoint: str = resource.get_endpoint()
-        attr_resource: str = endpoint.split("/")[-1]
+        attr_resource: str = resource.attr_endpoint.split("/")[-1]
         json: dict[str, Any] = resource.model_dump(by_alias=True, exclude_none=True)
 
         try:
             response: dict[str, Any] = await self._request(
                 method="POST",
-                uri=endpoint,
+                uri=resource.attr_endpoint,
                 json=[json],
             )
         except exceptions.SAPBadRequest as err:
@@ -162,14 +161,13 @@ class CommissionsClient:
         cls = type(resource)
         LOGGER.debug("Update %s(%s)", cls.__name__, resource)
 
-        endpoint: str = resource.get_endpoint()
-        attr_resource: str = endpoint.split("/")[-1]
+        attr_resource: str = resource.attr_endpoint.split("/")[-1]
         json: dict[str, Any] = resource.model_dump(by_alias=True, exclude_none=True)
 
         try:
             response: dict[str, Any] = await self._request(
                 method="PUT",
-                uri=endpoint,
+                uri=resource.attr_endpoint,
                 json=[json],
             )
         except exceptions.SAPNotModified:
@@ -208,11 +206,10 @@ class CommissionsClient:
         cls = type(resource)
         LOGGER.debug("Delete %s(%s)", cls.__name__, resource)
 
-        endpoint: str = resource.get_endpoint()
-        attr_resource: str = endpoint.split("/")[-1]
+        attr_resource: str = resource.attr_endpoint.split("/")[-1]
         if not (seq := resource.seq):
             raise ValueError(f"Resource {cls.__name__} has no unique identifier")
-        uri: str = f"{endpoint}({seq})"
+        uri: str = f"{resource.attr_endpoint}({seq})"
 
         try:
             response: dict[str, Any] = await self._request(
@@ -269,8 +266,7 @@ class CommissionsClient:
                 f"page_size ({page_size}) must be between {MIN_PAGE_SIZE} and {MAX_PAGE_SIZE}"
             )
 
-        endpoint: str = resource_cls.get_endpoint()
-        attr_resource: str = endpoint.split("/")[-1]
+        attr_resource: str = resource_cls.attr_endpoint.split("/")[-1]
         params: dict[str, str | int] = {ATTR_TOP: page_size}
         if filters:
             params[ATTR_FILTER] = str(filters)
@@ -279,11 +275,12 @@ class CommissionsClient:
         if expand := resource_cls.get_expand():
             params[ATTR_EXPAND] = ",".join(expand)
 
+        uri: str | None = resource_cls.attr_endpoint
         while True:
             response = await retry(
                 self._request,
                 "GET",
-                uri=endpoint,
+                uri=uri,
                 params=params,
                 exceptions=exceptions.SAPConnectionError,
             )
@@ -306,7 +303,7 @@ class CommissionsClient:
                 break
 
             params = {}
-            endpoint = "api" + next_uri
+            uri = "api" + next_uri
 
     async def read_first(
         self,
@@ -332,8 +329,7 @@ class CommissionsClient:
         """Read the specified resource."""
         LOGGER.debug("Read Seq %s(%s)", resource_cls.__name__, seq)
 
-        endpoint: str = resource_cls.get_endpoint()
-        uri: str = f"{endpoint}({seq})"
+        uri: str = f"{resource_cls.attr_endpoint}({seq})"
         params: dict[str, str] = {}
         if expand := resource_cls.get_expand():
             params[ATTR_EXPAND] = ",".join(expand)
@@ -357,13 +353,12 @@ class CommissionsClient:
     async def run_pipeline(self, job: model._PipelineJob) -> model.Pipeline:
         """Run a pipeline and retrieves the created Pipeline."""
         LOGGER.debug("Run pipeline %s", type(job).__name__)
-        endpoint: str = job.get_endpoint()
         json: dict[str, Any] = job.model_dump(by_alias=True, exclude_none=True)
 
         try:
             response: dict[str, Any] = await self._request(
                 method="POST",
-                uri=endpoint,
+                uri=job.attr_endpoint,
                 json=[json],
             )
         except exceptions.SAPBadRequest as err:
@@ -400,9 +395,7 @@ class CommissionsClient:
         """Cancel a running pipeline."""
         LOGGER.debug("Cancel %s(%s)", job.command, job.pipeline_run_seq)
 
-        endpoint: str = job.get_endpoint()
-        uri: str = f"{endpoint}({job.pipeline_run_seq})"
-
+        uri: str = f"{job.attr_endpoint}({job.pipeline_run_seq})"
         try:
             response: dict[str, Any] = await self._request(
                 method="DELETE",

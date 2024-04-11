@@ -181,12 +181,7 @@ class AdjustmentContext(_BaseModel):
 class _Endpoint(_BaseModel):
     """BaseModel for an Endpoint."""
 
-    _endpoint: ClassVar[str]
-
-    @classmethod
-    def get_endpoint(cls) -> str:
-        """Return the class endpoint."""
-        return cls._endpoint
+    attr_endpoint: ClassVar[str]
 
 
 class _Resource(_Endpoint):
@@ -256,8 +251,7 @@ class _RuleElementOwner(_Resource):
 class AppliedDeposit(_Resource):
     """AppliedDeposit."""
 
-    _endpoint: ClassVar[str] = "api/v2/appliedDeposits"
-    _attr_seq: ClassVar[str] = "applied_deposit_seq"
+    attr_endpoint: ClassVar[str] = "api/v2/appliedDeposits"
     applied_deposit_seq: str | None = None
     position: str
     payee: str
@@ -276,7 +270,7 @@ class AppliedDeposit(_Resource):
 class AuditLog(_Resource):
     """Audit Log."""
 
-    _endpoint: ClassVar[str] = "api/v2/auditLogs"
+    attr_endpoint: ClassVar[str] = "api/v2/auditLogs"
     _attr_seq: ClassVar[str] = "audit_log_seq"
     audit_log_seq: str | None = None
     event_date: datetime
@@ -293,7 +287,7 @@ class AuditLog(_Resource):
 class Balance(_Resource):
     """Balance."""
 
-    _endpoint: ClassVar[str] = "api/v2/balances"
+    attr_endpoint: ClassVar[str] = "api/v2/balances"
     _attr_seq: ClassVar[str] = "balance_seq"
     balance_seq: str | None = None
     position: str
@@ -315,7 +309,7 @@ class Balance(_Resource):
 class BusinessUnit(_Resource):
     """Business Unit."""
 
-    _endpoint: ClassVar[str] = "api/v2/businessUnits"
+    attr_endpoint: ClassVar[str] = "api/v2/businessUnits"
     _attr_seq: ClassVar[str] = "business_unit_seq"
     business_unit_seq: str | None = None
     name: str
@@ -327,8 +321,7 @@ class BusinessUnit(_Resource):
 class Calendar(_Resource):
     """Calendar."""
 
-    _endpoint: ClassVar[str] = "api/v2/calendars"
-    _attr_seq: ClassVar[str] = "calendar_seq"
+    attr_endpoint: ClassVar[str] = "api/v2/calendars"
     calendar_seq: str | None = None
     name: str
     description: str | None = None
@@ -340,7 +333,7 @@ class Calendar(_Resource):
 class Category(_RuleElement, Generic16Mixin):
     """Category."""
 
-    _endpoint: ClassVar[str] = "api/v2/categories"
+    attr_endpoint: ClassVar[str] = "api/v2/categories"
     owner: str
     parent: str | None = None
     return_type: str | None = None
@@ -358,7 +351,7 @@ class Category(_RuleElement, Generic16Mixin):
 class CategoryClassifier(_Resource):
     """categoryClassifier."""
 
-    _endpoint: ClassVar[str] = "api/v2/categoryClassifiers"
+    attr_endpoint: ClassVar[str] = "api/v2/categoryClassifiers"
     _attr_seq: ClassVar[str] = "category_classifiers_seq"
     category_classifiers_seq: str | None = None
     category_tree: str
@@ -371,7 +364,7 @@ class CategoryClassifier(_Resource):
 class CategoryTree(_Resource):
     """CategoryTree."""
 
-    _endpoint: ClassVar[str] = "api/v2/categoryTrees"
+    attr_endpoint: ClassVar[str] = "api/v2/categoryTrees"
     _attr_seq: ClassVar[str] = "category_tree_seq"
     category_tree_seq: str | None = None
     name: str
@@ -389,7 +382,7 @@ class Commission(_Resource):
     TODO: No results.
     """
 
-    _endpoint: ClassVar[str] = "api/v2/commissions"
+    attr_endpoint: ClassVar[str] = "api/v2/commissions"
     _attr_seq: ClassVar[str] = "commission_seq"
     commission_seq: str | None = None
     position: str
@@ -411,7 +404,7 @@ class Commission(_Resource):
 class Credit(_Resource, Generic16Mixin):
     """Credit."""
 
-    _endpoint: ClassVar[str] = "api/v2/credits"
+    attr_endpoint: ClassVar[str] = "api/v2/credits"
     _attr_seq: ClassVar[str] = "credit_seq"
     credit_seq: str | None = None
     name: str
@@ -442,7 +435,7 @@ class Credit(_Resource, Generic16Mixin):
 class CreditType(_DataType):
     """Credit Type."""
 
-    _endpoint: ClassVar[str] = "api/v2/creditTypes"
+    attr_endpoint: ClassVar[str] = "api/v2/creditTypes"
     credit_type_id: str = pydantic.Field(
         validation_alias=pydantic.AliasChoices("creditTypeId", "ID", "Credit Type ID")
     )
@@ -451,7 +444,7 @@ class CreditType(_DataType):
 class Deposit(_Resource, Generic16Mixin):
     """Deposit."""
 
-    _endpoint: ClassVar[str] = "api/v2/deposits"
+    attr_endpoint: ClassVar[str] = "api/v2/deposits"
     _attr_seq: ClassVar[str] = "deposit_seq"
     deposit_seq: str | None = None
     name: str
@@ -480,7 +473,7 @@ class Deposit(_Resource, Generic16Mixin):
 class EarningCode(_DataType):
     """Earning Code."""
 
-    _endpoint: ClassVar[str] = "api/v2/earningCodes"
+    attr_endpoint: ClassVar[str] = "api/v2/earningCodes"
     earning_code_id: str = pydantic.Field(
         validation_alias=pydantic.AliasChoices("earningCodeId", "ID")
     )
@@ -489,7 +482,7 @@ class EarningCode(_DataType):
 class EarningGroup(_DataType):
     """Earning Group."""
 
-    _endpoint: ClassVar[str] = "api/v2/earningGroups"
+    attr_endpoint: ClassVar[str] = "api/v2/earningGroups"
     earning_group_id: str = pydantic.Field(
         validation_alias=pydantic.AliasChoices("earningGroupId", "ID")
     )
@@ -498,7 +491,7 @@ class EarningGroup(_DataType):
 class EarningGroupCode(_Resource):
     """EarningGroupCode."""
 
-    _endpoint: ClassVar[str] = "api/v2/earningGroupCodes"
+    attr_endpoint: ClassVar[str] = "api/v2/earningGroupCodes"
     _attr_seq: ClassVar[str] = "earning_group_code_seq"
     earning_group_code_seq: str | None = None
     earning_group_code: str
@@ -509,7 +502,7 @@ class EarningGroupCode(_Resource):
 class EventType(_DataType):
     """Class representation of an Event Type."""
 
-    _endpoint: ClassVar[str] = "api/v2/eventTypes"
+    attr_endpoint: ClassVar[str] = "api/v2/eventTypes"
     event_type_id: str = pydantic.Field(
         validation_alias=pydantic.AliasChoices("eventTypeId", "ID"),
     )
@@ -518,7 +511,7 @@ class EventType(_DataType):
 class FixedValue(_RuleElementOwner):
     """Fixed Value."""
 
-    _endpoint: ClassVar[str] = "api/v2/fixedValues"
+    attr_endpoint: ClassVar[str] = "api/v2/fixedValues"
     calendar: str
     value: Value | None = None
     fixedValueType: str | None = None
@@ -536,7 +529,7 @@ class FixedValue(_RuleElementOwner):
 class FixedValueType(_DataType):
     """Fixed Value Type."""
 
-    _endpoint: ClassVar[str] = "api/v2/fixedValueTypes"
+    attr_endpoint: ClassVar[str] = "api/v2/fixedValueTypes"
     fixed_value_type_id: str = pydantic.Field(
         validation_alias=pydantic.AliasChoices("fixedValueTypeId", "ID")
     )
@@ -545,7 +538,7 @@ class FixedValueType(_DataType):
 class FixedValueVariable(_RuleElement):
     """Fixed Value Variable."""
 
-    _endpoint: ClassVar[str] = "api/v2/fixedValueVariables"
+    attr_endpoint: ClassVar[str] = "api/v2/fixedValueVariables"
     calendar: str
     effective_start_date: datetime
     effective_end_date: datetime
@@ -564,7 +557,7 @@ class FixedValueVariable(_RuleElement):
 class GenericClassifier(_Resource, Generic16Mixin):
     """Generic Classifier."""
 
-    _endpoint: ClassVar[str] = "api/v2/genericClassifiers"
+    attr_endpoint: ClassVar[str] = "api/v2/genericClassifiers"
     _attr_seq: ClassVar[str] = "generic_classifier_seq"
     generic_classifier_seq: str | None = None
     name: str | None = None
@@ -580,7 +573,7 @@ class GenericClassifier(_Resource, Generic16Mixin):
 class GenericClassifierType(_Resource):
     """Generic Classifier Type."""
 
-    _endpoint: ClassVar[str] = "api/v2/genericClassifierTypes"
+    attr_endpoint: ClassVar[str] = "api/v2/genericClassifierTypes"
     _attr_seq: ClassVar[str] = "generic_classifier_type_seq"
     generic_classifier_type_seq: int | None = None
     name: str
@@ -589,7 +582,7 @@ class GenericClassifierType(_Resource):
 class GlobalFieldName(_Resource):
     """Global Field Name."""
 
-    _endpoint: ClassVar[str] = "api/v2/globalFieldNames"
+    attr_endpoint: ClassVar[str] = "api/v2/globalFieldNames"
     _attr_seq: ClassVar[str] = "global_field_name_seq"
     global_field_name_seq: str | None = None
     name: str
@@ -600,7 +593,7 @@ class GlobalFieldName(_Resource):
 # class Group(_Resource):
 #     """Group."""
 
-#     _endpoint: ClassVar[str] = "api/v2/groups"
+#     attr_endpoint: ClassVar[str] = "api/v2/groups"
 #     _attr_seq: ClassVar[str] = "group_seq"
 #     group_seq: str | None = None
 #     name: str
@@ -610,7 +603,7 @@ class GlobalFieldName(_Resource):
 class Incentive(_Resource, Generic16Mixin):
     """Incentive."""
 
-    _endpoint: ClassVar[str] = "api/v2/incentives"
+    attr_endpoint: ClassVar[str] = "api/v2/incentives"
     _attr_seq: ClassVar[str] = "incentive_seq"
     incentive_seq: str | None = None
     name: str | None = None
@@ -633,7 +626,7 @@ class Incentive(_Resource, Generic16Mixin):
 class LookUpTableVariable(_RuleElement):
     """LookUp Table Variable."""
 
-    _endpoint: ClassVar[str] = "api/v2/lookUpTableVariables"
+    attr_endpoint: ClassVar[str] = "api/v2/lookUpTableVariables"
     calendar: str
     default_element: str | None = None
     required_period_type: str | None = None
@@ -652,7 +645,7 @@ class LookUpTableVariable(_RuleElement):
 class Measurement(_Resource, Generic16Mixin):
     """Measurement."""
 
-    _endpoint: ClassVar[str] = "api/v2/measurements"
+    attr_endpoint: ClassVar[str] = "api/v2/measurements"
     _attr_seq: ClassVar[str] = "measurement_seq"
     measurement_seq: str | None = None
     name: str
@@ -672,19 +665,19 @@ class Measurement(_Resource, Generic16Mixin):
 class PrimaryMeasurement(Measurement):
     """Primary Measurement."""
 
-    _endpoint: ClassVar[str] = "api/v2/primaryMeasurements"
+    attr_endpoint: ClassVar[str] = "api/v2/primaryMeasurements"
 
 
 class SecondaryMeasurement(Measurement):
     """Secondary Measurement."""
 
-    _endpoint: ClassVar[str] = "api/v2/secondaryMeasurements"
+    attr_endpoint: ClassVar[str] = "api/v2/secondaryMeasurements"
 
 
 class Message(_Resource):
     """Message."""
 
-    _endpoint: ClassVar[str] = "api/v2/messages"
+    attr_endpoint: ClassVar[str] = "api/v2/messages"
     _attr_seq: ClassVar[str] = "message_seq"
     message_seq: str | None = None
     message_key: str
@@ -707,7 +700,7 @@ class Message(_Resource):
 class MessageLog(_Resource):
     """Message Log."""
 
-    _endpoint: ClassVar[str] = "api/v2/messageLogs"
+    attr_endpoint: ClassVar[str] = "api/v2/messageLogs"
     _attr_seq: ClassVar[str] = "message_log_seq"
     message_log_seq: str | None = None
     source_seq: str | None = None
@@ -719,7 +712,7 @@ class MessageLog(_Resource):
 class Participant(_Resource, Generic16Mixin):
     """Participant."""
 
-    _endpoint: ClassVar[str] = "api/v2/participants"
+    attr_endpoint: ClassVar[str] = "api/v2/participants"
     _attr_seq: ClassVar[str] = "payee_seq"
     payee_seq: str | None = None
     payee_id: str
@@ -744,7 +737,7 @@ class Participant(_Resource, Generic16Mixin):
 # class Payment(_Resource):
 #     """Payment."""
 
-#     _endpoint: ClassVar[str] = "api/v2/payments"
+#     attr_endpoint: ClassVar[str] = "api/v2/payments"
 #     _attr_seq: ClassVar[str] = "payment_seq"
 #     payment_seq: str | None = None
 #     position: str
@@ -764,7 +757,7 @@ class Participant(_Resource, Generic16Mixin):
 class PaymentMapping(_Resource):
     """Payment Mapping."""
 
-    _endpoint: ClassVar[str] = "api/v2/paymentMappings"
+    attr_endpoint: ClassVar[str] = "api/v2/paymentMappings"
     _attr_seq: ClassVar[str] = "payment_mapping_seq"
     payment_mapping_seq: str | None = None
     source_table_name: str
@@ -775,7 +768,7 @@ class PaymentMapping(_Resource):
 class PaymentSummary(_Resource):
     """Payment Summary."""
 
-    _endpoint: ClassVar[str] = "api/v2/paymentSummarys"
+    attr_endpoint: ClassVar[str] = "api/v2/paymentSummarys"
     _attr_seq: ClassVar[str] = "payment_summary_seq"
     payment_summary_seq: str | None = None
     position: str
@@ -796,7 +789,7 @@ class PaymentSummary(_Resource):
 class Period(_Resource):
     """Period."""
 
-    _endpoint: ClassVar[str] = "api/v2/periods"
+    attr_endpoint: ClassVar[str] = "api/v2/periods"
     _attr_seq: ClassVar[str] = "period_seq"
     period_seq: str | None = None
     name: str
@@ -812,7 +805,7 @@ class Period(_Resource):
 class PeriodType(_Resource):
     """Period Type."""
 
-    _endpoint: ClassVar[str] = "api/v2/periodTypes"
+    attr_endpoint: ClassVar[str] = "api/v2/periodTypes"
     _attr_seq: ClassVar[str] = "period_type_seq"
     period_type_seq: str | None = None
     name: str
@@ -823,7 +816,7 @@ class PeriodType(_Resource):
 class Pipeline(_Resource):
     """Pipeline."""
 
-    _endpoint: ClassVar[str] = "api/v2/pipelines"
+    attr_endpoint: ClassVar[str] = "api/v2/pipelines"
     _attr_seq: ClassVar[str] = "pipeline_run_seq"
     pipeline_run_seq: str | None = None
     command: (
@@ -892,7 +885,7 @@ class Pipeline(_Resource):
 class Position(_RuleElementOwner, Generic16Mixin):
     """Position."""
 
-    _endpoint: ClassVar[str] = "api/v2/positions"
+    attr_endpoint: ClassVar[str] = "api/v2/positions"
     credit_start_date: datetime | None = None
     credit_end_date: datetime | None = None
     processing_start_date: datetime | None = None
@@ -912,7 +905,7 @@ class Position(_RuleElementOwner, Generic16Mixin):
 class PositionGroup(_Resource):
     """Position."""
 
-    _endpoint: ClassVar[str] = "api/v2/positionGroups"
+    attr_endpoint: ClassVar[str] = "api/v2/positionGroups"
     _attr_seq: ClassVar[str] = "position_group_seq"
     position_group_seq: str | None = None
     name: str
@@ -922,7 +915,7 @@ class PositionGroup(_Resource):
 class PositionRelation(_Resource):
     """Position Relation."""
 
-    _endpoint: ClassVar[str] = "api/v2/positionRelations"
+    attr_endpoint: ClassVar[str] = "api/v2/positionRelations"
     _attr_seq: ClassVar[str] = "position_relation_seq"
     position_relation_seq: str | None = None
     name: str | None = None
@@ -936,14 +929,14 @@ class PositionRelation(_Resource):
 class PositionRelationType(_DataType):
     """Position Relation Type."""
 
-    _endpoint: ClassVar[str] = "api/v2/positionRelationTypes"
+    attr_endpoint: ClassVar[str] = "api/v2/positionRelationTypes"
     name: str
 
 
 class PostalCode(_Resource, Generic16Mixin):
     """Postal Code."""
 
-    _endpoint: ClassVar[str] = "api/v2/postalCodes"
+    attr_endpoint: ClassVar[str] = "api/v2/postalCodes"
     _attr_seq: ClassVar[str] = "classifier_seq"
     classifier_seq: str | None = None
     classifier_id: str
@@ -961,7 +954,7 @@ class PostalCode(_Resource, Generic16Mixin):
 class ProcessingUnit(_Resource):
     """Processing Unit."""
 
-    _endpoint: ClassVar[str] = "api/v2/processingUnits"
+    attr_endpoint: ClassVar[str] = "api/v2/processingUnits"
     _attr_seq: ClassVar[str] = "processing_unit_seq"
     processing_unit_seq: str | None = None
     name: str
@@ -971,7 +964,7 @@ class ProcessingUnit(_Resource):
 class Product(_Resource, Generic16Mixin):
     """Product."""
 
-    _endpoint: ClassVar[str] = "api/v2/products"
+    attr_endpoint: ClassVar[str] = "api/v2/products"
     _attr_seq: ClassVar[str] = "classifier_seq"
     classifier_seq: str | None = None
     classifier_id: str
@@ -988,7 +981,7 @@ class Product(_Resource, Generic16Mixin):
 class Quota(_Resource):
     """Quota."""
 
-    _endpoint: ClassVar[str] = "api/v2/quotas"
+    attr_endpoint: ClassVar[str] = "api/v2/quotas"
     _attr_seq: ClassVar[str] = "quota_seq"
     quota_seq: str | None = None
     calendar: str
@@ -1004,7 +997,7 @@ class Quota(_Resource):
 class RateTableVariable(_RuleElement):
     """Rate Table Variable."""
 
-    _endpoint: ClassVar[str] = "api/v2/rateTableVariables"
+    attr_endpoint: ClassVar[str] = "api/v2/rateTableVariables"
     calendar: str
     default_element: str | None = None
     required_period_type: str | None = None
@@ -1023,7 +1016,7 @@ class RateTableVariable(_RuleElement):
 class Reason(_DataType):
     """Reason."""
 
-    _endpoint: ClassVar[str] = "api/v2/reasons"
+    attr_endpoint: ClassVar[str] = "api/v2/reasons"
     reason_id: str = pydantic.Field(
         validation_alias=pydantic.AliasChoices("reasonId", "ID")
     )
@@ -1032,7 +1025,7 @@ class Reason(_DataType):
 class SalesOrder(_Resource, Generic16Mixin):
     """Sales Order."""
 
-    _endpoint: ClassVar[str] = "api/v2/salesOrders"
+    attr_endpoint: ClassVar[str] = "api/v2/salesOrders"
     _attr_seq: ClassVar[str] = "sales_order_seq"
     sales_order_seq: str | None = None
     order_id: str
@@ -1045,7 +1038,7 @@ class SalesOrder(_Resource, Generic16Mixin):
 class SalesTransaction(_Resource, Generic32Mixin):
     """Sales Transaction."""
 
-    _endpoint: ClassVar[str] = "api/v2/salesTransactions"
+    attr_endpoint: ClassVar[str] = "api/v2/salesTransactions"
     _attr_seq: ClassVar[str] = "sales_transaction_seq"
     sales_transaction_seq: str | None = None
     sales_order: str
@@ -1090,7 +1083,7 @@ class SalesTransaction(_Resource, Generic32Mixin):
 class StatusCode(_DataType):
     """Status Code."""
 
-    _endpoint: ClassVar[str] = "api/v2/statusCodes"
+    attr_endpoint: ClassVar[str] = "api/v2/statusCodes"
     name: str | None = None
     type: str | None = None
     status: str
@@ -1100,7 +1093,7 @@ class StatusCode(_DataType):
 class Territory(_RuleElement):
     """Territory."""
 
-    _endpoint: ClassVar[str] = "api/v2/territories"
+    attr_endpoint: ClassVar[str] = "api/v2/territories"
     calendar: str | None = None
     effective_start_date: datetime
     effective_end_date: datetime
@@ -1116,7 +1109,7 @@ class Territory(_RuleElement):
 class TerritoryVariable(_RuleElement):
     """Territory Variable."""
 
-    _endpoint: ClassVar[str] = "api/v2/territoryVariables"
+    attr_endpoint: ClassVar[str] = "api/v2/territoryVariables"
     calendar: str
     effective_start_date: datetime
     effective_end_date: datetime
@@ -1135,7 +1128,7 @@ class TerritoryVariable(_RuleElement):
 class Title(_RuleElementOwner, Generic16Mixin):
     """Title."""
 
-    _endpoint: ClassVar[str] = "api/v2/titles"
+    attr_endpoint: ClassVar[str] = "api/v2/titles"
     business_units: list[str] | None = None
     plan: str | None = None
     variable_assignments: list[Assignment] | Assignment | None = None
@@ -1145,7 +1138,7 @@ class Title(_RuleElementOwner, Generic16Mixin):
 class User(_Resource):
     """User."""
 
-    _endpoint: ClassVar[str] = "api/v2/users"
+    attr_endpoint: ClassVar[str] = "api/v2/users"
     _attr_seq: ClassVar[str] = "user_seq"
     user_seq: str | None = None
     id: str
@@ -1161,7 +1154,7 @@ class User(_Resource):
 class Variable(_RuleElement):
     """Variable."""
 
-    _endpoint: ClassVar[str] = "api/v2/variables"
+    attr_endpoint: ClassVar[str] = "api/v2/variables"
     calendar: str
     effective_start_date: datetime
     effective_end_date: datetime
@@ -1180,7 +1173,7 @@ class Variable(_RuleElement):
 class RelationalMDLT(_RuleElement):
     """Relational MDLT."""
 
-    _endpoint: ClassVar[str] = "api/v2/relationalMDLTs"
+    attr_endpoint: ClassVar[str] = "api/v2/relationalMDLTs"
     calendar: str
     effective_start_date: datetime
     effective_end_date: datetime
@@ -1204,7 +1197,7 @@ class RelationalMDLT(_RuleElement):
 class RateTable(_RuleElement):
     """Rate Table."""
 
-    _endpoint: ClassVar[str] = "api/v2/rateTables"
+    attr_endpoint: ClassVar[str] = "api/v2/rateTables"
     calendar: str
     effective_start_date: datetime
     effective_end_date: datetime
@@ -1224,7 +1217,7 @@ class RateTable(_RuleElement):
 class Formula(_RuleElement):
     """Formula."""
 
-    _endpoint: ClassVar[str] = "api/v2/formulas"
+    attr_endpoint: ClassVar[str] = "api/v2/formulas"
     calendar: str
     effective_start_date: datetime
     effective_end_date: datetime
@@ -1240,7 +1233,7 @@ class Formula(_RuleElement):
 class Plan(_RuleElementOwner):
     """Plan."""
 
-    _endpoint: ClassVar[str] = "api/v2/plans"
+    attr_endpoint: ClassVar[str] = "api/v2/plans"
     calendar: str
     business_units: list[str] | None = None
     variable_assignments: list[Assignment] | Assignment | None = None
@@ -1250,7 +1243,7 @@ class Plan(_RuleElementOwner):
 class PlanComponent(_Resource):
     """Plan."""
 
-    _endpoint: ClassVar[str] = "api/v2/planComponents"
+    attr_endpoint: ClassVar[str] = "api/v2/planComponents"
     _attr_seq: ClassVar[str] = "plan_component_seq"
     plan_component_seq: str | None = None
     name: str
@@ -1266,7 +1259,7 @@ class PlanComponent(_Resource):
 class Rule(_Resource):
     """Rule."""
 
-    _endpoint: ClassVar[str] = "api/v2/rules"
+    attr_endpoint: ClassVar[str] = "api/v2/rules"
     _attr_seq: ClassVar[str] = "rule_seq"
     rule_seq: str | None = None
     name: str
@@ -1283,7 +1276,7 @@ class Rule(_Resource):
 class _PipelineJob(_Endpoint):
     """Base class for a Pipeline Job."""
 
-    _endpoint: ClassVar[str] = "api/v2/pipelines"
+    attr_endpoint: ClassVar[str] = "api/v2/pipelines"
     command: Literal["PipelineRun", "Import", "XMLImport"]
     run_stats: bool = False
 
@@ -1291,7 +1284,7 @@ class _PipelineJob(_Endpoint):
 class ResetFromValidate(_PipelineJob):
     """Run a ResetFromValidate pipeline."""
 
-    _endpoint: ClassVar[str] = "api/v2/pipelines/resetfromvalidate"
+    attr_endpoint: ClassVar[str] = "api/v2/pipelines/resetfromvalidate"
     command: Literal["Import"] = "Import"
     calendar_seq: str
     period_seq: str
