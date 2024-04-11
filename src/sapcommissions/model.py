@@ -199,6 +199,24 @@ class _Resource(_Endpoint):
         return getattr(self, self.attr_seq)
 
 
+class _ResourceReference(_BaseModel):
+    """Pydantic BaseModel for reference to another resource."""
+
+    key: str
+    display_name: str
+    object_type: type[_Resource]
+
+    @pydantic.field_validator("object_type", mode="before")
+    @classmethod
+    def convert_object_type(cls, value: str) -> type[_Resource]:
+        """Convert string object_type to class."""
+        if not (obj := globals().get(value)):
+            raise ValueError(f"Unknown object type: {value}")
+        if not issubclass(obj, _Resource):
+            raise ValueError(f"Invalid object type: {value}")  # noqa: TRY004
+        return obj
+
+
 class _DataType(_Resource):
     """Base class for Data Type resources."""
 

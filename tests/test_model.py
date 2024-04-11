@@ -167,3 +167,43 @@ def test_model_alias_override() -> None:
     assert dummy.dummy_code_id == "spam"
     dump: dict[str, str] = dummy.model_dump(by_alias=True, exclude_none=True)
     assert dump == data
+
+
+@pytest.mark.parametrize(
+    "resource_cls",
+    list_resource_cls(),
+)
+def test_resource_reference(
+    resource_cls: type[U],
+) -> None:
+    """Test resource reference."""
+    data: dict[str, Any] = {
+        "key": "spam",
+        "displayName": "eggs",
+        "objectType": resource_cls.__name__,
+    }
+    reference: model._ResourceReference = model._ResourceReference(**data)
+    assert reference.key == "spam"
+    assert reference.display_name == "eggs"
+    assert reference.object_type is resource_cls
+
+
+def test_resource_reference_error() -> None:
+    """Test resource reference."""
+    data1: dict[str, Any] = {
+        "key": "spam",
+        "displayName": "eggs",
+        "objectType": "Bacon",
+    }
+    with pytest.raises(ValueError) as exc:
+        model._ResourceReference(**data1)
+        assert "Unknown object type" in str(exc)
+
+    data2: dict[str, Any] = {
+        "key": "spam",
+        "displayName": "eggs",
+        "objectType": "Value",
+    }
+    with pytest.raises(ValueError) as exc:
+        model._ResourceReference(**data2)
+        assert "Invalid object type" in str(exc)
