@@ -12,7 +12,7 @@ from sapcommissions import CommissionsClient, model
 from tests.conftest import AsyncLimitedGenerator, list_resource_cls
 
 LOGGER = logging.getLogger(__name__)
-T = TypeVar("T", bound=model._Resource)
+T = TypeVar("T", bound=model.base.Resource)
 warnings.filterwarnings("error")  # Raise warnings as errors
 
 

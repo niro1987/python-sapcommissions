@@ -9,7 +9,7 @@ import pytest
 from sapcommissions import CommissionsClient, const, helpers, model
 
 LOGGER: logging.Logger = logging.getLogger(__name__)
-T = TypeVar("T", bound=model._PipelineRunJob)  # pylint: disable=protected-access
+T = TypeVar("T", bound=model.pipeline._PipelineRunJob)  # pylint: disable=protected-access
 
 
 @pytest.fixture(name="cleanup", scope="session")
@@ -136,7 +136,7 @@ async def test_xmlimport(
 )
 async def test_import(
     client: CommissionsClient,
-    pipeline_job: type[model._ImportJob],
+    pipeline_job: type[model.pipeline._ImportJob],
     cleanup: list[model.Pipeline],
 ) -> None:
     """Test running an import job."""
@@ -146,7 +146,7 @@ async def test_import(
         filters=helpers.Equals("name", "Main Weekly Calendar"),
     )
     assert calendar.calendar_seq is not None, "calendar_seq not found."
-    job: model._ImportJob = pipeline_job(  # type: ignore[call-arg]
+    job: model.pipeline._ImportJob = pipeline_job(  # type: ignore[call-arg]
         calendar_seq=calendar.calendar_seq,
         batch_name=batch_name,
         module=const.StageTables.TransactionalData,

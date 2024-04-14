@@ -12,9 +12,9 @@ from sapcommissions import model
 from tests.conftest import list_endpoint_cls, list_pipeline_job_cls, list_resource_cls
 
 LOGGER: logging.Logger = logging.getLogger(__name__)
-T = TypeVar("T", bound="model._Endpoint")
-U = TypeVar("U", bound="model._Resource")
-V = TypeVar("V", bound="model._PipelineJob")
+T = TypeVar("T", bound="model.base.Endpoint")
+U = TypeVar("U", bound="model.base.Resource")
+V = TypeVar("V", bound="model.pipeline._PipelineJob")
 
 
 @pytest.mark.parametrize(
@@ -31,11 +31,11 @@ def test_endpoint_basics(
     ), "endpoint is not a pydantic model"
     assert issubclass(
         endpoint_cls,
-        model._BaseModel,
+        model.base.BaseModel,
     ), "endpoint is not a subclass of '_BaseModel'"
     assert issubclass(
         endpoint_cls,
-        model._Endpoint,
+        model.base.Endpoint,
     ), "endpoint is not a subclass of '_Endpoint'"
 
     # endpoint
@@ -58,11 +58,11 @@ def test_resource_basics(
     # enpoint subclass
     assert issubclass(
         resource_cls,
-        model._Endpoint,
+        model.base.Endpoint,
     ), "resource is not a subclass of '_Endpoint'"
     assert issubclass(
         resource_cls,
-        model._Resource,
+        model.base.Resource,
     ), "resource is not a subclass of '_Resource'"
 
     # attr_seq
@@ -100,11 +100,11 @@ def test_pipeline_job_basics(
     # enpoint subclass
     assert issubclass(
         pipeline_job,
-        model._Endpoint,
+        model.base.Endpoint,
     ), "pipeline job is not a subclass of '_Endpoint'"
     assert issubclass(
         pipeline_job,
-        model._PipelineJob,
+        model.pipeline._PipelineJob,
     ), "pipeline job is not a subclass of '_PipelineJob'"
 
     # command
@@ -118,7 +118,7 @@ def test_pipeline_job_basics(
 def test_resource_model() -> None:
     """Test resource models."""
 
-    class DummyResource(model._Resource):
+    class DummyResource(model.base.Resource):
         """Dummy resource model."""
 
         attr_seq: ClassVar[str] = "dummy_seq"
@@ -155,7 +155,7 @@ def test_resource_model() -> None:
 def test_model_alias_override() -> None:
     """Test model alias override."""
 
-    class DummyResource(model._Resource):
+    class DummyResource(model.base.Resource):
         """Dummy model."""
 
         dummy_code_id: str = Field(
@@ -182,7 +182,7 @@ def test_resource_reference(
         "displayName": "eggs",
         "objectType": resource_cls.__name__,
     }
-    reference: model._ResourceReference = model._ResourceReference(**data)
+    reference: model.base.Reference = model.base.Reference(**data)
     assert reference.key == "spam"
     assert reference.display_name == "eggs"
     assert reference.object_type is resource_cls
@@ -196,7 +196,7 @@ def test_resource_reference_error() -> None:
         "objectType": "Bacon",
     }
     with pytest.raises(ValueError) as exc:
-        model._ResourceReference(**data1)
+        model.base.Reference(**data1)
         assert "Unknown object type" in str(exc)
 
     data2: dict[str, Any] = {
@@ -205,5 +205,5 @@ def test_resource_reference_error() -> None:
         "objectType": "Value",
     }
     with pytest.raises(ValueError) as exc:
-        model._ResourceReference(**data2)
+        model.base.Reference(**data2)
         assert "Invalid object type" in str(exc)

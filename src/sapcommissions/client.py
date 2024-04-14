@@ -13,7 +13,7 @@ from sapcommissions import exceptions, model
 from sapcommissions.helpers import BooleanOperator, LogicalOperator, retry
 
 LOGGER: logging.Logger = logging.getLogger(__name__)
-T = TypeVar("T", bound="model._Resource")
+T = TypeVar("T", bound="model.base.Resource")
 
 REQUEST_TIMEOUT: int = 30
 STATUS_NOT_MODIFIED: int = 304
@@ -350,7 +350,7 @@ class CommissionsClient:
             raise ValueError(f"Resource {cls.__name__} has no unique identifier")
         return await self.read_seq(cls, seq)
 
-    async def run_pipeline(self, job: model._PipelineJob) -> model.Pipeline:
+    async def run_pipeline(self, job: model.pipeline._PipelineJob) -> model.Pipeline:
         """Run a pipeline and retrieves the created Pipeline."""
         LOGGER.debug("Run pipeline %s", type(job).__name__)
         json: dict[str, Any] = job.model_dump(by_alias=True, exclude_none=True)
