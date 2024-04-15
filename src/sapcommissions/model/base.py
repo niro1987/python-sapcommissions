@@ -1,9 +1,7 @@
 """Base models for Python SAP Commissions Client."""
 
-from __future__ import annotations
-
-import importlib
 from datetime import datetime
+from importlib import import_module
 from types import ModuleType
 from typing import ClassVar, Literal
 
@@ -67,15 +65,6 @@ class Resource(Endpoint):
         return getattr(self, self.attr_seq)
 
 
-class AdjustmentContext(_BaseModel):
-    """Adjustment Context for a Sales Transaction."""
-
-    adjust_type_flag: Literal["adjustTo", "adjustBy", "reset"]
-    adjust_to_value: Value | None = None
-    adjust_by_value: Value | None = None
-    comment: str | None = None
-
-
 class Assignment(_BaseModel):
     """BaseModel for Assignment."""
 
@@ -101,7 +90,7 @@ class Reference(_BaseModel):
     @classmethod
     def convert_object_type(cls, value: str) -> type[Resource]:
         """Convert string object_type to class."""
-        module: ModuleType = importlib.import_module("sapcommissions.model")
+        module: ModuleType = import_module("sapcommissions.model")
         if not (obj := getattr(module, value, None)):
             raise ValueError(f"Unknown object type: {value}")
         if issubclass(obj, Resource):
@@ -122,6 +111,13 @@ class RuleUsageList(_BaseModel):
     children: list[RuleUsage]
 
 
+class ValueUnitType(_BaseModel):
+    """BaseModel for UnitType."""
+
+    name: str
+    unit_type_seq: str
+
+
 class Value(_BaseModel):
     """BaseModel for Value."""
 
@@ -129,11 +125,13 @@ class Value(_BaseModel):
     unit_type: ValueUnitType
 
 
-class ValueUnitType(_BaseModel):
-    """BaseModel for UnitType."""
+class AdjustmentContext(_BaseModel):
+    """Adjustment Context for a Sales Transaction."""
 
-    name: str
-    unit_type_seq: str
+    adjust_type_flag: Literal["adjustTo", "adjustBy", "reset"]
+    adjust_to_value: Value | None = None
+    adjust_by_value: Value | None = None
+    comment: str | None = None
 
 
 class Generic16Mixin(_BaseModel):
