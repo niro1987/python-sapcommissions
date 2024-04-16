@@ -32,8 +32,8 @@ class AppliedDeposit(Resource):
     earning_code_id: str
     trial_pipeline_run: str
     trial_pipeline_run_date: datetime
-    post_pipeline_run: str
-    post_pipeline_run_date: datetime
+    post_pipeline_run: str | None = None
+    post_pipeline_run_date: datetime | None = None
     entry_number: str
     value: Value
     processing_unit: str | None = None
