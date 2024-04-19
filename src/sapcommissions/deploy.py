@@ -122,7 +122,7 @@ async def deploy_xml(
     file: Path,
 ) -> list[model.Pipeline]:
     """Deploy XML Plan data."""
-    LOGGER.debug("Deploy Plan data: %s", file)
+    LOGGER.info("Deploy Plan data: %s", file)
 
     job: model.XMLImport = model.XMLImport(
         xml_file_name=file.name,
