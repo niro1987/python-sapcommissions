@@ -13,10 +13,7 @@ class _DataType(Resource):
 
     attr_seq: ClassVar[str] = "data_type_seq"
     data_type_seq: str | None = None
-    description: str | None = Field(
-        None,
-        validation_alias=AliasChoices("description", "Description"),
-    )
+    description: str | None = None
     create_date: datetime | None = Field(None, exclude=True, repr=False)
     created_by: str | None = Field(None, exclude=True, repr=False)
     modified_by: str | None = Field(None, exclude=True, repr=False)
@@ -27,32 +24,28 @@ class CreditType(_DataType):
     """Credit Type."""
 
     attr_endpoint: ClassVar[str] = "api/v2/creditTypes"
-    credit_type_id: str = Field(
-        validation_alias=AliasChoices("creditTypeId", "ID", "Credit Type ID")
-    )
+    credit_type_id: str = Field(validation_alias=AliasChoices("creditTypeId", "id"))
 
 
 class EarningCode(_DataType):
     """Earning Code."""
 
     attr_endpoint: ClassVar[str] = "api/v2/earningCodes"
-    earning_code_id: str = Field(validation_alias=AliasChoices("earningCodeId", "ID"))
+    earning_code_id: str = Field(validation_alias=AliasChoices("earningCodeId", "id"))
 
 
 class EarningGroup(_DataType):
     """Earning Group."""
 
     attr_endpoint: ClassVar[str] = "api/v2/earningGroups"
-    earning_group_id: str = Field(validation_alias=AliasChoices("earningGroupId", "ID"))
+    earning_group_id: str = Field(validation_alias=AliasChoices("earningGroupId", "id"))
 
 
 class EventType(_DataType):
     """Class representation of an Event Type."""
 
     attr_endpoint: ClassVar[str] = "api/v2/eventTypes"
-    event_type_id: str = Field(
-        validation_alias=AliasChoices("eventTypeId", "ID"),
-    )
+    event_type_id: str = Field(validation_alias=AliasChoices("eventTypeId", "id"))
 
 
 class FixedValueType(_DataType):
@@ -60,7 +53,7 @@ class FixedValueType(_DataType):
 
     attr_endpoint: ClassVar[str] = "api/v2/fixedValueTypes"
     fixed_value_type_id: str = Field(
-        validation_alias=AliasChoices("fixedValueTypeId", "ID")
+        validation_alias=AliasChoices("fixedValueTypeId", "id")
     )
 
 
@@ -75,7 +68,7 @@ class Reason(_DataType):
     """Reason."""
 
     attr_endpoint: ClassVar[str] = "api/v2/reasons"
-    reason_id: str = Field(validation_alias=AliasChoices("reasonId", "ID"))
+    reason_id: str = Field(validation_alias=AliasChoices("reasonId", "id"))
 
 
 class StatusCode(_DataType):

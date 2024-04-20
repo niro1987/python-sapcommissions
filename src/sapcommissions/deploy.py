@@ -82,12 +82,12 @@ async def deploy_resources_from_file(
 ) -> list[model.base.Resource]:
     """Deploy file."""
     LOGGER.info("Deploy file: %s", file)
+    resources: list[model.base.Resource] = []
     with open(file, encoding="utf-8", newline="") as f_in:
-        reader = csv.DictReader(f_in)
-        resources: list[model.base.Resource] = [
-            resource_cls(**row)  # type: ignore[arg-type]
-            for row in reader
-        ]
+        reader = csv.reader(f_in)
+        next(reader)  # Skip header
+        for row in reader:
+            resources.append(resource_cls(**{"id": row[0], "description": row[1]}))
     tasks = [deploy_resource(client, resource) for resource in resources]
     return await asyncio.gather(*tasks)
 
