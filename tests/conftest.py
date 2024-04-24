@@ -8,30 +8,11 @@ from inspect import isclass
 
 import pytest
 from aiohttp import BasicAuth, ClientSession
+from aioresponses import aioresponses
 from dotenv import load_dotenv
 from pytest_asyncio import is_async_test
 
 from sapcommissions import CommissionsClient, model
-
-
-class AsyncLimitedGenerator:
-    """Async generator to limit the number of yielded items."""
-
-    def __init__(self, iterable, limit: int):
-        """Initialize the async iterator."""
-        self.iterable = iterable
-        self.limit = limit
-
-    def __aiter__(self):
-        """Return the async iterator."""
-        return self
-
-    async def __anext__(self):
-        """Return the next item in the async iterator."""
-        if self.limit == 0:
-            raise StopAsyncIteration
-        self.limit -= 1
-        return await self.iterable.__anext__()
 
 
 def pytest_collection_modifyitems(items):
@@ -42,18 +23,6 @@ def pytest_collection_modifyitems(items):
         async_test.add_marker(session_scope_marker, append=False)
 
 
-def list_endpoint_cls() -> Generator[type[model.base.Endpoint], None, None]:
-    """List all endpoint classes in the model module."""
-    for name in dir(model):
-        obj = getattr(model, name)
-        if (
-            isclass(obj)
-            and issubclass(obj, model.base.Endpoint)
-            and not obj.__name__.startswith("_")
-        ):
-            yield obj
-
-
 def list_resource_cls() -> Generator[type[model.base.Resource], None, None]:
     """List all resource classes in the model module."""
     for name in dir(model):
@@ -61,18 +30,6 @@ def list_resource_cls() -> Generator[type[model.base.Resource], None, None]:
         if (
             isclass(obj)
             and issubclass(obj, model.base.Resource)
-            and not obj.__name__.startswith("_")
-        ):
-            yield obj
-
-
-def list_pipeline_job_cls() -> Generator[type[model.pipeline._PipelineJob], None, None]:
-    """List all pipeline job classes in the model module."""
-    for name in dir(model):
-        obj = getattr(model, name)
-        if (
-            isclass(obj)
-            and issubclass(obj, model.pipeline._PipelineJob)
             and not obj.__name__.startswith("_")
         ):
             yield obj
@@ -100,4 +57,11 @@ async def fixture_client(
     """Yield a CommissionsClient instance."""
     if not (tenant := os.environ.get("SAP_TENANT")):
         raise ValueError("SAP_TENANT must be set in the environment.")
-    yield CommissionsClient(tenant, session, verify_ssl=False)
+    return CommissionsClient(tenant, session, verify_ssl=False)
+
+
+@pytest.fixture(name="responses")
+def fixture_responses() -> Generator[aioresponses, None, None]:
+    """Return aioresponses fixture."""
+    with aioresponses() as mocked_responses:
+        yield mocked_responses

@@ -9,11 +9,32 @@ from typing import Any, TypeVar
 import pytest
 
 from sapcommissions import CommissionsClient, model
-from tests.conftest import AsyncLimitedGenerator, list_resource_cls
+
+from tests.conftest import list_resource_cls
 
 LOGGER = logging.getLogger(__name__)
 T = TypeVar("T", bound=model.base.Resource)
 warnings.filterwarnings("error")  # Raise warnings as errors
+
+
+class AsyncLimitedGenerator:
+    """Async generator to limit the number of yielded items."""
+
+    def __init__(self, iterable, limit: int):
+        """Initialize the async iterator."""
+        self.iterable = iterable
+        self.limit = limit
+
+    def __aiter__(self):
+        """Return the async iterator."""
+        return self
+
+    async def __anext__(self):
+        """Return the next item in the async iterator."""
+        if self.limit == 0:
+            raise StopAsyncIteration
+        self.limit -= 1
+        return await self.iterable.__anext__()
 
 
 @pytest.mark.parametrize(

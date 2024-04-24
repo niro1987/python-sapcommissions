@@ -2,6 +2,8 @@
 # pylint: disable=protected-access
 
 import logging
+from collections.abc import Generator
+from inspect import isclass
 from typing import Any, ClassVar, TypeVar
 
 import pytest
@@ -9,12 +11,37 @@ from pydantic import AliasChoices, BaseModel, Field
 from pydantic.fields import FieldInfo
 
 from sapcommissions import model
-from tests.conftest import list_endpoint_cls, list_pipeline_job_cls, list_resource_cls
+
+from tests.conftest import list_resource_cls
 
 LOGGER: logging.Logger = logging.getLogger(__name__)
 T = TypeVar("T", bound="model.base.Endpoint")
 U = TypeVar("U", bound="model.base.Resource")
 V = TypeVar("V", bound="model.pipeline._PipelineJob")
+
+
+def list_endpoint_cls() -> Generator[type[model.base.Endpoint], None, None]:
+    """List all endpoint classes in the model module."""
+    for name in dir(model):
+        obj = getattr(model, name)
+        if (
+            isclass(obj)
+            and issubclass(obj, model.base.Endpoint)
+            and not obj.__name__.startswith("_")
+        ):
+            yield obj
+
+
+def list_pipeline_job_cls() -> Generator[type[model.pipeline._PipelineJob], None, None]:
+    """List all pipeline job classes in the model module."""
+    for name in dir(model):
+        obj = getattr(model, name)
+        if (
+            isclass(obj)
+            and issubclass(obj, model.pipeline._PipelineJob)
+            and not obj.__name__.startswith("_")
+        ):
+            yield obj
 
 
 @pytest.mark.parametrize(
@@ -167,6 +194,12 @@ def test_model_alias_override() -> None:
     assert dummy.dummy_code_id == "spam"
     dump: dict[str, str] = dummy.model_dump(by_alias=True, exclude_none=True)
     assert dump == data
+
+    data2: dict[str, str] = {"ID": "eggs"}
+    dummy2: DummyResource = DummyResource(**data2)  # type: ignore[arg-type]
+    assert dummy2.dummy_code_id == "eggs"
+    dump2: dict[str, str] = dummy2.model_dump(by_alias=True, exclude_none=True)
+    assert "ID" not in dump2
 
 
 @pytest.mark.parametrize(
