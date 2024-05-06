@@ -87,7 +87,14 @@ async def deploy_resources_from_file(
         reader = csv.reader(f_in)
         next(reader)  # Skip header
         for row in reader:
-            resources.append(resource_cls(**{"id": row[0], "description": row[1]}))
+            resources.append(
+                resource_cls(
+                    **{
+                        "id": row[0],
+                        "description": row[1] if row[1] else None
+                    }
+                )
+            )
     tasks = [deploy_resource(client, resource) for resource in resources]
     return await asyncio.gather(*tasks)
 
