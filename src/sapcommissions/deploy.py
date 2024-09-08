@@ -71,7 +71,10 @@ async def deploy_from_path(
         if issubclass(resource_cls, model.base.Resource):  # pylint: disable=protected-access
             results[file] = await deploy_resources_from_file(client, file, resource_cls)
         if resource_cls is model.XMLImport:
-            results[file] = await deploy_xml(client, file)
+            result: model.Pipeline = await deploy_xml(client, file)
+            if result.status != PipelineStatus.Successful:
+                break
+            results[file] = [result]
     return results
 
 
@@ -127,7 +130,7 @@ async def deploy_resource(
 async def deploy_xml(
     client: CommissionsClient,
     file: Path,
-) -> list[model.Pipeline]:
+) -> model.Pipeline:
     """Deploy XML Plan data."""
     LOGGER.info("Deploy Plan data: %s", file)
 
@@ -153,4 +156,4 @@ async def deploy_xml(
         LOGGER.error("XML Import failed (errors: %s)!", result.num_errors)
     else:
         LOGGER.info("Plan data imported: %s", file)
-    return [result]
+    return result
