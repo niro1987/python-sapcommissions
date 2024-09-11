@@ -1,182 +1,91 @@
-"""Tests for the sapcommissions.resources module."""
-from __future__ import annotations
+"""Test the resource interaction with the client."""
+# pylint: disable=protected-access
 
-import unittest
-from dataclasses import dataclass, field
-from datetime import date, datetime
-from typing import ClassVar
+import logging
+import warnings
+from json import dumps
+from typing import Any, TypeVar
 
-from sapcommissions.resources import _deserialize, _Resource, _serialize
+import pytest
 
-# pylint: skip-file
+from sapcommissions import CommissionsClient, model
 
+from tests.conftest import list_resource_cls
 
-@dataclass
-class DummyResource(_Resource):
-    _endpoint_name: ClassVar[str] = "test"
-    id: str = field(metadata={"seq": True})
-    name: str = field(default=None, metadata={"id": True})
-    items: list[str] = field(default_factory=list)
-    parent: DummyResource = field(default=None)
+LOGGER = logging.getLogger(__name__)
+T = TypeVar("T", bound=model.base.Resource)
+warnings.filterwarnings("error")  # Raise warnings as errors
 
 
-class TestResourceMethods(unittest.TestCase):
-    def setUp(self):
-        self.resource_dict = {
-            "id": "123",
-            "name": "Test Resource",
-            "items": ["item1", "item2"],
-        }
-        self.resource: DummyResource = DummyResource(
-            id="123",
-            name="Test Resource",
-            items=["item1", "item2"],
-        )
+class AsyncLimitedGenerator:
+    """Async generator to limit the number of yielded items."""
 
-    def test_name_property(self):
-        self.assertEqual(DummyResource._name, "test")
+    def __init__(self, iterable, limit: int):
+        """Initialize the async iterator."""
+        self.iterable = iterable
+        self.limit = limit
 
-    def test_seq_attr_property(self):
-        self.assertEqual(DummyResource._seqAttr, "id")
+    def __aiter__(self):
+        """Return the async iterator."""
+        return self
 
-    def test_seq_property(self):
-        self.assertEqual(self.resource._seq, "123")
-
-    def test_id_attr_property(self):
-        self.assertEqual(DummyResource._idAttr, "name")
-
-    def test_id_property(self):
-        self.assertEqual(self.resource._id, "Test Resource")
-
-    def test_expands_property(self):
-        self.assertEqual(DummyResource._expands, ("items", "parent"))
-
-    def test_to_dict_with_seq(self):
-        self.assertEqual(self.resource.to_dict(False), self.resource_dict)
-
-    def test_to_dict_without_seq(self):
-        resource_dict = self.resource_dict.copy()
-        del resource_dict["id"]
-        self.assertEqual(self.resource.to_dict(), resource_dict)
-
-    def test_from_dict_with_valid_dict(self):
-        self.assertEqual(self.resource, DummyResource.from_dict(self.resource_dict))
-        self.assertEqual(self.resource.id, "123")
-        self.assertEqual(self.resource.name, "Test Resource")
-        self.assertEqual(self.resource.items, ["item1", "item2"])
-        self.assertEqual(self.resource.parent, None)
-
-    def test_from_dict_with_invalid_dict(self):
-        resource_dict = {
-            "spam": "eggs",
-            "ham": "cheese",
-            "foo": "bar",
-        }
-        with self.assertRaises(TypeError):
-            DummyResource.from_dict(resource_dict)
-
-    def test_from_dict_with_invalid_field(self):
-        resource_dict = self.resource_dict.copy()
-        resource_dict["invalidField"] = "spam"
-        resource: DummyResource = DummyResource.from_dict(resource_dict)
-
-        self.assertEqual(resource, self.resource)
-
-    def test_from_dict_with_valid_reference(self):
-        resource_dict = {
-            "objectType": "DummyResource",
-            "key": "spam",
-            "displayName": "eggs",
-        }
-        resource: DummyResource = DummyResource.from_dict(resource_dict)
-        self.assertIsInstance(resource, DummyResource)
-        self.assertEqual(resource.id, "spam")
-        self.assertEqual(resource.name, "eggs")
-
-    def test_from_dict_with_invalid_reference(self):
-        resource_dict = {
-            "objectType": "Sausages",
-            "key": "spam",
-            "displayName": "eggs",
-        }
-
-        with self.assertRaises(TypeError):
-            DummyResource.from_dict(resource_dict)
+    async def __anext__(self):
+        """Return the next item in the async iterator."""
+        if self.limit == 0:
+            raise StopAsyncIteration
+        self.limit -= 1
+        return await self.iterable.__anext__()
 
 
-class TestEncodeDecode(unittest.TestCase):
-    def test_decode_datetime(self):
-        dt_str = "2000-01-02T03:04:05.000-06:00"
-        decoded_dt = _deserialize(dt_str, datetime)
-        self.assertEqual(decoded_dt, datetime.fromisoformat(dt_str))
+@pytest.mark.parametrize(
+    "resource_cls",
+    list_resource_cls(),
+)
+async def test_list_resources(  # noqa: C901
+    client: CommissionsClient,
+    resource_cls: type[T],
+) -> None:
+    """Test listing resources."""
+    LOGGER.info("Testing list %s", resource_cls.__name__)
 
-    def test_encode_datetime(self):
-        dt = datetime(2000, 1, 2, 3, 4, 5)
-        encoded_dt = _serialize(dt, datetime)
-        self.assertEqual(encoded_dt, "2000-01-02T03:04:05")
+    resource_list: list[T] = []
 
-    def test_decode_date(self):
-        date_str = "2000-01-02T03:04:05.000-06:00"
-        decoded_date = _deserialize(date_str, date)
-        self.assertEqual(decoded_date, datetime.fromisoformat(date_str).date())
+    page_size: int = 1 if resource_cls is model.Pipeline else 100
+    generator = client.read_all(resource_cls, page_size=page_size)
+    async for resource in AsyncLimitedGenerator(generator, page_size * 2):
+        assert isinstance(resource, resource_cls)
+        resource_list.append(resource)
 
-    def test_encode_date(self):
-        dt = date(2000, 1, 2)
-        encoded_dt = _serialize(dt, date)
-        self.assertEqual(encoded_dt, "2000-01-02")
+    if not resource_list:
+        pytest.skip("No resources found")
 
-    def test_decode_none(self):
-        decoded_none = _deserialize(None, str)
-        self.assertIs(decoded_none, None)
+    extra_keys: dict[str, set[Any]] = {}
+    for instance in resource_list:
+        if model_extra := instance.model_extra:
+            model_extra.pop("etag", None)
+            for key, value in model_extra.items():
+                extra_keys.setdefault(key, set())
+                extra_keys[key].add(str(value))
 
-    def test_encode_none(self):
-        encoded_none = _serialize(None, str)
-        self.assertIs(encoded_none, None)
-
-    def test_decode_string(self):
-        test_str = "SPAM"
-        decoded_str = _deserialize(test_str, str)
-        self.assertEqual(decoded_str, "SPAM")
-
-    def test_encode_string(self):
-        test_str = "SPAM"
-        encoded_str = _serialize(test_str, str)
-        self.assertEqual(encoded_str, "SPAM")
-
-    def test_decode_int(self):
-        test_int = 1
-        decoded_int = _deserialize(test_int, int)
-        self.assertEqual(decoded_int, 1)
-
-    def test_decode_str_int(self):
-        test_int_str = "1"
-        decoded_int_str = _deserialize(test_int_str, int)
-        self.assertEqual(decoded_int_str, 1)
-
-    def test_encode_int(self):
-        test_int = 1
-        encoded_int = _serialize(test_int, int)
-        self.assertEqual(encoded_int, 1)
-
-    def test_decode_list_str(self):
-        test_list = ["SPAM", "EGGS"]
-        decoded_list = _deserialize(test_list, list[str])
-        self.assertListEqual(decoded_list, test_list)
-
-    def test_decode_list_error(self):
-        test_list = ["SPAM", "EGGS"]
-        with self.assertRaises(TypeError):
-            _deserialize(test_list, list[str, int])
-        with self.assertRaises(TypeError):
-            _deserialize(test_list, list)
-        with self.assertRaises(TypeError):
-            _deserialize(test_list, str)
-
-    def test_decode_unions(self):
-        test_value = 1
-        with self.assertRaises(NotImplementedError):
-            _deserialize(test_value, int | dict)
+    LOGGER.info("Extra keys: %s", extra_keys)
+    assert not extra_keys, f"Extra keys: {extra_keys}"
 
 
-if __name__ == "__main__":
-    unittest.main()
+@pytest.mark.parametrize(
+    "resource_cls",
+    list_resource_cls(),
+)
+async def test_model_raw(
+    client: CommissionsClient,
+    resource_cls: type[T],
+) -> None:
+    """Test the raw model."""
+    LOGGER.info("Testing raw model %s", resource_cls.__name__)
+
+    expand = ",".join(resource_cls.attr_expand)
+    params: dict[str, int | str] = {"top": 1}
+    if expand:
+        params["expand"] = expand
+    LOGGER.info("Params: %s", params)
+    data = await client._request("GET", resource_cls.attr_endpoint, params=params)
+    LOGGER.info("Data: %s", dumps(data, indent=2))

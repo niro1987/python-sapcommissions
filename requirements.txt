@@ -1,0 +1,4 @@
+aiohttp==3.9.3
+click==8.1.7
+python-dotenv==1.0.1
+pydantic==2.6.4
