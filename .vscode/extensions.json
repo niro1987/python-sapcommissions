@@ -1,7 +1,3 @@
 {
-    "recommendations": [
-        "sanaajani.taskrunnercode",
-        "GitHub.copilot",
-        "GitHub.copilot-chat"
-    ]
+  "recommendations": ["sanaajani.taskrunnercode"]
 }
