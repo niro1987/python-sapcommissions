@@ -313,7 +313,7 @@ class CommissionsClient:
         *,
         filters: BooleanOperator | LogicalOperator | str | None = None,
         order_by: list[str] | None = None,
-    ) -> T:
+    ) -> T | None:
         """Read the first matching resource.
 
         TODO: Fix type error
@@ -325,7 +325,10 @@ class CommissionsClient:
             order_by=order_by,
             page_size=1,
         )
-        return await anext(list_resources)  # type: ignore[arg-type]
+        try:
+            return await anext(list_resources)  # type: ignore[arg-type]
+        except StopAsyncIteration:
+            return None
 
     async def read_seq(self, resource_cls: type[T], seq: str) -> T:
         """Read the specified resource."""
