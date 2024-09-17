@@ -2,8 +2,9 @@
 
 from datetime import datetime
 from importlib import import_module
+from inspect import isclass
 from types import ModuleType
-from typing import ClassVar, Literal
+from typing import Any, ClassVar, Literal, get_args, get_origin
 
 from pydantic import (
     AliasGenerator,
@@ -51,7 +52,21 @@ class Endpoint(_BaseModel):
     """BaseModel for an Endpoint."""
 
     attr_endpoint: ClassVar[str]
-    attr_expand: ClassVar[list[str]] = []
+
+    @classmethod
+    def expands(cls) -> list[str]:
+        """Return list of model fields that refer to onther resource."""
+        reference_fields: list[str] = []
+        for field_name, field_type in cls.__annotations__.items():
+            if get_origin(field_type) is not None:
+                for arg in get_args(field_type):
+                    if isclass(arg) and issubclass(arg, Reference):
+                        reference_fields.append(field_name)
+                        break
+            elif isclass(field_type) and issubclass(field_type, Reference):
+                reference_fields.append(field_name)
+
+        return reference_fields
 
 
 class Resource(Endpoint):
@@ -79,25 +94,6 @@ class BusinessUnitAssignment(_BaseModel):
     smask: int
 
 
-class Reference(_BaseModel):
-    """Pydantic BaseModel for reference to another resource."""
-
-    key: str
-    display_name: str
-    object_type: type[Resource]
-
-    @field_validator("object_type", mode="before")
-    @classmethod
-    def convert_object_type(cls, value: str) -> type[Resource]:
-        """Convert string object_type to class."""
-        module: ModuleType = import_module("sapcommissions.model")
-        if not (obj := getattr(module, value, None)):
-            raise ValueError(f"Unknown object type: {value}")
-        if issubclass(obj, Resource):
-            return obj
-        raise ValueError(f"Invalid object type: {value}")
-
-
 class RuleUsage(_BaseModel):
     """BaseModel for RuleUsage."""
 
@@ -123,6 +119,12 @@ class Value(_BaseModel):
 
     value: int | float | None
     unit_type: ValueUnitType
+
+
+class ValueClass(_BaseModel):
+    """BaseModel for ValueClass."""
+
+    display_name: str
 
 
 class AdjustmentContext(_BaseModel):
@@ -192,3 +194,28 @@ class Generic32Mixin(Generic16Mixin):
     ga30: str | None = Field(None, alias="genericAttribute30")
     ga31: str | None = Field(None, alias="genericAttribute31")
     ga32: str | None = Field(None, alias="genericAttribute32")
+
+
+class Reference(_BaseModel):
+    """Pydantic BaseModel for reference to another resource."""
+
+    key: str
+    display_name: str
+    object_type: type[Resource]
+    key_string: str | None = None
+    logical_keys: dict[str, str | int | Value | Any]
+
+    @field_validator("object_type", mode="before")
+    @classmethod
+    def convert_object_type(cls, value: str) -> type[Resource]:
+        """Convert string object_type to class."""
+        module: ModuleType = import_module("sapcommissions.model")
+        if not (obj := getattr(module, value, None)):
+            raise ValueError(f"Unknown object type: {value}")
+        if issubclass(obj, Resource):
+            return obj
+        raise ValueError(f"Invalid object type: {value}")
+
+    def __str__(self) -> str:
+        """Return key value."""
+        return self.key

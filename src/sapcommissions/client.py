@@ -10,7 +10,7 @@ from aiohttp import ClientError, ClientSession
 from pydantic_core import ValidationError
 
 from sapcommissions import exceptions, model
-from sapcommissions.helpers import BooleanOperator, LogicalOperator, retry
+from sapcommissions.helpers import BooleanOperator, LogicalOperator, get_alias, retry
 
 LOGGER: logging.Logger = logging.getLogger(__name__)
 T = TypeVar("T", bound="model.base.Resource")
@@ -272,8 +272,10 @@ class CommissionsClient:
             params[ATTR_FILTER] = str(filters)
         if order_by:
             params[ATTR_ORDERBY] = ",".join(order_by)
-        if resource_cls.attr_expand:
-            params[ATTR_EXPAND] = ",".join(resource_cls.attr_expand)
+        if expand_alias := [
+            get_alias(resource_cls, field_name) for field_name in resource_cls.expands()
+        ]:
+            params[ATTR_EXPAND] = ",".join(expand_alias)
 
         uri: str | None = resource_cls.attr_endpoint
         while True:
@@ -311,7 +313,7 @@ class CommissionsClient:
         *,
         filters: BooleanOperator | LogicalOperator | str | None = None,
         order_by: list[str] | None = None,
-    ) -> T:
+    ) -> T | None:
         """Read the first matching resource.
 
         TODO: Fix type error
@@ -323,7 +325,10 @@ class CommissionsClient:
             order_by=order_by,
             page_size=1,
         )
-        return await anext(list_resources)  # type: ignore[arg-type]
+        try:
+            return await anext(list_resources)  # type: ignore[arg-type]
+        except StopAsyncIteration:
+            return None
 
     async def read_seq(self, resource_cls: type[T], seq: str) -> T:
         """Read the specified resource."""
@@ -331,8 +336,10 @@ class CommissionsClient:
 
         uri: str = f"{resource_cls.attr_endpoint}({seq})"
         params: dict[str, str] = {}
-        if resource_cls.attr_expand:
-            params[ATTR_EXPAND] = ",".join(resource_cls.attr_expand)
+        if expand_alias := [
+            get_alias(resource_cls, field_name) for field_name in resource_cls.expands()
+        ]:
+            params[ATTR_EXPAND] = ",".join(expand_alias)
 
         response: dict[str, Any] = await self._request("GET", uri=uri, params=params)
         try:

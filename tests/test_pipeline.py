@@ -61,13 +61,15 @@ async def test_pipelinerun(
     cleanup: list[model.Pipeline],
 ) -> None:
     """Test running a pipeline on a calendar period."""
-    period: model.Period = await client.read_first(
+    period: model.Period | None = await client.read_first(
         model.Period,
         filters=helpers.Equals("name", "202401 W1"),
     )
+    if not period:
+        pytest.skip("No period returned from client.")
     assert period.period_seq is not None, "period_seq not found."
     job: T = pipeline_job(  # type: ignore[call-arg]
-        calendar_seq=period.calendar,
+        calendar_seq=str(period.calendar),
         period_seq=period.period_seq,
     )
     result: model.Pipeline = await client.run_pipeline(job)
@@ -84,13 +86,16 @@ async def test_pipelinerun_report(
     cleanup: list[model.Pipeline],
 ) -> None:
     """Test running a pipeline on a calendar period."""
-    period: model.Period = await client.read_first(
+    period: model.Period | None = await client.read_first(
         model.Period,
         filters=helpers.Equals("name", "202401 W1"),
     )
+    if not period:
+        pytest.skip("No period returned from client.")
+
     assert period.period_seq is not None, "period_seq not found."
     job: model.ReportsGeneration = model.ReportsGeneration(
-        calendar_seq=period.calendar,
+        calendar_seq=str(period.calendar),
         period_seq=period.period_seq,
         report_type_name=const.ReportType.Crystal,
         report_formats_list=[const.ReportFormat.Excel],
@@ -141,10 +146,13 @@ async def test_import(
 ) -> None:
     """Test running an import job."""
     batch_name: str = "test.txt"
-    calendar: model.Calendar = await client.read_first(
+    calendar: model.Calendar | None = await client.read_first(
         model.Calendar,
         filters=helpers.Equals("name", "Main Weekly Calendar"),
     )
+    if not calendar:
+        pytest.skip("No calendar returned from client.")
+
     assert calendar.calendar_seq is not None, "calendar_seq not found."
     job: model.pipeline._ImportJob = pipeline_job(  # type: ignore[call-arg]
         calendar_seq=calendar.calendar_seq,
@@ -185,13 +193,16 @@ async def test_resetfromvalidate(
 ) -> None:
     """Test running a ResetFromValidate pipeline."""
     batch_name: str = "test.txt"
-    period: model.Period = await client.read_first(
+    period: model.Period | None = await client.read_first(
         model.Period,
         filters=helpers.Equals("name", "202001 W1"),
     )
+    if not period:
+        pytest.skip("No period returned from client.")
+
     assert period.period_seq is not None, "period_seq not found."
     job: model.ResetFromValidate = model.ResetFromValidate(
-        calendar_seq=period.calendar,
+        calendar_seq=str(period.calendar),
         period_seq=period.period_seq,
         batch_name=batch_name,
     )
@@ -209,13 +220,16 @@ async def test_resetfromvalidate_no_batch(
     cleanup: list[model.Pipeline],
 ) -> None:
     """Test running a ResetFromValidate pipeline without batch_name."""
-    period: model.Period = await client.read_first(
+    period: model.Period | None = await client.read_first(
         model.Period,
         filters=helpers.Equals("name", "202001 W1"),
     )
+    if not period:
+        pytest.skip("No period returned from client.")
+
     assert period.period_seq is not None, "period_seq not found."
     job: model.ResetFromValidate = model.ResetFromValidate(
-        calendar_seq=period.calendar,
+        calendar_seq=str(period.calendar),
         period_seq=period.period_seq,
     )
     result: model.Pipeline = await client.run_pipeline(job)

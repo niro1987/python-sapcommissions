@@ -53,7 +53,7 @@ async def fixture_session() -> AsyncGenerator[ClientSession, None]:
 @pytest.fixture(name="client", scope="session")
 async def fixture_client(
     session: ClientSession,
-) -> AsyncGenerator[CommissionsClient, None]:
+) -> CommissionsClient:
     """Yield a CommissionsClient instance."""
     if not (tenant := os.environ.get("SAP_TENANT")):
         raise ValueError("SAP_TENANT must be set in the environment.")

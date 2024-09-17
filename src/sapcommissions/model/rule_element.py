@@ -8,6 +8,7 @@ from pydantic import Field
 from .base import (
     Assignment,
     Generic16Mixin,
+    Reference,
     Resource,
     RuleUsage,
     RuleUsageList,
@@ -22,7 +23,7 @@ class _RuleElement(Resource):
     rule_element_seq: str | None = None
     name: str
     description: str | None = None
-    calendar: str | None = None
+    calendar: str | Reference | None = None
     effective_start_date: datetime
     effective_end_date: datetime
     business_units: list[str] | None = None
@@ -42,8 +43,8 @@ class Category(_RuleElement, Generic16Mixin):
     """Category."""
 
     attr_endpoint: ClassVar[str] = "api/v2/categories"
-    owner: str
-    parent: str | None = None
+    owner: str | Reference
+    parent: str | Reference | None = None
 
 
 class FixedValue(_RuleElement):
@@ -51,8 +52,12 @@ class FixedValue(_RuleElement):
 
     attr_endpoint: ClassVar[str] = "api/v2/fixedValues"
     value: Value | None = None
-    fixedValueType: str | None = None
-    periodType: str | None = None
+    fixed_value_type: str | Reference | None = None
+    period_type: str | Reference | None = None
+
+
+class CFixedValue(FixedValue):
+    """Alias for FixedValue."""
 
 
 class Formula(_RuleElement):
@@ -65,42 +70,42 @@ class FixedValueVariable(_RuleElement):
     """Fixed Value Variable."""
 
     attr_endpoint: ClassVar[str] = "api/v2/fixedValueVariables"
-    default_element: str | None = None
-    required_period_type: str | None = None
+    default_element: str | Reference | None = None
+    required_period_type: str | Reference | None = None
 
 
 class LookUpTableVariable(_RuleElement):
     """LookUp Table Variable."""
 
     attr_endpoint: ClassVar[str] = "api/v2/lookUpTableVariables"
-    default_element: str | None = None
-    required_period_type: str | None = None
+    default_element: str | Reference | None = None
+    required_period_type: str | Reference | None = None
 
 
 class RateTable(_RuleElement):
     """Rate Table."""
 
     attr_endpoint: ClassVar[str] = "api/v2/rateTables"
-    default_element: str | None = None
-    required_period_type: str | None = None
-    return_unit_type: str | None = None
+    default_element: str | Reference | None = None
+    required_period_type: str | Reference | None = None
+    return_unit_type: str | Reference | None = None
 
 
 class RateTableVariable(_RuleElement):
     """Rate Table Variable."""
 
     attr_endpoint: ClassVar[str] = "api/v2/rateTableVariables"
-    default_element: str | None = None
-    required_period_type: str | None = None
+    default_element: str | Reference | None = None
+    required_period_type: str | Reference | None = None
 
 
 class RelationalMDLT(_RuleElement):
     """Relational MDLT."""
 
     attr_endpoint: ClassVar[str] = "api/v2/relationalMDLTs"
-    default_element: str | None = None
-    required_period_type: str | None = None
-    return_unit_type: str | None = None
+    default_element: str | Reference | None = None
+    required_period_type: str | Reference | None = None
+    return_unit_type: str | Reference | None = None
     indices: list[Assignment] | Assignment | None = None
     treat_null_as_zero: bool | None = None
     expression_type_counts: str | None = None
@@ -117,13 +122,13 @@ class TerritoryVariable(_RuleElement):
     """Territory Variable."""
 
     attr_endpoint: ClassVar[str] = "api/v2/territoryVariables"
-    default_element: str | None = None
-    required_period_type: str | None = None
+    default_element: str | Reference | None = None
+    required_period_type: str | Reference | None = None
 
 
 class Variable(_RuleElement):
     """Variable."""
 
     attr_endpoint: ClassVar[str] = "api/v2/variables"
-    default_element: str | None = None
-    required_period_type: str | None = None
+    default_element: str | Reference | None = None
+    required_period_type: str | Reference | None = None
