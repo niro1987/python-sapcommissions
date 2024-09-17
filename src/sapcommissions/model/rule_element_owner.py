@@ -8,6 +8,7 @@ from pydantic import Field
 from .base import (
     Assignment,
     Generic16Mixin,
+    Reference,
     Resource,
 )
 
@@ -33,7 +34,7 @@ class Plan(_RuleElementOwner):
     """Plan."""
 
     attr_endpoint: ClassVar[str] = "api/v2/plans"
-    calendar: str
+    calendar: str | Reference
 
 
 class Position(_RuleElementOwner, Generic16Mixin):
@@ -46,15 +47,15 @@ class Position(_RuleElementOwner, Generic16Mixin):
     processing_end_date: datetime | None = None
     target_compensation: dict | None = None
     processing_unit: str | None = None
-    manager: str | None = None
-    title: str | None = None
-    plan: str | None = None
-    position_group: str | None = None
-    payee: str | None = None
+    manager: str | Reference | None = None
+    title: str | Reference | None = None
+    plan: str | Reference | None = None
+    position_group: str | Reference | None = None
+    payee: str | Reference | None = None
 
 
 class Title(_RuleElementOwner, Generic16Mixin):
     """Title."""
 
     attr_endpoint: ClassVar[str] = "api/v2/titles"
-    plan: str | None = None
+    plan: str | Reference | None = None

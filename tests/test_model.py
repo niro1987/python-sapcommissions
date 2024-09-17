@@ -11,6 +11,7 @@ from pydantic import AliasChoices, BaseModel, Field
 from pydantic.fields import FieldInfo
 
 from sapcommissions import model
+from sapcommissions.model.base import Reference, Resource
 
 from tests.conftest import list_resource_cls
 
@@ -242,3 +243,38 @@ def test_resource_reference_error() -> None:
     with pytest.raises(ValueError) as exc:
         model.base.Reference(**data2)
         assert "Invalid object type" in str(exc)
+
+
+def test_reference_string() -> None:
+    """Test reference field as string."""
+
+    class DummyResource(model.base.Resource):
+        """Dummy model."""
+
+        id: str
+        reference: str | Reference
+
+    data: dict[str, str] = {"id": "spamm", "reference": "eggs"}
+    dummy: DummyResource = DummyResource(**data)  # type: ignore[arg-type]
+    assert dummy.id == "spamm"
+    assert isinstance(dummy.reference, str)
+    assert dummy.reference == "eggs"
+
+    data2: dict[str, str | dict[str, Any]] = {
+        "id": "spamm",
+        "reference": {
+            "key": "eggs",
+            "displayName": "Eggs",
+            "objectType": "User",
+            "logicalKeys": {"likes": "bacon"},
+        },
+    }
+    dummy2: DummyResource = DummyResource(**data2)  # type: ignore[arg-type]
+    assert dummy2.id == "spamm"
+    assert isinstance(dummy2.reference, Reference)
+    assert str(dummy2.reference) == "eggs"
+    assert issubclass(dummy2.reference.object_type, Resource)
+
+    assert isinstance(dummy2.reference.logical_keys, dict)
+    logical_keys: dict[str, Any] = dummy2.reference.logical_keys
+    assert logical_keys["likes"] == "bacon"

@@ -69,7 +69,7 @@ async def test_pipelinerun(
         pytest.skip("No period returned from client.")
     assert period.period_seq is not None, "period_seq not found."
     job: T = pipeline_job(  # type: ignore[call-arg]
-        calendar_seq=period.calendar,
+        calendar_seq=str(period.calendar),
         period_seq=period.period_seq,
     )
     result: model.Pipeline = await client.run_pipeline(job)
@@ -95,7 +95,7 @@ async def test_pipelinerun_report(
 
     assert period.period_seq is not None, "period_seq not found."
     job: model.ReportsGeneration = model.ReportsGeneration(
-        calendar_seq=period.calendar,
+        calendar_seq=str(period.calendar),
         period_seq=period.period_seq,
         report_type_name=const.ReportType.Crystal,
         report_formats_list=[const.ReportFormat.Excel],
@@ -202,7 +202,7 @@ async def test_resetfromvalidate(
 
     assert period.period_seq is not None, "period_seq not found."
     job: model.ResetFromValidate = model.ResetFromValidate(
-        calendar_seq=period.calendar,
+        calendar_seq=str(period.calendar),
         period_seq=period.period_seq,
         batch_name=batch_name,
     )
@@ -229,7 +229,7 @@ async def test_resetfromvalidate_no_batch(
 
     assert period.period_seq is not None, "period_seq not found."
     job: model.ResetFromValidate = model.ResetFromValidate(
-        calendar_seq=period.calendar,
+        calendar_seq=str(period.calendar),
         period_seq=period.period_seq,
     )
     result: model.Pipeline = await client.run_pipeline(job)

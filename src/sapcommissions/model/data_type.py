@@ -5,7 +5,7 @@ from typing import ClassVar
 
 from pydantic import AliasChoices, Field
 
-from .base import Resource
+from .base import Resource, ValueClass
 
 
 class _DataType(Resource):
@@ -79,3 +79,18 @@ class StatusCode(_DataType):
     type: str | None = None
     status: str
     is_active: bool = True
+
+
+class UnitType(_DataType):
+    """Class representation of a Unit Type."""
+
+    attr_endpoint: ClassVar[str] = "api/v2/unitTypes"
+    unit_type_seq: str
+    name: str
+    symbol: str | None = None
+    scale: int
+    reporting_scale: int
+    position_of_symbol: int
+    currency_locale: str | None = None
+    value_class: ValueClass
+    formatting: str | None = None

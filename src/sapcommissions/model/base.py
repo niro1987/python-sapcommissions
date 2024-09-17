@@ -4,7 +4,7 @@ from datetime import datetime
 from importlib import import_module
 from inspect import isclass
 from types import ModuleType
-from typing import ClassVar, Literal, get_args, get_origin
+from typing import Any, ClassVar, Literal, get_args, get_origin
 
 from pydantic import (
     AliasGenerator,
@@ -121,6 +121,12 @@ class Value(_BaseModel):
     unit_type: ValueUnitType
 
 
+class ValueClass(_BaseModel):
+    """BaseModel for ValueClass."""
+
+    display_name: str
+
+
 class AdjustmentContext(_BaseModel):
     """Adjustment Context for a Sales Transaction."""
 
@@ -196,8 +202,8 @@ class Reference(_BaseModel):
     key: str
     display_name: str
     object_type: type[Resource]
-    key_string: str
-    logical_keys: dict[str, str | Value]
+    key_string: str | None = None
+    logical_keys: dict[str, str | int | Value | Any]
 
     @field_validator("object_type", mode="before")
     @classmethod
@@ -209,3 +215,7 @@ class Reference(_BaseModel):
         if issubclass(obj, Resource):
             return obj
         raise ValueError(f"Invalid object type: {value}")
+
+    def __str__(self) -> str:
+        """Return key value."""
+        return self.key

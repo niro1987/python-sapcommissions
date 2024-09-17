@@ -99,9 +99,8 @@ class Calendar(Resource):
     calendar_seq: str | None = None
     name: str
     description: str | None = None
-    minor_period_type: str | None = None
-    major_period_type: str | None = None
-    periods: list[str] | None = None
+    minor_period_type: str | Reference | Reference | None = None
+    major_period_type: str | Reference | Reference | None = None
     created_by: str | None = Field(None, exclude=True, repr=False)
     create_date: datetime | None = Field(None, exclude=True, repr=False)
     modified_by: str | None = Field(None, exclude=True, repr=False)
@@ -113,9 +112,9 @@ class CategoryClassifier(Resource):
     attr_endpoint: ClassVar[str] = "api/v2/categoryClassifiers"
     attr_seq: ClassVar[str] = "category_classifiers_seq"
     category_classifiers_seq: str | None = None
-    category_tree: str
-    category: str
-    classifier: str
+    category_tree: str | Reference
+    category: str | Reference
+    classifier: str | Reference
     effective_start_date: datetime
     effective_end_date: datetime
     created_by: str | None = Field(None, exclude=True, repr=False)
@@ -153,8 +152,8 @@ class Commission(Resource):
     position: str | Reference
     payee: str | Reference
     period: str | Reference
-    incentive: str
-    credit: str
+    incentive: str | Reference
+    credit: str | Reference
     pipeline_run: str
     pipeline_run_date: datetime
     value: Value
@@ -183,7 +182,7 @@ class Credit(Resource, Generic16Mixin):
     preadjusted_value: Value
     origin_type_id: str
     reason: str | Reference | None = None
-    rule: str | Reference | None = None
+    rule: str | Reference | Reference | None = None
     is_rollable: bool | None = None
     roll_date: datetime | None = None
     is_held: bool | None = None
@@ -213,8 +212,8 @@ class Deposit(Resource, Generic16Mixin):
     preadjusted_value: Value
     origin_type_id: str
     reason: str | None = None
-    businessUnits: list[str] | None = None
-    rule: str | None = None
+    business_units: list[str] | None = None
+    rule: str | Reference | None = None
     deposit_date: datetime | None = None
     is_held: bool | None = None
     release_date: datetime | None = None
@@ -301,7 +300,7 @@ class Incentive(Resource, Generic16Mixin):
     position: str | Reference
     payee: str | Reference
     period: str | Reference
-    rule: str
+    rule: str | Reference
     value: Value
     release_date: datetime | None = None
     pipeline_run: str | None = None
@@ -322,7 +321,7 @@ class Measurement(Resource, Generic16Mixin):
     position: str | Reference
     payee: str | Reference
     period: str | Reference
-    rule: str | None = None
+    rule: str | Reference | None = None
     value: Value
     pipeline_run: str | None = None
     pipeline_run_date: datetime | None = None
@@ -356,7 +355,7 @@ class Message(Resource):
     sub_category: str
     message_log: str
     module: str
-    rule: str | None = None
+    rule: str | Reference | None = None
     payee: str | Reference | None = None
     message_type: str
     run_period: str | Reference | None = None
@@ -399,7 +398,7 @@ class Participant(Resource, Generic16Mixin):
     salary: Value | None = None
     user_id: str
     preferred_language: str | None = None
-    event_calendar: str | None = None
+    event_calendar: str | Reference | None = None
     tax_id: str | None = None
     business_units: list[str] | None = None
     created_by: str | None = Field(None, exclude=True, repr=False)
@@ -469,10 +468,10 @@ class Period(Resource):
     short_name: str
     start_date: datetime
     end_date: datetime
-    period_type: str
-    calendar: str
+    period_type: str | Reference
+    calendar: str | Reference
     description: str | None = None
-    parent: str | None = None
+    parent: str | Reference | None = None
     created_by: str | None = Field(None, exclude=True, repr=False)
     create_date: datetime | None = Field(None, exclude=True, repr=False)
     modified_by: str | None = Field(None, exclude=True, repr=False)
@@ -643,12 +642,12 @@ class Quota(Resource):
     attr_endpoint: ClassVar[str] = "api/v2/quotas"
     attr_seq: ClassVar[str] = "quota_seq"
     quota_seq: str | None = None
-    calendar: str
+    calendar: str | Reference
     name: str
     description: str | None = None
     effective_start_date: datetime
     effective_end_date: datetime
-    unit_type: str
+    unit_type: str | Reference
     model_seq: str | None = None
     business_units: list[str] | None = None
     created_by: str | None = Field(None, exclude=True, repr=False)
@@ -744,7 +743,7 @@ class PlanComponent(Resource):
     plan_component_seq: str | None = None
     name: str
     description: str | None = None
-    calendar: str
+    calendar: str | Reference
     effective_start_date: datetime
     effective_end_date: datetime
     business_units: list[str] | None = None
@@ -763,7 +762,7 @@ class Rule(Resource):
     rule_seq: str | None = None
     name: str
     description: str | None = None
-    calendar: str
+    calendar: str | Reference
     effective_start_date: datetime
     effective_end_date: datetime
     business_unit: list[BusinessUnitAssignment] | BusinessUnitAssignment | None = None
@@ -776,4 +775,16 @@ class Rule(Resource):
 
 
 class CreditRule(Rule):
-    """Credit Rule."""
+    """Alias for Rule."""
+
+
+class CommissionRule(Rule):
+    """Alias for Rule."""
+
+
+class DepositRule(Rule):
+    """Alias for Rule."""
+
+
+class MeasurementRule(Rule):
+    """Alias for Rule."""

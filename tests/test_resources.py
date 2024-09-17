@@ -105,19 +105,27 @@ async def test_expand_resources(  # noqa: C901
     """Test listing resources."""
     LOGGER.info("Testing list %s", resource_cls.__name__)
 
-    if not (resource := await client.read_first(resource_cls)):
+    resource_list: list[T] = []
+
+    page_size: int = 1 if resource_cls is model.Pipeline else 100
+    generator = client.read_all(resource_cls, page_size=page_size)
+    async for resource in AsyncLimitedGenerator(generator, page_size * 2):
+        assert isinstance(resource, resource_cls)
+        resource_list.append(resource)
+
+    if not resource_list:
         pytest.skip("No resources found")
 
-    expands: list[str] = resource_cls.expands()
-    if not expands:
-        LOGGER.info("Resource: %s", resource)
-        pytest.skip("Resource does not expand any fields.")
-    LOGGER.info("Expands: %s", expands)
+    for resource in resource_list:
+        expands: list[str] = resource_cls.expands()
+        if not expands:
+            pytest.skip("Resource does not expand any fields.")
 
-    for field_name in expands:
-        if field_value := getattr(resource, field_name):
-            assert isinstance(field_value, Reference), "Invalid Reference."
-            LOGGER.info("%s: %s", field_name, field_value)
-            assert issubclass(
-                field_value.object_type, Resource
-            ), "Invalid reference type."
+        for field_name in expands:
+            if field_value := getattr(resource, field_name):
+                assert isinstance(
+                    field_value, Reference
+                ), f"{field_name}: Invalid Reference '{field_value}'."
+                assert issubclass(
+                    field_value.object_type, Resource
+                ), f"{field_name}: Invalid reference type '{field_value.object_type}'."
