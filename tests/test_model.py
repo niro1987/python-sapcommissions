@@ -11,7 +11,6 @@ from pydantic import AliasChoices, BaseModel, Field
 from pydantic.fields import FieldInfo
 
 from sapcommissions import model
-from sapcommissions.helpers import get_alias
 
 from tests.conftest import list_resource_cls
 
@@ -106,15 +105,17 @@ def test_resource_basics(
         str | None,
     ), "Invalid seq field type"
 
-    # attr_expand
+    # expands class method
     assert hasattr(
         resource_cls,
-        "attr_expand",
-    ), "resource does not have attribute 'attr_expand'"
-    assert isinstance(resource_cls.attr_expand, list), "_expand should be a list"
+        "expands",
+    ), "resource does not have class method 'expands'"
+
+    expands = resource_cls.expands()
+    assert isinstance(expands, list), "'expands' should return a list"
     assert all(
-        isinstance(field, str) for field in resource_cls.attr_expand
-    ), "Invalid field type"
+        isinstance(field, str) for field in expands
+    ), "Invalid field type in 'expands' list"
 
 
 @pytest.mark.parametrize(
@@ -241,17 +242,3 @@ def test_resource_reference_error() -> None:
     with pytest.raises(ValueError) as exc:
         model.base.Reference(**data2)
         assert "Invalid object type" in str(exc)
-
-
-@pytest.mark.parametrize(
-    "resource_cls",
-    list_resource_cls(),
-)
-def test_resource_expand(
-    resource_cls: type[U],
-) -> None:
-    """Test resource expand fields."""
-    expands = resource_cls.attr_expand
-    assert isinstance(expands, list)
-    expands_alias = [get_alias(resource_cls, field_name) for field_name in expands]
-    assert len(expands) == len(expands_alias)

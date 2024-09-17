@@ -171,16 +171,6 @@ class Credit(Resource, Generic16Mixin):
 
     attr_endpoint: ClassVar[str] = "api/v2/credits"
     attr_seq: ClassVar[str] = "credit_seq"
-    attr_expand: ClassVar[list[str]] = [
-        "position",
-        "payee",
-        "sales_order",
-        "sales_transaction",
-        "period",
-        "credit_type",
-        "reason",
-        "rule",
-    ]
     credit_seq: str | None = None
     name: str
     position: str | Reference
@@ -783,3 +773,7 @@ class Rule(Resource):
     created_by: str | None = Field(None, exclude=True, repr=False)
     create_date: datetime | None = Field(None, exclude=True, repr=False)
     modified_by: str | None = Field(None, exclude=True, repr=False)
+
+
+class CreditRule(Rule):
+    """Credit Rule."""
