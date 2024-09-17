@@ -11,6 +11,7 @@ from pydantic import AliasChoices, BaseModel, Field
 from pydantic.fields import FieldInfo
 
 from sapcommissions import model
+from sapcommissions.helpers import get_alias
 
 from tests.conftest import list_resource_cls
 
@@ -240,3 +241,17 @@ def test_resource_reference_error() -> None:
     with pytest.raises(ValueError) as exc:
         model.base.Reference(**data2)
         assert "Invalid object type" in str(exc)
+
+
+@pytest.mark.parametrize(
+    "resource_cls",
+    list_resource_cls(),
+)
+def test_resource_expand(
+    resource_cls: type[U],
+) -> None:
+    """Test resource expand fields."""
+    expands = resource_cls.attr_expand
+    assert isinstance(expands, list)
+    expands_alias = [get_alias(resource_cls, field_name) for field_name in expands]
+    assert len(expands) == len(expands_alias)

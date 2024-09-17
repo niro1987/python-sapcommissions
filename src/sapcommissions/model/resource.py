@@ -13,6 +13,7 @@ from .base import (
     BusinessUnitAssignment,
     Generic16Mixin,
     Generic32Mixin,
+    Reference,
     Resource,
     RuleUsage,
     Value,
@@ -170,19 +171,29 @@ class Credit(Resource, Generic16Mixin):
 
     attr_endpoint: ClassVar[str] = "api/v2/credits"
     attr_seq: ClassVar[str] = "credit_seq"
+    attr_expand: ClassVar[list[str]] = [
+        "position",
+        "payee",
+        "sales_order",
+        "sales_transaction",
+        "period",
+        "credit_type",
+        "reason",
+        "rule",
+    ]
     credit_seq: str | None = None
     name: str
-    position: str
-    payee: str
-    sales_order: str
-    sales_transaction: str | None = None
-    period: str
-    credit_type: str
+    position: str | Reference
+    payee: str | Reference
+    sales_order: str | Reference
+    sales_transaction: str | Reference | None = None
+    period: str | Reference
+    credit_type: str | Reference
     value: Value
     preadjusted_value: Value
     origin_type_id: str
-    reason: str | None = None
-    rule: str | None = None
+    reason: str | Reference | None = None
+    rule: str | Reference | None = None
     is_rollable: bool | None = None
     roll_date: datetime | None = None
     is_held: bool | None = None

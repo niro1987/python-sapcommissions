@@ -10,7 +10,7 @@ from aiohttp import ClientError, ClientSession
 from pydantic_core import ValidationError
 
 from sapcommissions import exceptions, model
-from sapcommissions.helpers import BooleanOperator, LogicalOperator, retry
+from sapcommissions.helpers import BooleanOperator, LogicalOperator, get_alias, retry
 
 LOGGER: logging.Logger = logging.getLogger(__name__)
 T = TypeVar("T", bound="model.base.Resource")
@@ -273,7 +273,10 @@ class CommissionsClient:
         if order_by:
             params[ATTR_ORDERBY] = ",".join(order_by)
         if resource_cls.attr_expand:
-            params[ATTR_EXPAND] = ",".join(resource_cls.attr_expand)
+            params[ATTR_EXPAND] = ",".join(
+                get_alias(resource_cls, field_name)
+                for field_name in resource_cls.attr_expand
+            )
 
         uri: str | None = resource_cls.attr_endpoint
         while True:
@@ -332,7 +335,10 @@ class CommissionsClient:
         uri: str = f"{resource_cls.attr_endpoint}({seq})"
         params: dict[str, str] = {}
         if resource_cls.attr_expand:
-            params[ATTR_EXPAND] = ",".join(resource_cls.attr_expand)
+            params[ATTR_EXPAND] = ",".join(
+                get_alias(resource_cls, field_name)
+                for field_name in resource_cls.attr_expand
+            )
 
         response: dict[str, Any] = await self._request("GET", uri=uri, params=params)
         try:
