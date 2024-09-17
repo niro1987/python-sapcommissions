@@ -105,14 +105,14 @@ async def test_expand_resources(  # noqa: C901
     """Test listing resources."""
     LOGGER.info("Testing list %s", resource_cls.__name__)
 
+    if not (resource := await client.read_first(resource_cls)):
+        pytest.skip("No resources found")
+
     expands: list[str] = resource_cls.expands()
     if not expands:
+        LOGGER.info("Resource: %s", resource)
         pytest.skip("Resource does not expand any fields.")
     LOGGER.info("Expands: %s", expands)
-
-    resource = await client.read_first(resource_cls)
-    if not resource:
-        pytest.skip("No resources found")
 
     for field_name in expands:
         if field_value := getattr(resource, field_name):
