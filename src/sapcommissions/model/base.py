@@ -14,6 +14,7 @@ from pydantic import (
     field_validator,
 )
 from pydantic.alias_generators import to_camel
+from pydantic.fields import FieldInfo
 
 
 class _BaseModel(BaseModel):
@@ -47,6 +48,39 @@ class _BaseModel(BaseModel):
         ),
     )
 
+    @classmethod
+    def typed_fields(
+        cls,
+        typed: type | tuple[type, ...],
+    ) -> dict[str, FieldInfo]:
+        """Extract all fields from a resource of the specified type."""
+        model_fields: dict[str, FieldInfo] = cls.model_fields
+        fields: dict[str, FieldInfo] = {}
+
+        def _process_type(
+            field_name: str,
+            field_info: FieldInfo,
+            field_type: type | None,
+        ) -> None:
+            """Recursively process types."""
+            if field_type is None:
+                return
+
+            if get_origin(field_type) is None:
+                if isclass(field_type) and issubclass(field_type, typed):
+                    fields[field_name] = field_info
+                return
+
+            # If the field_type has an origin, process its generic arguments recursively
+            for arg in get_args(field_type):
+                _process_type(field_name, field_info, arg)
+
+        # Iterate through each field and process its type
+        for field_name, field_info in model_fields.items():
+            _process_type(field_name, field_info, field_info.annotation)
+
+        return fields
+
 
 class Endpoint(_BaseModel):
     """BaseModel for an Endpoint."""
@@ -54,19 +88,9 @@ class Endpoint(_BaseModel):
     attr_endpoint: ClassVar[str]
 
     @classmethod
-    def expands(cls) -> list[str]:
-        """Return list of model fields that refer to onther resource."""
-        reference_fields: list[str] = []
-        for field_name, field_type in cls.__annotations__.items():
-            if get_origin(field_type) is not None:
-                for arg in get_args(field_type):
-                    if isclass(arg) and issubclass(arg, Reference):
-                        reference_fields.append(field_name)
-                        break
-            elif isclass(field_type) and issubclass(field_type, Reference):
-                reference_fields.append(field_name)
-
-        return reference_fields
+    def expands(cls) -> dict[str, FieldInfo]:
+        """Return model fields that refer to onther resource."""
+        return cls.typed_fields(Reference)
 
 
 class Resource(Endpoint):
