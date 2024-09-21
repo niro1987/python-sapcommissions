@@ -16,12 +16,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
-dependencies = [
-    "aiohttp>=3.0.0",
-    "click>=8.1.7",
-    "python-dotenv>=1.0.1",
-    "pydantic>=2.6.0",
-]
+dependencies = ["aiohttp>=3.0.0", "pydantic>=2.6.0"]
 dynamic = ["version"]
 
 [project.optional-dependencies]
@@ -39,7 +34,12 @@ dev = [
     "pytest-cov==5.0.0",
     "pytest-asyncio==0.23.6",
     "aioresponses>=0.7.6",
+    "python-dotenv>=1.0.1",
+    "click>=8.1.7",
+    "pandas==2.2.2",
+    "pandas-stubs>=2.2.2",
 ]
+cli = ["click>=8.1.7", "pandas==2.2.2"]
 
 [project.scripts]
 sap = "sapcommissions.__main__:cli"
