@@ -1,8 +1,8 @@
 """CLI entry point for Python SAP Commissions Client."""
+# pylint: disable=too-many-arguments, no-value-for-parameter
 
 import asyncio
 import logging
-import os
 import sys
 from logging.config import dictConfig
 from pathlib import Path
@@ -53,20 +53,7 @@ async def async_deploy(
     auth: BasicAuth,
     verify_ssl: bool = True,
 ) -> int:
-    """Deploy rule elements asynchronously from a directory to the tenant.
-
-    Args:
-    ----
-        path (Path): The path to the directory containing the rule elements.
-        tenant (str): The tenant to deploy the rule elements to.
-        auth (BasicAuth): The authentication credentials for the tenant.
-        verify_ssl (bool, optional): Whether to verify SSL certificates. Defaults to True.
-
-    Returns:
-    -------
-        int: The result of the deployment process.
-
-    """
+    """Async deploy rule elements from a directory to the tenant."""
     async with ClientSession(auth=auth) as session:
         client = CommissionsClient(tenant, session, verify_ssl)
         await deploy_from_path(client, path)
@@ -74,6 +61,31 @@ async def async_deploy(
 
 
 @click.group()
+@click.pass_context
+@click.option(
+    "-t",
+    "--tenant",
+    prompt=True,
+    help="Tenant to connect to, for example 'CALD-DEV'.",
+)
+@click.option(
+    "-u",
+    "--username",
+    prompt=True,
+    help="Username for authentication.",
+)
+@click.option(
+    "-p",
+    "--password",
+    prompt=True,
+    hide_input=True,
+    help="Password for authentication.",
+)
+@click.option(
+    "--no-ssl",
+    is_flag=True,
+    help="Disable SSL validation.",
+)
 @click.option(
     "-l",
     "--logfile",
@@ -87,14 +99,38 @@ async def async_deploy(
     ),
     help="Enable logging to a file.",
 )
-@click.option("-v", is_flag=True, help="Increase logging verbosity.")
-def cli(logfile: Path | None = None, v: bool = False) -> None:
-    """Command-line interface for sapcommissions."""
+@click.option(
+    "-v",
+    is_flag=True,
+    help="Increase logging verbosity.",
+)
+def cli(  # noqa: PLR0913
+    ctx: click.Context,
+    tenant: str,
+    username: str,
+    password: str,
+    no_ssl: bool = False,
+    logfile: Path | None = None,
+    v: bool = False,
+) -> None:
+    """Command-line interface for Python SAP Commissions.
+
+    You may provide parameters by setting environment variables prefixed with 'SAP_' or
+    by passing them as options. For example: `export SAP_TENANT=CALD-DEV` is equivalent
+    to passing `--tenant CALD-DEV`
+
+    """
+    ctx.ensure_object(dict)
+    ctx.obj["TENANT"] = tenant
+    ctx.obj["USERNAME"] = username
+    ctx.obj["PASSWORD"] = password
+    ctx.obj["SSL"] = not no_ssl
+
     setup_logging(logfile, v)
-    LOGGER.info("sapcommissions command-line interface")
 
 
 @cli.command()
+@click.pass_context
 @click.argument(
     "path",
     type=click.Path(
@@ -106,48 +142,26 @@ def cli(logfile: Path | None = None, v: bool = False) -> None:
         path_type=Path,
     ),
 )
-@click.option("-t", "--tenant", type=str, help="Tenant, for example `CALD-DEV`.")
-@click.option("-u", "--username", type=str, help="Username for tenant.")
-@click.option("-p", "--password", type=str, help="Password for tenant.")
-@click.option("--no-ssl", is_flag=True, help="Disable SSL validation.")
 def deploy(
+    ctx: click.Context,
     path: Path,
-    tenant: str | None = None,
-    username: str | None = None,
-    password: str | None = None,
-    no_ssl: bool = False,
 ):
-    """Deploy rule elements from a directory to the tenant.
+    """Deploy rule elements from a directory to the tenant."""
 
-    Args:
-    ----
-        path (Path): The path to the directory containing the rule elements.
-        tenant (str, optional): The tenant to deploy the rule elements to. Defaults to None.
-        username (str, optional): The username for the tenant. Defaults to None.
-        password (str, optional): The password for the tenant. Defaults to None.
-        no_ssl (bool, optional): Whether to disable SSL validation. Defaults to False.
+    tenant: str = ctx.obj["TENANT"]
+    username: str = ctx.obj["USERNAME"]
+    password: str = ctx.obj["PASSWORD"]
+    ssl: bool = ctx.obj["SSL"]
 
-    Returns:
-    -------
-        int: The result of the deployment process.
+    LOGGER.info("deploy '%s' on '%s'", path, tenant)
+    auth = BasicAuth(username, password)
 
-    """
-    sap_tenant: str | None = tenant or os.environ.get("SAP_TENANT")
-    sap_username: str | None = username or os.environ.get("SAP_USERNAME")
-    sap_password: str | None = password or os.environ.get("SAP_PASSWORD")
-    if not (sap_tenant and sap_username and sap_password):
-        LOGGER.error("Tenant, Username or password not set")
-        return 1
-    LOGGER.info("deploy '%s' on '%s' by '%s'", path, sap_tenant, sap_username)
-    auth = BasicAuth(sap_username, sap_password)
-
-    if no_ssl:
+    if not ssl:
         LOGGER.info("SSL validation disabled")
-    verify_ssl = not no_ssl
 
-    asyncio.run(async_deploy(path, sap_tenant, auth, verify_ssl))
+    asyncio.run(async_deploy(path, tenant, auth, ssl))
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(cli())
+    sys.exit(cli(obj={}, auto_envvar_prefix="SAP"))
