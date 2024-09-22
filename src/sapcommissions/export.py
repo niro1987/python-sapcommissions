@@ -3,6 +3,7 @@
 import asyncio
 from collections.abc import AsyncGenerator, Coroutine
 from datetime import date
+from pathlib import Path
 from typing import Any
 
 import pandas as pd
@@ -151,7 +152,7 @@ async def load_resource_seqs(
 async def load_credits(
     client: CommissionsClient,
     filters: BooleanOperator | LogicalOperator | str | None = None,
-    additional: dict[str, str] | None = None,
+    filename: Path | None = None,
 ) -> pd.DataFrame:
     """Load Credit results extended with reference data to DataFrame."""
     df_credits: pd.DataFrame = await load_resource_filtered(
@@ -210,74 +211,75 @@ async def load_credits(
         + df["event_type.event_type_id"]
     )
 
-    columns = {
-        "payee.last_name": "Participant",
-        "position.name": "Position",
-        "position.title_name": "Title",
-        "period.name": "Period",
-        "name": "Name",
-        "value": "Value",
-        "pipeline_run_date": "Create Date",
-        "rule_name": "Rule",
-        "sales_order_name": "Order ID",
-        "transaction": "Transaction",
-        "credit_type_name": "Credit Type",
-        "origin_type_id": "Origin Type",
-        "preadjusted_value": "PreAdjusted",
-        "is_held": "Ever Held",
-        "release_date": "Release Date",
-        "compensation_date": "Compensation Date",
-        "is_rollable": "Rollable Credit",
-        "roll_date": "Roll Date",
-        "reason_name": "Reason Code",
-        "comments": "Comments",
-        "business_units": "Business Unit",
-        "ga1": "GA1",
-        "ga2": "GA2",
-        "ga3": "GA3",
-        "ga4": "GA4",
-        "ga5": "GA5",
-        "ga6": "GA6",
-        "ga7": "GA7",
-        "ga8": "GA8",
-        "ga9": "GA9",
-        "ga10": "GA10",
-        "ga11": "GA11",
-        "ga12": "GA12",
-        "ga13": "GA13",
-        "ga14": "GA14",
-        "ga15": "GA15",
-        "ga16": "GA16",
-        "gb1": "GB1",
-        "gb2": "GB2",
-        "gb3": "GB3",
-        "gb4": "GB4",
-        "gb5": "GB5",
-        "gb6": "GB6",
-        "gd1": "GD1",
-        "gd2": "GD2",
-        "gd3": "GD3",
-        "gd4": "GD4",
-        "gd5": "GD5",
-        "gd6": "GD6",
-        "gn1": "GN1",
-        "gn2": "GN2",
-        "gn3": "GN3",
-        "gn4": "GN4",
-        "gn5": "GN5",
-        "gn6": "GN6",
-        "period.calendar_name": "Calendar",
-    }
-    if additional:
-        columns.update(additional)
+    if filename:
+        columns = {
+            "payee.last_name": "Participant",
+            "position.name": "Position",
+            "position.title_name": "Title",
+            "period.name": "Period",
+            "name": "Name",
+            "value": "Value",
+            "pipeline_run_date": "Create Date",
+            "rule_name": "Rule",
+            "sales_order_name": "Order ID",
+            "transaction": "Transaction",
+            "credit_type_name": "Credit Type",
+            "origin_type_id": "Origin Type",
+            "preadjusted_value": "PreAdjusted",
+            "is_held": "Ever Held",
+            "release_date": "Release Date",
+            "compensation_date": "Compensation Date",
+            "is_rollable": "Rollable Credit",
+            "roll_date": "Roll Date",
+            "reason_name": "Reason Code",
+            "comments": "Comments",
+            "business_units": "Business Unit",
+            "ga1": "GA1",
+            "ga2": "GA2",
+            "ga3": "GA3",
+            "ga4": "GA4",
+            "ga5": "GA5",
+            "ga6": "GA6",
+            "ga7": "GA7",
+            "ga8": "GA8",
+            "ga9": "GA9",
+            "ga10": "GA10",
+            "ga11": "GA11",
+            "ga12": "GA12",
+            "ga13": "GA13",
+            "ga14": "GA14",
+            "ga15": "GA15",
+            "ga16": "GA16",
+            "gb1": "GB1",
+            "gb2": "GB2",
+            "gb3": "GB3",
+            "gb4": "GB4",
+            "gb5": "GB5",
+            "gb6": "GB6",
+            "gd1": "GD1",
+            "gd2": "GD2",
+            "gd3": "GD3",
+            "gd4": "GD4",
+            "gd5": "GD5",
+            "gd6": "GD6",
+            "gn1": "GN1",
+            "gn2": "GN2",
+            "gn3": "GN3",
+            "gn4": "GN4",
+            "gn5": "GN5",
+            "gn6": "GN6",
+            "period.calendar_name": "Calendar",
+        }
+        final_df: pd.DataFrame = df[columns.keys()].rename(columns=columns).fillna("")
+        final_df.to_csv(filename, index=False)
 
-    return df[columns.keys()].rename(columns=columns).fillna("")
+    return df.fillna("")
 
 
 async def load_measurements(
     client: CommissionsClient,
     filters: BooleanOperator | LogicalOperator | str | None = None,
-    additional: dict[str, str] | None = None,
+    filename: Path | None = None,
 ) -> pd.DataFrame:
     """Load Credit results extended with reference data to DataFrame."""
     df_measure: pd.DataFrame = await load_resource_filtered(
@@ -306,62 +308,63 @@ async def load_measurements(
         .join(df_periods.add_prefix("period."), on="period")
     )
 
-    columns = {
-        "payee.last_name": "Participant",
-        "position.name": "Position",
-        "position.title_name": "Title",
-        "period.name": "Period",
-        "name": "Name",
-        "value": "Value",
-        "pipeline_run_date": "Create Date",
-        "rule": "Rule",
-        "number_of_credits": "Number of Credits",
-        "business_units": "Business Unit",
-        "ga1": "GA1",
-        "ga2": "GA2",
-        "ga3": "GA3",
-        "ga4": "GA4",
-        "ga5": "GA5",
-        "ga6": "GA6",
-        "ga7": "GA7",
-        "ga8": "GA8",
-        "ga9": "GA9",
-        "ga10": "GA10",
-        "ga11": "GA11",
-        "ga12": "GA12",
-        "ga13": "GA13",
-        "ga14": "GA14",
-        "ga15": "GA15",
-        "ga16": "GA16",
-        "gb1": "GB1",
-        "gb2": "GB2",
-        "gb3": "GB3",
-        "gb4": "GB4",
-        "gb5": "GB5",
-        "gb6": "GB6",
-        "gd1": "GD1",
-        "gd2": "GD2",
-        "gd3": "GD3",
-        "gd4": "GD4",
-        "gd5": "GD5",
-        "gd6": "GD6",
-        "gn1": "GN1",
-        "gn2": "GN2",
-        "gn3": "GN3",
-        "gn4": "GN4",
-        "gn5": "GN5",
-        "gn6": "GN6",
-    }
-    if additional:
-        columns.update(additional)
+    if filename:
+        columns = {
+            "payee.last_name": "Participant",
+            "position.name": "Position",
+            "position.title_name": "Title",
+            "period.name": "Period",
+            "name": "Name",
+            "value": "Value",
+            "pipeline_run_date": "Create Date",
+            "rule": "Rule",
+            "number_of_credits": "Number of Credits",
+            "business_units": "Business Unit",
+            "ga1": "GA1",
+            "ga2": "GA2",
+            "ga3": "GA3",
+            "ga4": "GA4",
+            "ga5": "GA5",
+            "ga6": "GA6",
+            "ga7": "GA7",
+            "ga8": "GA8",
+            "ga9": "GA9",
+            "ga10": "GA10",
+            "ga11": "GA11",
+            "ga12": "GA12",
+            "ga13": "GA13",
+            "ga14": "GA14",
+            "ga15": "GA15",
+            "ga16": "GA16",
+            "gb1": "GB1",
+            "gb2": "GB2",
+            "gb3": "GB3",
+            "gb4": "GB4",
+            "gb5": "GB5",
+            "gb6": "GB6",
+            "gd1": "GD1",
+            "gd2": "GD2",
+            "gd3": "GD3",
+            "gd4": "GD4",
+            "gd5": "GD5",
+            "gd6": "GD6",
+            "gn1": "GN1",
+            "gn2": "GN2",
+            "gn3": "GN3",
+            "gn4": "GN4",
+            "gn5": "GN5",
+            "gn6": "GN6",
+        }
+        final_df: pd.DataFrame = df[columns.keys()].rename(columns=columns).fillna("")
+        final_df.to_csv(filename, index=False)
 
-    return df[columns.keys()].rename(columns=columns).fillna("")
+    return df.fillna("")
 
 
 async def load_incentives(
     client: CommissionsClient,
     filters: BooleanOperator | LogicalOperator | str | None = None,
-    additional: dict[str, str] | None = None,
+    filename: Path | None = None,
 ) -> pd.DataFrame:
     """Load Credit results extended with reference data to DataFrame."""
     df_incentive: pd.DataFrame = await load_resource_filtered(
@@ -390,65 +393,66 @@ async def load_incentives(
         .join(df_periods.add_prefix("period."), on="period")
     )
 
-    columns = {
-        "payee.last_name": "Participant",
-        "position.name": "Position",
-        "position.title_name": "Title",
-        "period.name": "Period",
-        "name": "Name",
-        "value": "Value",
-        "pipeline_run_date": "Create Date",
-        "rule_name": "Rule",
-        "release_date": "Release Date",
-        "quota": "Quota",
-        "attainment": "Attainment",
-        "is_active": "Is Active",
-        "business_units": "Business Unit",
-        "ga1": "GA1",
-        "ga2": "GA2",
-        "ga3": "GA3",
-        "ga4": "GA4",
-        "ga5": "GA5",
-        "ga6": "GA6",
-        "ga7": "GA7",
-        "ga8": "GA8",
-        "ga9": "GA9",
-        "ga10": "GA10",
-        "ga11": "GA11",
-        "ga12": "GA12",
-        "ga13": "GA13",
-        "ga14": "GA14",
-        "ga15": "GA15",
-        "ga16": "GA16",
-        "gb1": "GB1",
-        "gb2": "GB2",
-        "gb3": "GB3",
-        "gb4": "GB4",
-        "gb5": "GB5",
-        "gb6": "GB6",
-        "gd1": "GD1",
-        "gd2": "GD2",
-        "gd3": "GD3",
-        "gd4": "GD4",
-        "gd5": "GD5",
-        "gd6": "GD6",
-        "gn1": "GN1",
-        "gn2": "GN2",
-        "gn3": "GN3",
-        "gn4": "GN4",
-        "gn5": "GN5",
-        "gn6": "GN6",
-    }
-    if additional:
-        columns.update(additional)
+    if filename:
+        columns = {
+            "payee.last_name": "Participant",
+            "position.name": "Position",
+            "position.title_name": "Title",
+            "period.name": "Period",
+            "name": "Name",
+            "value": "Value",
+            "pipeline_run_date": "Create Date",
+            "rule_name": "Rule",
+            "release_date": "Release Date",
+            "quota": "Quota",
+            "attainment": "Attainment",
+            "is_active": "Is Active",
+            "business_units": "Business Unit",
+            "ga1": "GA1",
+            "ga2": "GA2",
+            "ga3": "GA3",
+            "ga4": "GA4",
+            "ga5": "GA5",
+            "ga6": "GA6",
+            "ga7": "GA7",
+            "ga8": "GA8",
+            "ga9": "GA9",
+            "ga10": "GA10",
+            "ga11": "GA11",
+            "ga12": "GA12",
+            "ga13": "GA13",
+            "ga14": "GA14",
+            "ga15": "GA15",
+            "ga16": "GA16",
+            "gb1": "GB1",
+            "gb2": "GB2",
+            "gb3": "GB3",
+            "gb4": "GB4",
+            "gb5": "GB5",
+            "gb6": "GB6",
+            "gd1": "GD1",
+            "gd2": "GD2",
+            "gd3": "GD3",
+            "gd4": "GD4",
+            "gd5": "GD5",
+            "gd6": "GD6",
+            "gn1": "GN1",
+            "gn2": "GN2",
+            "gn3": "GN3",
+            "gn4": "GN4",
+            "gn5": "GN5",
+            "gn6": "GN6",
+        }
+        final_df: pd.DataFrame = df[columns.keys()].rename(columns=columns).fillna("")
+        final_df.to_csv(filename, index=False)
 
-    return df[columns.keys()].rename(columns=columns).fillna("")
+    return df.fillna("")
 
 
 async def load_commissions(
     client: CommissionsClient,
     filters: BooleanOperator | LogicalOperator | str | None = None,
-    additional: dict[str, str] | None = None,
+    filename: Path | None = None,
 ) -> pd.DataFrame:
     """Load Credit results extended with reference data to DataFrame."""
     df_commmission: pd.DataFrame = await load_resource_filtered(
@@ -477,34 +481,35 @@ async def load_commissions(
         .join(df_periods.add_prefix("period."), on="period")
     )
 
-    columns = {
-        "business_units": "Business Unit",
-        "payee.last_name": "Participant",
-        "position.name": "Position",
-        "position.title_name": "Title",
-        "period.name": "Period",
-        "entry_number": "Entry Number",
-        "name": "Name",
-        "rate": "Rate",
-        "value": "Value",
-        "rule_name": "Rule",
-        "pipeline_run_date": "Create Date",
-        "credit": "Credit",
-        "credit_type": "Credit Type",
-        "transaction": "Transaction",
-        "incentive": "Incentive",
-        "origin_type": "Origin Type",
-    }
-    if additional:
-        columns.update(additional)
+    if filename:
+        columns = {
+            "business_units": "Business Unit",
+            "payee.last_name": "Participant",
+            "position.name": "Position",
+            "position.title_name": "Title",
+            "period.name": "Period",
+            "entry_number": "Entry Number",
+            "name": "Name",
+            "rate": "Rate",
+            "value": "Value",
+            "rule_name": "Rule",
+            "pipeline_run_date": "Create Date",
+            "credit": "Credit",
+            "credit_type": "Credit Type",
+            "transaction": "Transaction",
+            "incentive": "Incentive",
+            "origin_type": "Origin Type",
+        }
+        final_df: pd.DataFrame = df[columns.keys()].rename(columns=columns).fillna("")
+        final_df.to_csv(filename, index=False)
 
-    return df[columns.keys()].rename(columns=columns).fillna("")
+    return df.fillna("")
 
 
 async def load_deposits(
     client: CommissionsClient,
     filters: BooleanOperator | LogicalOperator | str | None = None,
-    additional: dict[str, str] | None = None,
+    filename: Path | None = None,
 ) -> pd.DataFrame:
     """Load Credit results extended with reference data to DataFrame."""
     df_deposit: pd.DataFrame = await load_resource_filtered(
@@ -533,71 +538,72 @@ async def load_deposits(
         .join(df_periods.add_prefix("period."), on="period")
     )
 
-    columns = {
-        "payee.last_name": "Participant",
-        "position.name": "Position",
-        "position.title_name": "Title",
-        "period.name": "Period",
-        "name": "Name",
-        "value": "Value",
-        "pipeline_run_date": "Create Date",
-        "rule_name": "Rule",
-        "earning_group_id": "Earning Group",
-        "earning_code_id": "Earning Code",
-        "origin_type_id": "Origin Type",
-        "preadjusted_value": "PreAdjusted",
-        "is_held": "Ever Held",
-        "release_date": "Release Date",
-        "deposit_date": "Deposit Date",
-        "reason": "Reason Code",
-        "comments": "Comments",
-        "business_units": "Business Unit",
-        "ga1": "GA1",
-        "ga2": "GA2",
-        "ga3": "GA3",
-        "ga4": "GA4",
-        "ga5": "GA5",
-        "ga6": "GA6",
-        "ga7": "GA7",
-        "ga8": "GA8",
-        "ga9": "GA9",
-        "ga10": "GA10",
-        "ga11": "GA11",
-        "ga12": "GA12",
-        "ga13": "GA13",
-        "ga14": "GA14",
-        "ga15": "GA15",
-        "ga16": "GA16",
-        "gb1": "GB1",
-        "gb2": "GB2",
-        "gb3": "GB3",
-        "gb4": "GB4",
-        "gb5": "GB5",
-        "gb6": "GB6",
-        "gd1": "GD1",
-        "gd2": "GD2",
-        "gd3": "GD3",
-        "gd4": "GD4",
-        "gd5": "GD5",
-        "gd6": "GD6",
-        "gn1": "GN1",
-        "gn2": "GN2",
-        "gn3": "GN3",
-        "gn4": "GN4",
-        "gn5": "GN5",
-        "gn6": "GN6",
-        "period.calendar_name": "Calendar",
-    }
-    if additional:
-        columns.update(additional)
+    if filename:
+        columns = {
+            "payee.last_name": "Participant",
+            "position.name": "Position",
+            "position.title_name": "Title",
+            "period.name": "Period",
+            "name": "Name",
+            "value": "Value",
+            "pipeline_run_date": "Create Date",
+            "rule_name": "Rule",
+            "earning_group_id": "Earning Group",
+            "earning_code_id": "Earning Code",
+            "origin_type_id": "Origin Type",
+            "preadjusted_value": "PreAdjusted",
+            "is_held": "Ever Held",
+            "release_date": "Release Date",
+            "deposit_date": "Deposit Date",
+            "reason": "Reason Code",
+            "comments": "Comments",
+            "business_units": "Business Unit",
+            "ga1": "GA1",
+            "ga2": "GA2",
+            "ga3": "GA3",
+            "ga4": "GA4",
+            "ga5": "GA5",
+            "ga6": "GA6",
+            "ga7": "GA7",
+            "ga8": "GA8",
+            "ga9": "GA9",
+            "ga10": "GA10",
+            "ga11": "GA11",
+            "ga12": "GA12",
+            "ga13": "GA13",
+            "ga14": "GA14",
+            "ga15": "GA15",
+            "ga16": "GA16",
+            "gb1": "GB1",
+            "gb2": "GB2",
+            "gb3": "GB3",
+            "gb4": "GB4",
+            "gb5": "GB5",
+            "gb6": "GB6",
+            "gd1": "GD1",
+            "gd2": "GD2",
+            "gd3": "GD3",
+            "gd4": "GD4",
+            "gd5": "GD5",
+            "gd6": "GD6",
+            "gn1": "GN1",
+            "gn2": "GN2",
+            "gn3": "GN3",
+            "gn4": "GN4",
+            "gn5": "GN5",
+            "gn6": "GN6",
+            "period.calendar_name": "Calendar",
+        }
+        final_df: pd.DataFrame = df[columns.keys()].rename(columns=columns).fillna("")
+        final_df.to_csv(filename, index=False)
 
-    return df[columns.keys()].rename(columns=columns).fillna("")
+    return df.fillna("")
 
 
 async def load_payment_summary(
     client: CommissionsClient,
     filters: BooleanOperator | LogicalOperator | str | None = None,
-    additional: dict[str, str] | None = None,
+    filename: Path | None = None,
 ) -> pd.DataFrame:
     """Load Credit results extended with reference data to DataFrame."""
     df_deposit: pd.DataFrame = await load_resource_filtered(
@@ -627,18 +633,19 @@ async def load_payment_summary(
     )
     df.to_csv("tests/export/test.csv")
 
-    columns = {
-        "payee.last_name": "Participant",
-        "position.name": "Position",
-        "earning_group_id": "Earning Group",
-        "period.name": "Period",
-        "prior_balance": "Prior Balance",
-        "applied_deposit": "Earning",
-        "payment": "Payment",
-        "balance": "Balance",
-        "business_units": "Business Unit",
-    }
-    if additional:
-        columns.update(additional)
+    if filename:
+        columns = {
+            "payee.last_name": "Participant",
+            "position.name": "Position",
+            "earning_group_id": "Earning Group",
+            "period.name": "Period",
+            "prior_balance": "Prior Balance",
+            "applied_deposit": "Earning",
+            "payment": "Payment",
+            "balance": "Balance",
+            "business_units": "Business Unit",
+        }
+        final_df: pd.DataFrame = df[columns.keys()].rename(columns=columns).fillna("")
+        final_df.to_csv(filename, index=False)
 
-    return df[columns.keys()].rename(columns=columns).fillna("")
+    return df.fillna("")

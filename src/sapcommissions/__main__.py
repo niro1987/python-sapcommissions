@@ -4,16 +4,36 @@
 import asyncio
 import logging
 import sys
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 from logging.config import dictConfig
 from pathlib import Path
 
 import click
 from aiohttp import BasicAuth, ClientSession
 
-from sapcommissions import CommissionsClient
+from sapcommissions import CommissionsClient, export as sap_export, helpers, model
 from sapcommissions.deploy import deploy_from_path
 
-LOGGER: logging.Logger = logging.getLogger(__package__)
+LOGGER: logging.Logger = logging.getLogger(__name__)
+
+
+class DynamicChoice(click.ParamType):
+    """Class to enable dynamic choise."""
+
+    def __init__(self, name: str, choices_getter):
+        """Initialize DynamicChoise."""
+        self.name = name
+        self.choices_getter = choices_getter
+
+    def convert(self, value, param, ctx):
+        """Validate and Convert Value."""
+        choices = self.choices_getter(ctx)
+        if value not in choices:
+            self.fail(
+                f"{value} is not a valid choice. Choose from: {choices}.", param, ctx
+            )
+        return value
 
 
 def setup_logging(logfile: Path | None = None, verbose: bool = False) -> None:
@@ -27,9 +47,7 @@ def setup_logging(logfile: Path | None = None, verbose: bool = False) -> None:
             },
         },
     }
-    handlers = {
-        "console": {"class": "logging.StreamHandler", "formatter": "standard"},
-    }
+    handlers = {}
     if logfile:
         handlers["file"] = {
             "class": "logging.FileHandler",
@@ -47,17 +65,123 @@ def setup_logging(logfile: Path | None = None, verbose: bool = False) -> None:
     dictConfig(config)
 
 
-async def async_deploy(
-    path: Path,
-    tenant: str,
-    auth: BasicAuth,
-    verify_ssl: bool = True,
-) -> int:
-    """Async deploy rule elements from a directory to the tenant."""
+@asynccontextmanager
+async def session_client(ctx: click.Context) -> AsyncGenerator[CommissionsClient, None]:
+    """Yield a Session enabled CommissionsClient."""
+    tenant: str = ctx.obj["TENANT"]
+    username: str = ctx.obj["USERNAME"]
+    password: str = ctx.obj["PASSWORD"]
+    ssl: bool = ctx.obj["SSL"]
+    auth = BasicAuth(username, password)
     async with ClientSession(auth=auth) as session:
-        client = CommissionsClient(tenant, session, verify_ssl)
+        client: CommissionsClient = CommissionsClient(
+            tenant=tenant,
+            session=session,
+            verify_ssl=ssl,
+            request_timeout=60,
+        )
+        yield client
+        LOGGER.debug("Closed session.")
+
+
+async def async_deploy(path: Path, ctx: click.Context) -> None:
+    """Async deploy rule elements from a directory to the tenant."""
+    async with session_client(ctx) as client:
         await deploy_from_path(client, path)
-    return 0
+
+
+async def async_list_calendars(ctx: click.Context) -> list[str]:
+    """Async list all calendars."""
+
+    calendar_names: list[str] = []
+    async with session_client(ctx) as client:
+        generator = client.read_all(model.Calendar)
+        async for item in generator:
+            calendar_names.append(item.name)
+    return calendar_names
+
+
+def list_calendars(ctx: click.Context) -> list[str]:
+    """List all calendars."""
+
+    return asyncio.run(async_list_calendars(ctx))
+
+
+async def async_list_periods(
+    ctx: click.Context,
+    calendar_name: str,
+    period_name: str | None = None,
+) -> list[str]:
+    """Async list all periods for a calendar."""
+    period_names: list[str] = []
+
+    async with session_client(ctx) as client:
+        calendar_obj: model.Calendar | None = await client.read_first(
+            model.Calendar, filters=helpers.Equals("name", calendar_name)
+        )
+        if not calendar_obj:
+            raise ValueError("Calendar not found")
+        filters = [
+            helpers.Equals("calendar", str(calendar_obj.seq)),
+            helpers.Equals("periodType", str(calendar_obj.minor_period_type)),
+        ]
+        if period_name is not None:
+            filters.append(helpers.Equals("name", period_name))
+        generator = client.read_all(
+            model.Period,
+            filters=helpers.And(*filters),
+            order_by=["startDate"],
+        )
+        async for item in generator:
+            period_names.append(item.name)
+    return period_names
+
+
+def list_periods(
+    ctx: click.Context,
+    calendar_name: str,
+    period_name: str | None = None,
+) -> list[str]:
+    """List all calendars."""
+
+    return asyncio.run(async_list_periods(ctx, calendar_name, period_name))
+
+
+def validate_period(ctx: click.Context, _, value):
+    """Validate the Period input."""
+    if not (calendar_name := ctx.params.get("calendar", None)):
+        raise click.BadParameter("Must provide Calendar before Period.")
+    period_names = list_periods(
+        ctx=ctx,
+        calendar_name=calendar_name,
+        period_name=value,
+    )
+    if value not in period_names:
+        raise click.BadParameter(f"Period does not exist in '{calendar_name}'.")
+    return value
+
+
+async def async_load_resource(
+    ctx: click.Context,
+    resource: str,
+    path: Path,
+    filters: str | None = None,
+) -> None:
+    """Load Credits report to file."""
+
+    async with session_client(ctx) as client:
+        if resource == "CREDITS":
+            await sap_export.load_credits(client, filters, path)
+        elif resource == "MEASUREMENTS":
+            await sap_export.load_measurements(client, filters, path)
+        elif resource == "INCENTIVES":
+            await sap_export.load_incentives(client, filters, path)
+        elif resource == "COMMISSIONS":
+            await sap_export.load_commissions(client, filters, path)
+        elif resource == "DEPOSITS":
+            await sap_export.load_deposits(client, filters, path)
+        elif resource == "PAYMENTS":
+            await sap_export.load_payment_summary(client, filters, path)
 
 
 @click.group()
@@ -115,11 +239,14 @@ def cli(  # noqa: PLR0913
 ) -> None:
     """Command-line interface for Python SAP Commissions.
 
-    You may provide parameters by setting environment variables prefixed with 'SAP_' or
-    by passing them as options. For example: `export SAP_TENANT=CALD-DEV` is equivalent
+    \b
+    You may provide parameters by setting environment variables
+    prefixed with 'SAP_' or by passing them as options.
+    For example: `export SAP_TENANT=CALD-DEV` is equivalent
     to passing `--tenant CALD-DEV`
 
-    """
+    """  # noqa: D301
+
     ctx.ensure_object(dict)
     ctx.obj["TENANT"] = tenant
     ctx.obj["USERNAME"] = username
@@ -127,6 +254,7 @@ def cli(  # noqa: PLR0913
     ctx.obj["SSL"] = not no_ssl
 
     setup_logging(logfile, v)
+    LOGGER.info("Tenant: '%s', Username: '%s', Ssl: '%s'", tenant, username, not no_ssl)
 
 
 @cli.command()
@@ -145,22 +273,143 @@ def cli(  # noqa: PLR0913
 def deploy(
     ctx: click.Context,
     path: Path,
-):
-    """Deploy rule elements from a directory to the tenant."""
+) -> None:
+    """Deploy rule elements from a directory to the tenant.
 
-    tenant: str = ctx.obj["TENANT"]
-    username: str = ctx.obj["USERNAME"]
-    password: str = ctx.obj["PASSWORD"]
-    ssl: bool = ctx.obj["SSL"]
+    \b
+    XML files will be imported using a pipeline job.
+    TXT files require a specific name convention:
+      - Event Type.txt
+      - Credit Type.txt
+      - Earning Group.txt
+      - Earning Code.txt
+      - Fixed Value Type.txt
+      - Reason Code.txt
 
-    LOGGER.info("deploy '%s' on '%s'", path, tenant)
-    auth = BasicAuth(username, password)
+    \b
+    Additionally you can control the order of processing by
+    prefixing the filenames numerically. For example:
+      - 01_Event Type.txt
+      - 02_Credit Type.txt
+      - 03_Plan.XML
 
-    if not ssl:
-        LOGGER.info("SSL validation disabled")
+    """  # noqa: D301
+    LOGGER.info("Deploy '%s'", path)
 
-    asyncio.run(async_deploy(path, tenant, auth, ssl))
-    return 0
+    asyncio.run(async_deploy(path, ctx))
+
+
+@cli.command()
+@click.pass_context
+def calendars(
+    ctx: click.Context,
+) -> None:
+    """List all calendars."""
+    LOGGER.info("List Calendars")
+
+    calendar_names = asyncio.run(async_list_calendars(ctx))
+    LOGGER.info("%s", calendar_names)
+
+    for item in calendar_names:
+        click.echo(item)
+
+
+@cli.command()
+@click.pass_context
+@click.option(
+    "--calendar",
+    prompt=True,
+    type=DynamicChoice(
+        "Calendar",
+        list_calendars,
+    ),
+    help="Name of the Calendar. Invoke command 'calendars' for a list of choices.",
+    envvar="SAP_CALENDAR",
+)
+def periods(
+    ctx: click.Context,
+    calendar: str,
+) -> None:
+    """List all periods for a calendar."""
+    LOGGER.info("List Periods for '%s'", calendar)
+
+    period_names = asyncio.run(async_list_periods(ctx, calendar))
+    LOGGER.info("%s", period_names)
+
+    for item in period_names:
+        click.echo(item)
+
+
+@cli.command()
+@click.pass_context
+@click.argument(
+    "resource",
+    type=click.Choice(
+        [
+            "CREDITS",
+            "MEASUREMENTS",
+            "INCENTIVES",
+            "COMMISSIONS",
+            "DEPOSITS",
+            "PAYMENTS",
+        ],
+        case_sensitive=False,
+    ),
+)
+@click.argument(
+    "path",
+    type=click.Path(
+        file_okay=True,
+        dir_okay=False,
+        writable=True,
+        resolve_path=False,
+        path_type=Path,
+    ),
+)
+@click.option(
+    "--calendar",
+    type=DynamicChoice("Calendar", list_calendars),
+    help="Apply Credits filter on Calendar.",
+    envvar="SAP_CALENDAR",
+)
+@click.option(
+    "--period",
+    type=click.STRING,
+    help="Apply Credits filter on Period, use with --calendar.",
+    callback=validate_period,
+    envvar="SAP_PERIOD",
+)
+@click.option(
+    "--filters",
+    multiple=True,
+    type=click.STRING,
+    help="Optional. Apply a filter, can be provided more then once.",
+)
+def export(  # noqa: PLR0913
+    ctx: click.Context,
+    resource: str,
+    path: Path,
+    calendar: str | None = None,
+    period: str | None = None,
+    filters: list[str] | None = None,
+) -> None:
+    """Export Resource to a file."""
+    LOGGER.info("Export %s to '%s'", resource, path)
+    LOGGER.info(
+        "Calendar: '%s', Period: '%s', Filter: '%s'",
+        calendar,
+        period,
+        filters,
+    )
+    all_filters: list[str] = []
+    if calendar and period:
+        all_filters.append(str(helpers.Equals("period/calendar/name", calendar)))
+        all_filters.append(str(helpers.Equals("period/name", period)))
+    if filters:
+        all_filters.extend(filters)
+    final_filters: str | None = " and ".join(all_filters) if all_filters else None
+    asyncio.run(async_load_resource(ctx, resource, path, final_filters))
+    click.echo(path)
 
 
 if __name__ == "__main__":
