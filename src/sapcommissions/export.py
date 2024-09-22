@@ -108,6 +108,9 @@ async def load_resource_filtered(
         chunk = pd.DataFrame(buffer, dtype="object").set_index(resource_cls.attr_seq)
         df = pd.concat([df, chunk])
 
+    if df.empty:
+        raise ValueError("No results returned.")
+
     return _transform_all(df, resource_cls)
 
 
@@ -435,6 +438,62 @@ async def load_incentives(
         "gn4": "GN4",
         "gn5": "GN5",
         "gn6": "GN6",
+    }
+    if additional:
+        columns.update(additional)
+
+    return df[columns.keys()].rename(columns=columns).fillna("")
+
+
+async def load_commissions(
+    client: CommissionsClient,
+    filters: BooleanOperator | LogicalOperator | str | None = None,
+    additional: dict[str, str] | None = None,
+) -> pd.DataFrame:
+    """Load Credit results extended with reference data to DataFrame."""
+    df_commmission: pd.DataFrame = await load_resource_filtered(
+        client=client,
+        resource_cls=model.Commission,
+        filters=filters,
+    )
+
+    participants: set[str] = {str(item) for item in df_commmission["payee"]}
+    positions: set[str] = {str(item) for item in df_commmission["position"]}
+    periods: set[str] = {str(item) for item in df_commmission["period"]}
+
+    df_participants: pd.DataFrame = await load_resource_seqs(
+        client=client, resource_cls=model.Participant, seqs=participants
+    )
+    df_positions: pd.DataFrame = await load_resource_seqs(
+        client=client, resource_cls=model.Position, seqs=positions
+    )
+    df_periods: pd.DataFrame = await load_resource_seqs(
+        client=client, resource_cls=model.Period, seqs=periods
+    )
+
+    df: pd.DataFrame = (
+        df_commmission.join(df_participants.add_prefix("payee."), on="payee")
+        .join(df_positions.add_prefix("position."), on="position")
+        .join(df_periods.add_prefix("period."), on="period")
+    )
+
+    columns = {
+        "business_units": "Business Unit",
+        "payee.last_name": "Participant",
+        "position.name": "Position",
+        "position.title_name": "Title",
+        "period.name": "Period",
+        "entry_number": "Entry Number",
+        "name": "Name",
+        "rate": "Rate",
+        "value": "Value",
+        "rule_name": "Rule",
+        "pipeline_run_date": "Create Date",
+        "credit": "Credit",
+        "credit_type": "Credit Type",
+        "transaction": "Transaction",
+        "incentive": "Incentive",
+        "origin_type": "Origin Type",
     }
     if additional:
         columns.update(additional)
