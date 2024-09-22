@@ -2,47 +2,18 @@
 # pylint: disable=protected-access
 
 import logging
-from collections.abc import Generator
-from inspect import isclass
-from typing import Any, ClassVar, TypeVar
+from typing import Any, ClassVar
 
 import pytest
 from pydantic import AliasChoices, BaseModel, Field
 from pydantic.fields import FieldInfo
 
-from sapcommissions import model
-from sapcommissions.model.base import Reference, Resource
+from sapcommissions.model.base import Endpoint, Reference, Resource
+from sapcommissions.model.pipeline import _PipelineJob
 
-from tests.conftest import list_resource_cls
+from tests.conftest import list_endpoint_cls, list_pipeline_job_cls, list_resource_cls
 
 LOGGER: logging.Logger = logging.getLogger(__name__)
-T = TypeVar("T", bound="model.base.Endpoint")
-U = TypeVar("U", bound="model.base.Resource")
-V = TypeVar("V", bound="model.pipeline._PipelineJob")
-
-
-def list_endpoint_cls() -> Generator[type[model.base.Endpoint], None, None]:
-    """List all endpoint classes in the model module."""
-    for name in dir(model):
-        obj = getattr(model, name)
-        if (
-            isclass(obj)
-            and issubclass(obj, model.base.Endpoint)
-            and not obj.__name__.startswith("_")
-        ):
-            yield obj
-
-
-def list_pipeline_job_cls() -> Generator[type[model.pipeline._PipelineJob], None, None]:
-    """List all pipeline job classes in the model module."""
-    for name in dir(model):
-        obj = getattr(model, name)
-        if (
-            isclass(obj)
-            and issubclass(obj, model.pipeline._PipelineJob)
-            and not obj.__name__.startswith("_")
-        ):
-            yield obj
 
 
 @pytest.mark.parametrize(
@@ -50,7 +21,7 @@ def list_pipeline_job_cls() -> Generator[type[model.pipeline._PipelineJob], None
     list_endpoint_cls(),
 )
 def test_endpoint_basics(
-    endpoint_cls: type[T],
+    endpoint_cls: type[Endpoint],
 ) -> None:
     """Test endpoints."""
     assert issubclass(
@@ -59,11 +30,11 @@ def test_endpoint_basics(
     ), "endpoint is not a pydantic model"
     assert issubclass(
         endpoint_cls,
-        model.base.BaseModel,
+        BaseModel,
     ), "endpoint is not a subclass of '_BaseModel'"
     assert issubclass(
         endpoint_cls,
-        model.base.Endpoint,
+        Endpoint,
     ), "endpoint is not a subclass of '_Endpoint'"
 
     # endpoint
@@ -80,17 +51,17 @@ def test_endpoint_basics(
     list_resource_cls(),
 )
 def test_resource_basics(
-    resource_cls: type[U],
+    resource_cls: type[Resource],
 ) -> None:
     """Test resources."""
     # enpoint subclass
     assert issubclass(
         resource_cls,
-        model.base.Endpoint,
+        Endpoint,
     ), "resource is not a subclass of '_Endpoint'"
     assert issubclass(
         resource_cls,
-        model.base.Resource,
+        Resource,
     ), "resource is not a subclass of '_Resource'"
 
     # attr_seq
@@ -113,10 +84,13 @@ def test_resource_basics(
     ), "resource does not have class method 'expands'"
 
     expands = resource_cls.expands()
-    assert isinstance(expands, list), "'expands' should return a list"
+    assert isinstance(expands, dict), "'expands' should return a dict"
     assert all(
         isinstance(field, str) for field in expands
-    ), "Invalid field type in 'expands' list"
+    ), "Invalid field type in 'expands' dict"
+    assert all(
+        isinstance(item, FieldInfo) for item in expands.values()
+    ), "Invalid value type in 'expands' dict"
 
 
 @pytest.mark.parametrize(
@@ -124,17 +98,17 @@ def test_resource_basics(
     list_pipeline_job_cls(),
 )
 def test_pipeline_job_basics(
-    pipeline_job: type[V],
+    pipeline_job: type[_PipelineJob],
 ) -> None:
     """Test pipeline jobs."""
     # enpoint subclass
     assert issubclass(
         pipeline_job,
-        model.base.Endpoint,
+        Endpoint,
     ), "pipeline job is not a subclass of '_Endpoint'"
     assert issubclass(
         pipeline_job,
-        model.pipeline._PipelineJob,
+        _PipelineJob,
     ), "pipeline job is not a subclass of '_PipelineJob'"
 
     # command
@@ -148,7 +122,7 @@ def test_pipeline_job_basics(
 def test_resource_model() -> None:
     """Test resource models."""
 
-    class DummyResource(model.base.Resource):
+    class DummyResource(Resource):
         """Dummy resource model."""
 
         attr_seq: ClassVar[str] = "dummy_seq"
@@ -185,7 +159,7 @@ def test_resource_model() -> None:
 def test_model_alias_override() -> None:
     """Test model alias override."""
 
-    class DummyResource(model.base.Resource):
+    class DummyResource(Resource):
         """Dummy model."""
 
         dummy_code_id: str = Field(
@@ -210,15 +184,16 @@ def test_model_alias_override() -> None:
     list_resource_cls(),
 )
 def test_resource_reference(
-    resource_cls: type[U],
+    resource_cls: type[Resource],
 ) -> None:
     """Test resource reference."""
     data: dict[str, Any] = {
         "key": "spam",
         "displayName": "eggs",
         "objectType": resource_cls.__name__,
+        "logicalKeys": {"name": "eggs"},
     }
-    reference: model.base.Reference = model.base.Reference(**data)
+    reference: Reference = Reference(**data)
     assert reference.key == "spam"
     assert reference.display_name == "eggs"
     assert reference.object_type is resource_cls
@@ -230,25 +205,27 @@ def test_resource_reference_error() -> None:
         "key": "spam",
         "displayName": "eggs",
         "objectType": "Bacon",
+        "logicalKeys": {"name": "eggs"},
     }
     with pytest.raises(ValueError) as exc:
-        model.base.Reference(**data1)
+        Reference(**data1)
         assert "Unknown object type" in str(exc)
 
     data2: dict[str, Any] = {
         "key": "spam",
         "displayName": "eggs",
         "objectType": "Value",
+        "logicalKeys": {"name": "eggs"},
     }
     with pytest.raises(ValueError) as exc:
-        model.base.Reference(**data2)
+        Reference(**data2)
         assert "Invalid object type" in str(exc)
 
 
 def test_reference_string() -> None:
     """Test reference field as string."""
 
-    class DummyResource(model.base.Resource):
+    class DummyResource(Resource):
         """Dummy model."""
 
         id: str

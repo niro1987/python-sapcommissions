@@ -23,6 +23,30 @@ def pytest_collection_modifyitems(items):
         async_test.add_marker(session_scope_marker, append=False)
 
 
+def list_endpoint_cls() -> Generator[type[model.base.Endpoint], None, None]:
+    """List all endpoint classes in the model module."""
+    for name in dir(model):
+        obj = getattr(model, name)
+        if (
+            isclass(obj)
+            and issubclass(obj, model.base.Endpoint)
+            and not obj.__name__.startswith("_")
+        ):
+            yield obj
+
+
+def list_pipeline_job_cls() -> Generator[type[model.pipeline._PipelineJob], None, None]:
+    """List all pipeline job classes in the model module."""
+    for name in dir(model):
+        obj = getattr(model, name)
+        if (
+            isclass(obj)
+            and issubclass(obj, model.pipeline._PipelineJob)
+            and not obj.__name__.startswith("_")
+        ):
+            yield obj
+
+
 def list_resource_cls() -> Generator[type[model.base.Resource], None, None]:
     """List all resource classes in the model module."""
     for name in dir(model):

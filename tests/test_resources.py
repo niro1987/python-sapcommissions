@@ -9,7 +9,7 @@ from typing import Any, TypeVar
 import pytest
 
 from sapcommissions import CommissionsClient, model
-from sapcommissions.helpers import get_alias
+from sapcommissions.helpers import AsyncLimitedGenerator
 from sapcommissions.model.base import Reference, Resource
 
 from tests.conftest import list_resource_cls
@@ -19,24 +19,7 @@ T = TypeVar("T", bound=model.base.Resource)
 warnings.filterwarnings("error")  # Raise warnings as errors
 
 
-class AsyncLimitedGenerator:
-    """Async generator to limit the number of yielded items."""
-
-    def __init__(self, iterable, limit: int):
-        """Initialize the async iterator."""
-        self.iterable = iterable
-        self.limit = limit
-
-    def __aiter__(self):
-        """Return the async iterator."""
-        return self
-
-    async def __anext__(self):
-        """Return the next item in the async iterator."""
-        if self.limit == 0:
-            raise StopAsyncIteration
-        self.limit -= 1
-        return await self.iterable.__anext__()
+pytest.skip("These tests perform requests on your tenant", allow_module_level=True)
 
 
 @pytest.mark.parametrize(
@@ -85,10 +68,15 @@ async def test_model_raw(
     LOGGER.info("Testing raw model %s", resource_cls.__name__)
 
     params: dict[str, int | str] = {"top": 1}
-    if expands_alias := [
-        get_alias(resource_cls, field_name) for field_name in resource_cls.expands()
-    ]:
-        params["expand"] = ",".join(expands_alias)
+    expand_fields = resource_cls.expands()
+    assert expand_fields, "Resource does not expand any fields."
+    expand_alias = [
+        field_info.alias for field_info in expand_fields.values() if field_info.alias
+    ]
+    assert expand_alias, "Expand fields do not have any alias."
+    if expand := ",".join(expand_alias):
+        params["expand"] = expand
+
     LOGGER.info("Params: %s", params)
     data = await client._request("GET", resource_cls.attr_endpoint, params=params)
     LOGGER.info("Data: %s", dumps(data, indent=2))
@@ -117,11 +105,11 @@ async def test_expand_resources(  # noqa: C901
         pytest.skip("No resources found")
 
     for resource in resource_list:
-        expands: list[str] = resource_cls.expands()
-        if not expands:
+        expand_fields = resource_cls.expands()
+        if not expand_fields:
             pytest.skip("Resource does not expand any fields.")
 
-        for field_name in expands:
+        for field_name in expand_fields:
             if field_value := getattr(resource, field_name):
                 assert isinstance(
                     field_value, Reference
