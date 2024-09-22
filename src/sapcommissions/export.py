@@ -631,7 +631,6 @@ async def load_payment_summary(
         .join(df_positions.add_prefix("position."), on="position")
         .join(df_periods.add_prefix("period."), on="period")
     )
-    df.to_csv("tests/export/test.csv")
 
     if filename:
         columns = {
