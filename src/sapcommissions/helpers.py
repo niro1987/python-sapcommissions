@@ -7,9 +7,6 @@ from dataclasses import dataclass, field
 from datetime import date
 from typing import Any, Union
 
-from pydantic import BaseModel
-from pydantic.fields import FieldInfo
-
 LOGGER: logging.Logger = logging.getLogger(__name__)
 
 
@@ -155,22 +152,6 @@ class AsyncLimitedGenerator:
             raise StopAsyncIteration
         self.limit -= 1
         return await self.iterable.__anext__()
-
-
-def get_alias(model_cls: type[BaseModel], field_name: str) -> str:
-    """Return the alias for a field.
-
-    Raises IndexError if field not in model.
-    Raises ValueError if field does not have any alias.
-    """
-
-    model_fields: dict[str, FieldInfo] = model_cls.model_fields
-    if field_name not in model_fields:
-        raise IndexError(f"{field_name} not found in {model_cls.__name__}")
-    model_field: FieldInfo = model_fields[field_name]
-    if not model_field.alias:
-        raise ValueError(f"{field_name} does not have any alias.")
-    return model_field.alias
 
 
 async def retry(

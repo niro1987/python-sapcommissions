@@ -7,10 +7,11 @@ from dataclasses import dataclass
 from typing import Any, TypeVar
 
 from aiohttp import ClientError, ClientSession
+from pydantic.fields import FieldInfo
 from pydantic_core import ValidationError
 
 from sapcommissions import exceptions, model
-from sapcommissions.helpers import BooleanOperator, LogicalOperator, get_alias, retry
+from sapcommissions.helpers import BooleanOperator, LogicalOperator, retry
 
 LOGGER: logging.Logger = logging.getLogger(__name__)
 T = TypeVar("T", bound="model.base.Resource")
@@ -272,8 +273,9 @@ class CommissionsClient:
             params[ATTR_FILTER] = str(filters)
         if order_by:
             params[ATTR_ORDERBY] = ",".join(order_by)
+        expands: dict[str, FieldInfo] = resource_cls.expands()
         if expand_alias := [
-            get_alias(resource_cls, field_name) for field_name in resource_cls.expands()
+            field_info.alias for field_info in expands.values() if field_info.alias
         ]:
             params[ATTR_EXPAND] = ",".join(expand_alias)
 
@@ -336,8 +338,9 @@ class CommissionsClient:
 
         uri: str = f"{resource_cls.attr_endpoint}({seq})"
         params: dict[str, str] = {}
+        expands: dict[str, FieldInfo] = resource_cls.expands()
         if expand_alias := [
-            get_alias(resource_cls, field_name) for field_name in resource_cls.expands()
+            field_info.alias for field_info in expands.values() if field_info.alias
         ]:
             params[ATTR_EXPAND] = ",".join(expand_alias)
 

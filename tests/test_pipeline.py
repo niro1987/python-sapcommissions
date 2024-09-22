@@ -12,6 +12,9 @@ LOGGER: logging.Logger = logging.getLogger(__name__)
 T = TypeVar("T", bound=model.pipeline._PipelineRunJob)  # pylint: disable=protected-access
 
 
+pytest.skip("These tests will run pipelines on your tenant", allow_module_level=True)
+
+
 @pytest.fixture(name="cleanup", scope="session")
 async def fixture_delete_pipeline(
     client: CommissionsClient,
