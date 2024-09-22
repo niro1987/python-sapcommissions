@@ -130,7 +130,7 @@ async def async_list_periods(
         generator = client.read_all(
             model.Period,
             filters=helpers.And(*filters),
-            order_by=["startDate"],
+            order_by=["startDate desc"],
         )
         async for item in generator:
             period_names.append(item.name)
@@ -331,14 +331,21 @@ def calendars(
     help="Name of the Calendar. Invoke command 'calendars' for a list of choices.",
     envvar="SAP_CALENDAR",
 )
+@click.option(
+    "--period",
+    prompt=False,
+    type=click.STRING,
+    help="Name of the Period to search. Allows wildcard like '*2024*'.",
+)
 def periods(
     ctx: click.Context,
     calendar: str,
+    period: str | None = None,
 ) -> None:
     """List all periods for a calendar."""
     LOGGER.info("List Periods for '%s'", calendar)
 
-    period_names = asyncio.run(async_list_periods(ctx, calendar))
+    period_names = asyncio.run(async_list_periods(ctx, calendar, period))
     LOGGER.info("%s", period_names)
 
     for item in period_names:
