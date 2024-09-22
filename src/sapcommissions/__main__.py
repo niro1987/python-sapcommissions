@@ -191,12 +191,14 @@ async def async_load_resource(
     "--tenant",
     prompt=True,
     help="Tenant to connect to, for example 'CALD-DEV'.",
+    envvar="SAP_TENANT",
 )
 @click.option(
     "-u",
     "--username",
     prompt=True,
     help="Username for authentication.",
+    envvar="SAP_USERNAME",
 )
 @click.option(
     "-p",
@@ -204,6 +206,7 @@ async def async_load_resource(
     prompt=True,
     hide_input=True,
     help="Password for authentication.",
+    envvar="SAP_PASSWORD",
 )
 @click.option(
     "--no-ssl",
