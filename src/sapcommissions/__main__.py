@@ -149,6 +149,8 @@ def list_periods(
 
 def validate_period(ctx: click.Context, _, value):
     """Validate the Period input."""
+    if value is None:
+        return
     if not (calendar_name := ctx.params.get("calendar", None)):
         raise click.BadParameter("Must provide Calendar before Period.")
     period_names = list_periods(
