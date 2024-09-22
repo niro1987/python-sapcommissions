@@ -130,7 +130,7 @@ async def async_list_periods(
         generator = client.read_all(
             model.Period,
             filters=helpers.And(*filters),
-            order_by=["startDate"],
+            order_by=["startDate desc"],
         )
         async for item in generator:
             period_names.append(item.name)
