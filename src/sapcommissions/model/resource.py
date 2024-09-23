@@ -182,7 +182,7 @@ class Credit(Resource, Generic16Mixin):
     preadjusted_value: Value
     origin_type_id: str
     reason: str | Reference | None = None
-    rule: str | Reference | Reference | None = None
+    rule: str | Reference | None = None
     is_rollable: bool | None = None
     roll_date: datetime | None = None
     is_held: bool | None = None
