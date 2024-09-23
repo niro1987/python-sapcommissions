@@ -249,7 +249,7 @@ class Reference(Expandable):
         return self.key
 
 
-class SalesTransactionAssignment(Expandable):
+class SalesTransactionAssignment(Expandable, Generic16Mixin):
     """SalesTransaction Assignment."""
 
     sales_order: str
