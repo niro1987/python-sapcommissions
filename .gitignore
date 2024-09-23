@@ -5,5 +5,3 @@ dist/
 build/
 .env
 *.log
-tests/deploy/
-tests/export/
