@@ -317,7 +317,7 @@ async def load_measurements(
             "name": "Name",
             "value": "Value",
             "pipeline_run_date": "Create Date",
-            "rule": "Rule",
+            "rule_name": "Rule",
             "number_of_credits": "Number of Credits",
             "business_units": "Business Unit",
             "ga1": "GA1",
