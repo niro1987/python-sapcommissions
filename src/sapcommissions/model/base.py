@@ -247,3 +247,16 @@ class Reference(Expandable):
     def __str__(self) -> str:
         """Return key value."""
         return self.key
+
+
+class SalesTransactionAssignment(Expandable):
+    """SalesTransaction Assignment."""
+
+    sales_order: str
+    sales_transaction_seq: str
+    set_number: int | None = None
+    compensation_date: datetime | None = None
+    title_name: str | None = None
+    position_name: str | None = None
+    payee_id: str | None = None
+    processing_unit: str | None = None

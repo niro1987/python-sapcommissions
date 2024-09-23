@@ -16,6 +16,7 @@ from .base import (
     Reference,
     Resource,
     RuleUsage,
+    SalesTransactionAssignment,
     Value,
 )
 
@@ -696,7 +697,7 @@ class SalesTransaction(Resource, Generic32Mixin):
     ship_to_address: str | None = None
     bill_to_address: str | None = None
     other_to_address: str | None = None
-    transaction_assignments: list[Assignment] | Assignment | None = None
+    transaction_assignments: list[SalesTransactionAssignment] | None = None
     payment_terms: str | None = None
     accounting_date: datetime | None = None
     discount_percent: Value | None = None
