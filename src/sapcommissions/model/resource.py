@@ -99,8 +99,8 @@ class Calendar(Resource):
     calendar_seq: str | None = None
     name: str
     description: str | None = None
-    minor_period_type: str | Reference | Reference | None = None
-    major_period_type: str | Reference | Reference | None = None
+    minor_period_type: str | Reference | None = None
+    major_period_type: str | Reference | None = None
     created_by: str | None = Field(None, exclude=True, repr=False)
     create_date: datetime | None = Field(None, exclude=True, repr=False)
     modified_by: str | None = Field(None, exclude=True, repr=False)
@@ -172,11 +172,11 @@ class Credit(Resource, Generic16Mixin):
     attr_seq: ClassVar[str] = "credit_seq"
     credit_seq: str | None = None
     name: str
-    position: str | Reference | Reference
-    payee: str | Reference | Reference
+    position: str | Reference
+    payee: str | Reference
     sales_order: str | Reference
     sales_transaction: str | Reference | None = None
-    period: str | Reference | Reference
+    period: str | Reference
     credit_type: str | Reference
     value: Value
     preadjusted_value: Value
