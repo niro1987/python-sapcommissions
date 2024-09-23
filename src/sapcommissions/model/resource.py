@@ -300,7 +300,7 @@ class Incentive(Resource, Generic16Mixin):
     position: str | Reference
     payee: str | Reference
     period: str | Reference
-    rule: str | Reference
+    rule: str | Reference | None = None
     value: Value
     release_date: datetime | None = None
     pipeline_run: str | None = None
