@@ -267,6 +267,13 @@ class CommissionsClient:
                 f"page_size ({page_size}) must be between {MIN_PAGE_SIZE} and {MAX_PAGE_SIZE}"
             )
 
+        # FIX: Issue #30
+        if resource_cls is model.SalesTransaction:
+            LOGGER.warning(
+                "See issue https://github.com/niro1987/python-sapcommissions/issues/30"
+            )
+            page_size = 1
+
         attr_resource: str = resource_cls.attr_endpoint.split("/")[-1]
         params: dict[str, str | int] = {ATTR_TOP: page_size}
         if filters:

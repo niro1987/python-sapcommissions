@@ -90,7 +90,7 @@ class Endpoint(_BaseModel):
     @classmethod
     def expands(cls) -> dict[str, FieldInfo]:
         """Return model fields that refer to onther resource."""
-        return cls.typed_fields(Reference)
+        return cls.typed_fields(Expandable)
 
 
 class Resource(Endpoint):
@@ -220,8 +220,12 @@ class Generic32Mixin(Generic16Mixin):
     ga32: str | None = Field(None, alias="genericAttribute32")
 
 
-class Reference(_BaseModel):
-    """Pydantic BaseModel for reference to another resource."""
+class Expandable(_BaseModel):
+    """Pydantic BaseModel to indicate expandable field."""
+
+
+class Reference(Expandable):
+    """Expanded reference to another resource."""
 
     key: str
     display_name: str
@@ -243,3 +247,16 @@ class Reference(_BaseModel):
     def __str__(self) -> str:
         """Return key value."""
         return self.key
+
+
+class SalesTransactionAssignment(Expandable):
+    """SalesTransaction Assignment."""
+
+    sales_order: str
+    sales_transaction_seq: str
+    set_number: int | None = None
+    compensation_date: datetime | None = None
+    title_name: str | None = None
+    position_name: str | None = None
+    payee_id: str | None = None
+    processing_unit: str | None = None

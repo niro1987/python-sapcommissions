@@ -35,7 +35,9 @@ async def test_list_resources(  # noqa: C901
 
     resource_list: list[T] = []
 
-    page_size: int = 1 if resource_cls is model.Pipeline else 100
+    page_size: int = (
+        1 if resource_cls is model.SalesTransaction else 100
+    )  # FIX Issue #30
     generator = client.read_all(resource_cls, page_size=page_size)
     async for resource in AsyncLimitedGenerator(generator, page_size * 2):
         assert isinstance(resource, resource_cls)
@@ -95,7 +97,9 @@ async def test_expand_resources(  # noqa: C901
 
     resource_list: list[T] = []
 
-    page_size: int = 1 if resource_cls is model.Pipeline else 100
+    page_size: int = (
+        1 if resource_cls is model.SalesTransaction else 100
+    )  # FIX Issue #30
     generator = client.read_all(resource_cls, page_size=page_size)
     async for resource in AsyncLimitedGenerator(generator, page_size * 2):
         assert isinstance(resource, resource_cls)
