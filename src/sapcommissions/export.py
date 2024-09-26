@@ -35,7 +35,11 @@ def _transform_bools(series: pd.Series) -> pd.Series:
 
 def _transform_values(series: pd.Series) -> pd.Series:
     """Extract Value object in series."""
-    return series.apply(lambda x: x["value"] if x else pd.NA)
+    return series.apply(
+        lambda x: x["value"]
+        if pd.notna(x) and isinstance(x, dict) and "value" in x
+        else pd.NA
+    )
 
 
 def _transform_business_units(series: pd.Series) -> pd.Series:
