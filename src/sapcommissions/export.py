@@ -35,7 +35,38 @@ def _transform_bools(series: pd.Series) -> pd.Series:
 
 def _transform_values(series: pd.Series) -> pd.Series:
     """Extract Value object in series."""
-    return series.apply(lambda x: x["value"] if x else pd.NA)
+    return series.apply(
+        lambda x: x["value"]
+        if pd.notna(x) and isinstance(x, dict) and "value" in x
+        else pd.NA
+    )
+
+
+def _transform_reference_key(series: pd.Series) -> pd.Series:
+    """Extract key from reference series."""
+    return series.apply(
+        lambda x: x["key"]
+        if pd.notna(x) and isinstance(x, dict) and "logical_keys" in x
+        else x
+    )
+
+
+def _transform_reference_display_name(series: pd.Series) -> pd.Series:
+    """Extract display_name from reference series."""
+    return series.apply(
+        lambda x: x["display_name"]
+        if pd.notna(x) and isinstance(x, dict) and "display_name" in x
+        else pd.NA
+    )
+
+
+def _transform_reference_logical_keys(series: pd.Series) -> pd.Series:
+    """Extract logical_keys from reference series."""
+    return series.apply(
+        lambda x: x["logical_keys"]
+        if pd.notna(x) and isinstance(x, dict) and "logical_keys" in x
+        else pd.NA
+    )
 
 
 def _transform_business_units(series: pd.Series) -> pd.Series:
@@ -64,16 +95,12 @@ def _transform_all(
     reference_fields: list[str] = [
         key for key in resource_cls.typed_fields(Reference) if key in df.columns
     ]
-    for field_name in reference_fields:
-        df[f"{field_name}_name"] = df[field_name].apply(
-            lambda x: x["display_name"] if pd.notna(x) else pd.NA
-        )
-        df[f"{field_name}_keys"] = df[field_name].apply(
-            lambda x: x["logical_keys"] if pd.notna(x) else pd.NA
-        )
-        df[field_name] = df[field_name].apply(
-            lambda x: x["key"] if pd.notna(x) else pd.NA
-        )
+    name_fields: list[str] = [f"{field_name}_name" for field_name in reference_fields]
+    keys_fields: list[str] = [f"{field_name}_keys" for field_name in reference_fields]
+    df[name_fields] = df[reference_fields].apply(_transform_reference_display_name)
+    df[keys_fields] = df[reference_fields].apply(_transform_reference_logical_keys)
+    df[reference_fields] = df[reference_fields].apply(_transform_reference_key)
+
     if "business_units" in df.columns:
         df[["business_units"]] = df[["business_units"]].apply(_transform_business_units)
 
