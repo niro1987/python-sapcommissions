@@ -1,5 +1,9 @@
 Models
 ======
 
-.. automodule:: sapcommissions.model
+
+Credits
+-------
+
+.. autoclass:: sapcommissions.model.Credit
     :members:
