@@ -18,6 +18,8 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.todo",
 ]
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
@@ -25,6 +27,13 @@ intersphinx_mapping = {
 }
 intersphinx_disabled_domains = ["std"]
 templates_path = ["_templates"]
+
+# Optiosn for autodoc
+autodoc_class_signature = "separated"
+autodoc_default_options = {
+    "exclude-members": "__init__, __new__",
+    "show-inheritance": True,
+}
 
 # Options for HTML output
 html_theme = "sphinx_rtd_theme"

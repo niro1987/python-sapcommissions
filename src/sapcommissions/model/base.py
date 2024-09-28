@@ -1,16 +1,8 @@
-"""Base models for Python SAP Commissions Client.
+"""Pydantic models for Python SAP Commissions Client.
 
-These classes are generally not used directly but can be
-usefull for type checking and type hints.
-
-Example:
--------
-```py
-    from sapcommissions.model.base import Resource
-
-    resources: list[Resource] = ...
-```
-
+These classes are generally not used directly but can be usefull
+for type checking and type hints. Used to inherrit function on
+all other models.
 """
 
 from datetime import datetime
@@ -31,7 +23,7 @@ from pydantic.fields import FieldInfo
 
 
 class _BaseModel(BaseModel):
-    """BaseModel for SAP Commissions."""
+    """BaseModel inherited from ``pydantic.BaseModel``."""
 
     model_config: ClassVar[ConfigDict] = ConfigDict(
         str_strip_whitespace=True,
@@ -66,7 +58,15 @@ class _BaseModel(BaseModel):
         cls,
         typed: type | tuple[type, ...],
     ) -> dict[str, FieldInfo]:
-        """Extract all fields from a resource of the specified type."""
+        """Return model fields of the specified type.
+
+        This method can be usefull when converting data types for
+        example.
+
+        Returns:
+            A dictionary where the keys are and the values are
+            `FieldInfo` objects annotated with the specified type.
+        """
         model_fields: dict[str, FieldInfo] = cls.model_fields
         fields: dict[str, FieldInfo] = {}
 
@@ -96,56 +96,89 @@ class _BaseModel(BaseModel):
 
 
 class Endpoint(_BaseModel):
-    """BaseModel for an Endpoint."""
+    """Base class for a Resource.
+
+    Attributes:
+        attr_endpoint: URI endpoint to connect with tenant.
+    """
 
     attr_endpoint: ClassVar[str]
 
     @classmethod
     def expands(cls) -> dict[str, FieldInfo]:
-        """Return model fields that refer to onther resource."""
+        """Return model fields that refer to another model class.
+
+        Note:
+            This function is primarily used by the `CommissionsClient`
+            to add an ``expand`` paramter to the request.
+
+        Returns:
+            Dict of field_name and FieldInfo.
+        """
         return cls.typed_fields(Expandable)
 
 
 class Resource(Endpoint):
-    """Base class for a Resource."""
+    """Base class for all models.
+
+    Attributes:
+        attr_seq: Class variable referencing the name of
+            attribute that contains the system unique identifier (seq).
+    """
 
     attr_seq: ClassVar[str]
 
     @property
     def seq(self) -> str | None:
-        """Return the `seq` attribute value for the resource."""
+        """Str | None: System unique identifier (seq) of the resource instance."""
         return getattr(self, self.attr_seq)
 
 
 class Assignment(_BaseModel):
-    """BaseModel for Assignment."""
+    """BaseModel for Assignment.
+
+    Todo:
+        Is the an expandable reference?
+    """
 
     key: str | None = None
     owned_key: str | None = None
 
 
 class BusinessUnitAssignment(_BaseModel):
-    """BaseModel for BusinessUnitAssignment."""
+    """BaseModel for BusinessUnitAssignment.
+
+    Todo:
+        Is the an expandable reference?
+    """
 
     mask: int
     smask: int
 
 
 class RuleUsage(_BaseModel):
-    """BaseModel for RuleUsage."""
+    """BaseModel for RuleUsage.
+
+    Todo:
+        Is the an expandable reference?
+    """
 
     id: str
     name: str
 
 
 class RuleUsageList(_BaseModel):
-    """BaseModel for RuleUsage lists."""
+    """BaseModel for RuleUsage lists.
+
+    Todo:
+        Is the an expandable reference?
+    """
 
     children: list[RuleUsage]
 
 
 class ValueUnitType(_BaseModel):
-    """BaseModel for UnitType."""
+    """Unit Type of Value."""
 
     name: str
     unit_type_seq: str
@@ -159,7 +192,10 @@ class Value(_BaseModel):
 
 
 class ValueClass(_BaseModel):
-    """BaseModel for ValueClass."""
+    """BaseModel for ValueClass.
+
+    Used only by ``UnitType``.
+    """
 
     display_name: str
 

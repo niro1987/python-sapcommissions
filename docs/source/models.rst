@@ -3,15 +3,17 @@ Models
 
 .. autosummary:: sapcommissions.model
 
-
-Base
-----
+    .. autosummary:: base
 
 .. automodule:: sapcommissions.model.base
 
-.. autodata:: sapcommissions.model.base.Resource
-
-Data Type
----------
-
-.. autodata:: sapcommissions.model.CreditType
+    .. autoclass:: _BaseModel
+        :members: typed_fields
+    .. autoclass:: Endpoint
+        :members: expands
+    .. autoclass:: Resource
+        :members: seq
+    .. autoclass:: Assignment
+    .. autoclass:: ValueUnitType
+    .. autoclass:: Value
+    .. autoclass:: ValueClass
