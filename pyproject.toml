@@ -37,6 +37,9 @@ dev = [
     "click>=8.1.7",
     "pandas==2.2.2",
     "pandas-stubs>=2.2.2",
+    "sphinx==7.4.7",
+    "sphinx-rtd-theme==2.0.0",
+    "myst-parser==4.0.0",
 ]
 cli = ["click>=8.1.7", "pandas==2.2.2"]
 
