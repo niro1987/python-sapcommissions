@@ -1,13 +1,13 @@
 """Configuration file for the Sphinx documentation builder."""
 # pylint: disable=all
-from importlib.metadata import version
+from importlib.metadata import version as _version
 
 
 # Project information
 project = "python-sapcommissions"
 copyright = "2024, Niels Perfors"
 author = "Niels Perfors"
-release = version(project)
+release = _version(project)
 version = '.'.join(release.split('.')[:2])
 
 # General configuration
