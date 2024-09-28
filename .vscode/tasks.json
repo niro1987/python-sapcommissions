@@ -36,6 +36,28 @@
         "panel": "shared"
       },
       "problemMatcher": []
+    },
+    {
+      "label": "sphinx",
+      "type": "shell",
+      "command": "python -m sphinx -T -W --keep-going -b html -d build/doctrees -D language=en docs/source docs/html",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "http server",
+      "type": "shell",
+      "command": "python -m http.server -d docs/html",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
     }
   ]
 }
