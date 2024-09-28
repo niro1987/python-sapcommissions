@@ -1,5 +1,5 @@
 Models
 ======
 
-.. automodule:: sapcommissions/model
+.. automodule:: sapcommissions.model
     :members:
