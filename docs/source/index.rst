@@ -10,4 +10,4 @@ Contents
 .. toctree::
 
    usage
-   model
+   client
