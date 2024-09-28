@@ -1,4 +1,17 @@
-"""Base models for Python SAP Commissions Client."""
+"""Base models for Python SAP Commissions Client.
+
+These classes are generally not used directly but can be
+usefull for type checking and type hints.
+
+Example:
+-------
+```py
+    from sapcommissions.model.base import Resource
+
+    resources: list[Resource] = ...
+```
+
+"""
 
 from datetime import datetime
 from importlib import import_module

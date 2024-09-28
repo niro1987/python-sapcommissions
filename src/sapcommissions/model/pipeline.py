@@ -306,8 +306,8 @@ class _ImportJob(_PipelineJob):
         """Validate conditional required fields.
 
         Validations:
-        -----------
-        - run_mode can only be 'new' when importing TransactionalData
+        ------------
+            run_mode can only be 'new' when importing TransactionalData
         """
         if (
             self.module != const.StageTables.TransactionalData

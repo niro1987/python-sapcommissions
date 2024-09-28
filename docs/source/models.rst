@@ -1,9 +1,17 @@
 Models
 ======
 
+.. autosummary:: sapcommissions.model
 
-Credits
--------
 
-.. autoclass:: sapcommissions.model.Credit
-    :members:
+Base
+----
+
+.. automodule:: sapcommissions.model.base
+
+.. autodata:: sapcommissions.model.base.Resource
+
+Data Type
+---------
+
+.. autodata:: sapcommissions.model.CreditType
