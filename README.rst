@@ -7,7 +7,7 @@ If you like this project, please consider to `BuyMeACoffee <https://www.buymeaco
 
 .. image:: https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png
     :alt: BuyMeACoffee
-    :url: https://www.buymeacoffee.com/niro1987
+    :target: https://www.buymeacoffee.com/niro1987
 
 Documentation
 -------------
@@ -18,7 +18,7 @@ REST API
 --------
 
 This project mimics the usage of the SAP Commissions REST API. Visit
-`https://{TENANT}.callidusondemand.com/APIDocument` to read the full specification, replacing `TENANT` with your
+:code:`https://{TENANT}.callidusondemand.com/APIDocument` to read the full specification, replacing :code:`TENANT` with your
 tenant-id.
 
 Legal Disclamer
