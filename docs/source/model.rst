@@ -13,8 +13,8 @@ Model
     refer to the API documentation. Attribute names are converted to snake_case
     to follow standard python conventions.
 
-    All models support the `read` methods of :ref:`client:commissionsclient`, refer
-    to the API documentation for a full list of supported methods.
+    All models support the `read` methods of :meth:`sapcommissions.client.CommissionsClient`,
+    refer to the API documentation for a full list of supported methods.
 
 Base
 ----
