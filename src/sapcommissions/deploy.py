@@ -15,25 +15,25 @@ from sapcommissions.helpers import retry
 LOGGER: logging.Logger = logging.getLogger(__name__)
 
 RE_CREDIT_TYPE: Final[re.Pattern] = re.compile(
-    r"^([a-z0-9_.-]+)?(Credit Type)\.txt$", re.IGNORECASE
+    r"^[a-zA-Z0-9_.\- ]*(Credit Type)\.txt$",
 )
 RE_EARNING_CODE: Final[re.Pattern] = re.compile(
-    r"^([a-z0-9_.-]+)?(Earning Code)\.txt$", re.IGNORECASE
+    r"^[a-zA-Z0-9_.\- ]*(Earning Code)\.txt$",
 )
 RE_EARNING_GROUP: Final[re.Pattern] = re.compile(
-    r"^([a-z0-9_.-]+)?(Earning Group)\.txt$", re.IGNORECASE
+    r"^[a-zA-Z0-9_.\- ]*(Earning Group)\.txt$",
 )
 RE_EVENT_TYPE: Final[re.Pattern] = re.compile(
-    r"^([a-z0-9_.-]+)?(Event Type)\.txt$", re.IGNORECASE
+    r"^[a-zA-Z0-9_.\- ]*(Event Type)\.txt$",
 )
 RE_FIXED_VALUE_TYPE: Final[re.Pattern] = re.compile(
-    r"^([a-z0-9_.-]+)?(Fixed Value Type)\.txt$", re.IGNORECASE
+    r"^[a-zA-Z0-9_.\- ]*(Fixed Value Type)\.txt$",
 )
 RE_REASON_CODE: Final[re.Pattern] = re.compile(
-    r"^([a-z0-9_.-]+)?(Reason Code)\.txt$", re.IGNORECASE
+    r"^[a-zA-Z0-9_.\- ]*(Reason Code)\.txt$",
 )
 RE_XML: Final[re.Pattern] = re.compile(
-    r"^([a-z0-9_.-]+)?([a-z0-9_.-]+)\.xml$", re.IGNORECASE
+    r"^[a-zA-Z0-9_.\- ]*[a-zA-Z0-9_.\- ]+\.xml$",
 )
 
 

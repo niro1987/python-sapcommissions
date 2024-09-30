@@ -12,3 +12,4 @@
    usage
    client
    model
+   cli
