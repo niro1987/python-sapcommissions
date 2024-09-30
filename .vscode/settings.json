@@ -4,6 +4,7 @@
     "**/*.egg-info": true,
     "**/.pytest_cache": true
   },
+  "editor.rulers": [88, 120],
   "python.defaultInterpreterPath": "/usr/local/bin/python",
   "python.testing.pytestEnabled": true,
   "python.testing.unittestEnabled": false,
