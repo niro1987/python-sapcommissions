@@ -99,7 +99,7 @@ class BooleanOperator:
     def __init__(self, *conditions: Union[LogicalOperator, "BooleanOperator"]):
         """Initialize the BooleanExpression with conditions.
 
-        Args:
+        Attributes:
         ----
             *conditions: Instances of LogicalOperator or BooleanOperator.
 

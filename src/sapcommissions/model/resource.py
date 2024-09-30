@@ -22,7 +22,11 @@ from .base import (
 
 
 class AppliedDeposit(Resource):
-    """AppliedDeposit."""
+    """AppliedDeposit.
+
+    Note:
+        Supports only ``read`` operations.
+    """
 
     attr_endpoint: ClassVar[str] = "api/v2/appliedDeposits"
     attr_seq: ClassVar[str] = "applied_deposit_seq"
@@ -42,7 +46,11 @@ class AppliedDeposit(Resource):
 
 
 class AuditLog(Resource):
-    """Audit Log."""
+    """Audit Log.
+
+    Note:
+        Supports only ``read`` operations.
+    """
 
     attr_endpoint: ClassVar[str] = "api/v2/auditLogs"
     attr_seq: ClassVar[str] = "audit_log_seq"
@@ -59,7 +67,11 @@ class AuditLog(Resource):
 
 
 class Balance(Resource):
-    """Balance."""
+    """Balance.
+
+    Note:
+        Supports only ``read`` operations.
+    """
 
     attr_endpoint: ClassVar[str] = "api/v2/balances"
     attr_seq: ClassVar[str] = "balance_seq"

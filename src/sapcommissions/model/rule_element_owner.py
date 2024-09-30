@@ -16,21 +16,6 @@ from .base import (
 class _RuleElementOwner(Resource):
     """Base class for Rule Element Owner resources.
 
-    These attributes are inherited by all other Rule Element Owners.
-
-    Attributes:
-        rule_element_owner_seq: System Unique Identifier.
-        name: Name.
-        description: Description.
-        effective_start_date: Effective Start Date.
-        effective_end_date: Effective End Date.
-        create_date: When the element was first created.
-        created_by: Who created the element.
-        modified_by: Who last modified the element.
-        business_units: Business Units.
-        variable_assignments: Assigned variables.
-        model_seq: System Unique Identifier for the model.
-
     TODO: ``variable_assignments`` should be ``Reference``?
     TODO: ``business_units`` should be ``Reference``?
     """
@@ -52,8 +37,26 @@ class _RuleElementOwner(Resource):
 class Plan(_RuleElementOwner):
     """Plan.
 
-    Attributes:
-        calendar: Reference to ``Calendar``.
+    Parameters:
+        rule_element_owner_seq (str | None): System Unique Identifier.
+        name (str): Name of the plan.
+        description (str | None): Description of the plan.
+        calendar (str | Reference): Reference to ``Calendar`` associated
+            with the plan.
+        effective_start_date (datetime): Effective start date of the plan
+            version.
+        effective_end_date (datetime): Effective end date of the plan version.
+        create_date (datetime | None): Date when plan was created.
+        created_by (str | None): User ID that created the plan.
+        modified_by (str | None): User ID that last modified the plan.
+        business_units (list[str] | None): Business units associated with the
+            plan.
+        variable_assignments (list[Assignment] | Assignment | None): Variable
+            Assignments on the plan level.
+        model_seq (str | None): System Unique Identifier for the model.
+
+    TODO: Add GenericMixin?
+    TODO: is ``variable_assignments`` expandable?
     """
 
     attr_endpoint: ClassVar[str] = "api/v2/plans"
@@ -62,19 +65,6 @@ class Plan(_RuleElementOwner):
 
 class Position(_RuleElementOwner, Generic16Mixin):
     """Position.
-
-    Attributes:
-        payee: Reference to ``Participant``.
-        plan: Reference to ``Plan``.
-        title: Reference to ``Title``.
-        manager: Reference to ``Position`` of manager.
-        position_group: Reference to ``PositionGroup``.
-        target_compensation: Target Compensation.
-        credit_start_date: Credit Start Date.
-        credit_end_date: Credit End Date.
-        processing_start_date: Processing Start Date.
-        processing_end_date: Processing End Date.
-        processing_unit: system Unique Identifier of Processing Unit.
 
     TODO: ``target_compensation`` is ``Value``?
     TODO: ``processing_unit`` should be ``Reference``?
@@ -95,11 +85,7 @@ class Position(_RuleElementOwner, Generic16Mixin):
 
 
 class Title(_RuleElementOwner, Generic16Mixin):
-    """Title.
-
-    Attributes:
-        plan: Reference to ``Plan``.
-    """
+    """Title."""
 
     attr_endpoint: ClassVar[str] = "api/v2/titles"
     plan: str | Reference | None = None

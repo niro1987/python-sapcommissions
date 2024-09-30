@@ -3,6 +3,19 @@ Model
 
 .. autosummary:: sapcommissions.model
 
+.. admonition:: Read the API Documentation
+
+    Visit :code:`https://{TENANT}.callidusondemand.com/APIDocument`
+    to read the full specification, replacing :code:`TENANT` with your
+    tenant-id.
+
+    Most of these models are undocumented. For a complete list of attributes,
+    refer to the API documentation. Attribute names are converted to snake_case
+    to follow standard python conventions.
+
+    All models support the `read` methods of :ref:`client:commissionsclient`, refer
+    to the API documentation for a full list of supported methods.
+
 Base
 ----
 
@@ -17,17 +30,15 @@ Base
         :members: seq
 
     .. autoclass:: AdjustmentContext
-    .. autoclass:: Assignment
-    .. autoclass:: BusinessUnitAssignment
-    .. autoclass:: Generic16Mixin
-    .. autoclass:: Generic32Mixin
-    .. autoclass:: Reference
-    .. autoclass:: RuleUsage
-    .. autoclass:: RuleUsageList
-    .. autoclass:: SalesTransactionAssignment
     .. autoclass:: Value
     .. autoclass:: ValueClass
     .. autoclass:: ValueUnitType
+    .. autoclass:: Reference
+    .. autoclass:: Assignment
+    .. autoclass:: BusinessUnitAssignment
+    .. autoclass:: RuleUsage
+    .. autoclass:: RuleUsageList
+    .. autoclass:: SalesTransactionAssignment
 
 Data Type
 ---------
@@ -54,8 +65,8 @@ Rule Elements
 
     .. autoclass:: _RuleElement
     .. autoclass:: Category
-    .. autoclass:: CFixedValue
     .. autoclass:: FixedValue
+    .. autoclass:: CFixedValue
     .. autoclass:: FixedValueVariable
     .. autoclass:: Formula
     .. autoclass:: RelationalMDLT
@@ -84,12 +95,6 @@ Resource
 
 .. hint::
     See :ref:`usage:examples`
-
-.. admonition:: API Documentation
-
-    This project mimics the usage of the SAP Commissions REST API. Visit
-    :code:`https://{TENANT}.callidusondemand.com/APIDocument` to read the
-    full specification, replacing :code:`TENANT` with your tenant-id.
 
 .. automodule:: sapcommissions.model.resource
 
