@@ -1,6 +1,16 @@
 """Constants for Python SAP Commissions Client."""
+# pylint: disable=invalid-name
 
 from enum import StrEnum
+
+
+class HTTPMethod(StrEnum):
+    """StrEnum for supported HTTP methods."""
+
+    GET = "GET"
+    POST = "POST"
+    PUT = "PUT"
+    DELETE = "DELETE"
 
 
 class PipelineRunStages(StrEnum):
