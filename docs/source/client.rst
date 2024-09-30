@@ -8,7 +8,7 @@ Client
 
 .. automodule:: sapcommissions.client
 
-    .. autoclass:: CommissionsClient
+    .. autoclass:: sapcommissions.CommissionsClient
         :members:
         :private-members: _request
         :member-order: bysource
