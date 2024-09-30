@@ -1,4 +1,4 @@
-"""RuleElementOwner models for Python SAP Commissions Client."""
+"""Pydantic models for Rule Element Owner Resources."""
 
 from datetime import datetime
 from typing import ClassVar
@@ -14,7 +14,11 @@ from .base import (
 
 
 class _RuleElementOwner(Resource):
-    """Base class for Rule Element Owner resources."""
+    """Base class for Rule Element Owner resources.
+
+    TODO: ``variable_assignments`` should be ``Reference``?
+    TODO: ``business_units`` should be ``Reference``?
+    """
 
     attr_seq: ClassVar[str] = "rule_element_owner_seq"
     rule_element_owner_seq: str | None = None
@@ -31,27 +35,53 @@ class _RuleElementOwner(Resource):
 
 
 class Plan(_RuleElementOwner):
-    """Plan."""
+    """Plan.
+
+    Parameters:
+        rule_element_owner_seq (str | None): System Unique Identifier.
+        name (str): Name of the plan.
+        description (str | None): Description of the plan.
+        calendar (str | Reference): Reference to ``Calendar`` associated
+            with the plan.
+        effective_start_date (datetime): Effective start date of the plan
+            version.
+        effective_end_date (datetime): Effective end date of the plan version.
+        create_date (datetime | None): Date when plan was created.
+        created_by (str | None): User ID that created the plan.
+        modified_by (str | None): User ID that last modified the plan.
+        business_units (list[str] | None): Business units associated with the
+            plan.
+        variable_assignments (list[Assignment] | Assignment | None): Variable
+            Assignments on the plan level.
+        model_seq (str | None): System Unique Identifier for the model.
+
+    TODO: Add GenericMixin?
+    TODO: is ``variable_assignments`` expandable?
+    """
 
     attr_endpoint: ClassVar[str] = "api/v2/plans"
     calendar: str | Reference
 
 
 class Position(_RuleElementOwner, Generic16Mixin):
-    """Position."""
+    """Position.
+
+    TODO: ``target_compensation`` is ``Value``?
+    TODO: ``processing_unit`` should be ``Reference``?
+    """
 
     attr_endpoint: ClassVar[str] = "api/v2/positions"
+    payee: str | Reference | None = None
+    plan: str | Reference | None = None
+    title: str | Reference | None = None
+    manager: str | Reference | None = None
+    position_group: str | Reference | None = None
+    target_compensation: dict | None = None
     credit_start_date: datetime | None = None
     credit_end_date: datetime | None = None
     processing_start_date: datetime | None = None
     processing_end_date: datetime | None = None
-    target_compensation: dict | None = None
     processing_unit: str | None = None
-    manager: str | Reference | None = None
-    title: str | Reference | None = None
-    plan: str | Reference | None = None
-    position_group: str | Reference | None = None
-    payee: str | Reference | None = None
 
 
 class Title(_RuleElementOwner, Generic16Mixin):

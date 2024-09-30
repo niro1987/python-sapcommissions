@@ -1,4 +1,4 @@
-"""Pipeline models for Python SAP Commissions Client."""
+"""Pydantic models for Pipeline jobs."""
 
 from typing import ClassVar, Literal
 
@@ -306,8 +306,8 @@ class _ImportJob(_PipelineJob):
         """Validate conditional required fields.
 
         Validations:
-        -----------
-        - run_mode can only be 'new' when importing TransactionalData
+        ------------
+            run_mode can only be 'new' when importing TransactionalData
         """
         if (
             self.module != const.StageTables.TransactionalData

@@ -1,4 +1,4 @@
-"""Python SAP Commissions Client."""
+"""Asynchronous Client to interact with SAP Commissions REST API."""
 
 import asyncio
 import logging
@@ -16,7 +16,7 @@ from sapcommissions.helpers import BooleanOperator, LogicalOperator, retry
 LOGGER: logging.Logger = logging.getLogger(__name__)
 T = TypeVar("T", bound="model.base.Resource")
 
-REQUEST_TIMEOUT: int = 30
+REQUEST_TIMEOUT: int = 60
 STATUS_NOT_MODIFIED: int = 304
 STATUS_BAD_REQUEST: int = 400
 STATUS_SERVER_ERROR: int = 500
@@ -47,7 +47,18 @@ MAX_PAGE_SIZE: int = 100
 
 @dataclass
 class CommissionsClient:
-    """Client interface for interacting with SAP Commissions."""
+    """Asynchronous interface to interacting with SAP Commissions REST API.
+
+    Parameters:
+        tenant (str): Your tenant ID. For example, if the login url is
+            `https://cald-prd.callidusondemand.com/SalesPortal/#!/`,
+            the tenant ID is `cald-prd`.
+        session (ClientSession): An aiohttp ClientSession.
+        verify_ssl (bool, optional): Enable SSL verification.
+            Defaults to True.
+        request_timeout (int, optional): Request timeout in seconds.
+            Defaults to 60.
+    """
 
     tenant: str
     session: ClientSession
@@ -66,7 +77,23 @@ class CommissionsClient:
         params: dict | None = None,
         json: list | None = None,
     ) -> dict[str, Any]:
-        """Send a request."""
+        """Send a request.
+
+        Parameters:
+            method (str): HTTP method (GET, POST, PUT, DELETE, UDPATE).
+            uri (str): API endpoint URI.
+            params (dict, optional): Query parameters.
+            json (list, optional): JSON payload.
+
+        Returns:
+            dict: The JSON response.
+
+        Raises:
+            SAPConnectionError: If the connection fails.
+            SAPNotModified: If the resource has not been modified.
+            SAPResponseError: If the response status is not as expected.
+            SAPBadRequest: If the request status indicates an error.
+        """
         LOGGER.debug("Request: %s, %s, %s", method, uri, params)
 
         try:
@@ -91,18 +118,17 @@ class CommissionsClient:
             msg = "Resource not modified"
             raise exceptions.SAPNotModified(msg)
 
+        response_text: str = await response.text()
         if (
             response.status not in REQUIRED_STATUS[method]
             and response.status != STATUS_BAD_REQUEST
         ):
-            text = await response.text()
-            msg = f"Unexpected status. {response.status}: {text}"
+            msg = f"Unexpected status. {response.status}: {response_text}"
             LOGGER.error(msg)
             raise exceptions.SAPResponseError(msg)
 
         if (content_type := response.headers.get("Content-Type")) != "application/json":
-            text = await response.text()
-            msg = f"Unexpected Content-Type. {content_type}: {text}"
+            msg = f"Unexpected Content-Type. {content_type}: {response_text}"
             LOGGER.error(msg)
             raise exceptions.SAPResponseError(msg)
 
@@ -112,7 +138,19 @@ class CommissionsClient:
         return json_data
 
     async def create(self, resource: T) -> T:
-        """Create a new resource."""
+        """Create a new resource.
+
+        Parameters:
+            resource (T): The resource to create.
+
+        Returns:
+            T: The created resource.
+
+        Raises:
+            SAPAlreadyExists: If the resource already exists.
+            SAPMissingField: If one or more required fields are missing.
+            SAPResponseError: If the creation encountered an error.
+        """
         cls = type(resource)
         LOGGER.debug("Create %s(%s)", cls.__name__, resource)
 
@@ -158,7 +196,17 @@ class CommissionsClient:
             raise
 
     async def update(self, resource: T) -> T:
-        """Update an existing resource."""
+        """Update an existing resource.
+
+        Parameters:
+            resource (T): The resource to update.
+
+        Returns:
+            T: The updated resource.
+
+        Raises:
+            SAPResponseError: If the update encountered an error.
+        """
         cls = type(resource)
         LOGGER.debug("Update %s(%s)", cls.__name__, resource)
 
@@ -203,7 +251,17 @@ class CommissionsClient:
             raise
 
     async def delete(self, resource: T) -> bool:
-        """Delete a resource."""
+        """Delete a resource.
+
+        Parameters:
+            resource (T): The resource to delete.
+
+        Returns:
+            bool: True if the resource was deleted. Raises an exception othwise.
+
+        Raises:
+            SAPResponseError: If the deletion encountered an error.
+        """
         cls = type(resource)
         LOGGER.debug("Delete %s(%s)", cls.__name__, resource)
 
@@ -254,7 +312,20 @@ class CommissionsClient:
         order_by: list[str] | None = None,
         page_size: int = 10,
     ) -> AsyncGenerator[T, None]:
-        """Read all matching resources."""
+        """Read all matching resources.
+
+        Parameters:
+            resource_cls (type[T]): The type of the resource to list.
+            filters (BooleanOperator | LogicalOperator | str, optional): The filters to apply.
+            order_by (list[str], optional): The fields to order by.
+            page_size (int, optional): The number of resources per page. Defaults to 10.
+
+        Returns:
+            AsyncGenerator[T, None]: An asynchronous generator yielding the matching resources.
+
+        Yields:
+            T: Matching resource.
+        """
         LOGGER.debug(
             "List %s filters=%s order_by=%s page_size=%s",
             resource_cls.__name__,
@@ -325,7 +396,15 @@ class CommissionsClient:
     ) -> T | None:
         """Read the first matching resource.
 
-        TODO: Fix type error
+        A convenience method for `await anext(read_all(...))` with `page_size=1`.
+
+        Parameters:
+            resource_cls (type[T]): The type of the resource to read.
+            filters (BooleanOperator | LogicalOperator | str, optional): The filters to apply.
+            order_by (list[str], optional): The fields to order by.
+
+        Returns:
+            T | None: The first matching resource. None if there are no matching resources.
         """
         LOGGER.debug("Read %s %s", resource_cls.__name__, f"filters={filters}")
         list_resources = self.read_all(
@@ -340,7 +419,18 @@ class CommissionsClient:
             return None
 
     async def read_seq(self, resource_cls: type[T], seq: str) -> T:
-        """Read the specified resource."""
+        """Read the specified resource.
+
+        Parameters:
+            resource_cls (type[T]): The type of the resource to read.
+            seq (str): The unique identifier of the resource.
+
+        Returns:
+            T: The specified resource. Raises an exception if the resource is not found.
+
+        Raises:
+            SAPBadRequest: If the resource was not found.
+        """
         LOGGER.debug("Read Seq %s(%s)", resource_cls.__name__, seq)
 
         uri: str = f"{resource_cls.attr_endpoint}({seq})"
@@ -360,7 +450,26 @@ class CommissionsClient:
             raise
 
     async def read(self, resource: T) -> T:
-        """Reload a fully initiated resource."""
+        """Reload a fully initiated resource.
+
+        A convenience method for `await read_seq(resource.__class__, resource.seq)`.
+
+        Parameters:
+            resource (T): The fully initiated resource.
+
+        Returns:
+            T: The fully initiated resource.
+
+        Example:
+            When running a pipeline job, you can wait for the job to complete:
+
+            .. code-block:: python
+
+                pipeline = await run_pipeline(job)
+                while pipeline.state != PipelineState.Done:
+                    await asyncio.sleep(30)
+                    pipeline = client.read(pipeline)
+        """
         cls = type(resource)
         LOGGER.debug("Read %s(%s)", cls.__name__, resource.seq)
         if not (seq := resource.seq):
@@ -368,7 +477,17 @@ class CommissionsClient:
         return await self.read_seq(cls, seq)
 
     async def run_pipeline(self, job: model.pipeline._PipelineJob) -> model.Pipeline:
-        """Run a pipeline and retrieves the created Pipeline."""
+        """Run a pipeline and retrieves the created Pipeline.
+
+        Parameters:
+            job (model.pipeline._PipelineJob): The pipeline job to run.
+
+        Returns:
+            model.Pipeline: The created Pipeline.
+
+        Raises:
+            SAPResponseError: If the pipeline failed to run.
+        """
         LOGGER.debug("Run pipeline %s", type(job).__name__)
         json: dict[str, Any] = job.model_dump(by_alias=True, exclude_none=True)
 
@@ -409,7 +528,17 @@ class CommissionsClient:
         return await self.read_seq(model.Pipeline, seq)
 
     async def cancel_pipeline(self, job: model.Pipeline) -> bool:
-        """Cancel a running pipeline."""
+        """Cancel a running pipeline.
+
+        Parameters:
+            job (model.Pipeline): The running pipeline job to cancel.
+
+        Returns:
+            bool: True if the pipeline was successfully canceled. Raises an exception othwise.
+
+        Raises:
+            SAPResponseError: If the deletion encountered an error.
+        """
         LOGGER.debug("Cancel %s(%s)", job.command, job.pipeline_run_seq)
 
         uri: str = f"{job.attr_endpoint}({job.pipeline_run_seq})"

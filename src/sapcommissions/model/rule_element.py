@@ -1,4 +1,4 @@
-"""RuleElement models for Python SAP Commissions Client."""
+"""Pydantic models for Rule Element Resources."""
 
 from datetime import datetime
 from typing import ClassVar
@@ -17,7 +17,10 @@ from .base import (
 
 
 class _RuleElement(Resource):
-    """Base class for Rule Element resources."""
+    """Base class for Rule Element resources.
+
+    TODO: What does ``owning_element`` represent?
+    """
 
     attr_seq: ClassVar[str] = "rule_element_seq"
     rule_element_seq: str | None = None
@@ -28,7 +31,6 @@ class _RuleElement(Resource):
     effective_end_date: datetime
     business_units: list[str] | None = None
     not_allow_update: bool = False
-    model_seq: str | None = None
     reference_class_type: str | None = None
     return_type: str | None = None
     owning_element: str | None = None
@@ -37,6 +39,7 @@ class _RuleElement(Resource):
     created_by: str | None = Field(None, exclude=True, repr=False)
     create_date: datetime | None = Field(None, exclude=True, repr=False)
     modified_by: str | None = Field(None, exclude=True, repr=False)
+    model_seq: str | None = None
 
 
 class Category(_RuleElement, Generic16Mixin):
@@ -57,7 +60,7 @@ class FixedValue(_RuleElement):
 
 
 class CFixedValue(FixedValue):
-    """Alias for FixedValue."""
+    """Alias for ``FixedValue``."""
 
 
 class Formula(_RuleElement):
@@ -83,7 +86,10 @@ class LookUpTableVariable(_RuleElement):
 
 
 class RateTable(_RuleElement):
-    """Rate Table."""
+    """Rate Table.
+
+    TODO: Does this endpoint return ``default_element``?
+    """
 
     attr_endpoint: ClassVar[str] = "api/v2/rateTables"
     default_element: str | Reference | None = None
@@ -100,16 +106,23 @@ class RateTableVariable(_RuleElement):
 
 
 class RelationalMDLT(_RuleElement):
-    """Relational MDLT."""
+    """Relational MDLT (Lookup Table).
+
+    Multi Dimensional Lookup Table.
+
+    TODO: Does this endpoint return ``default_element``?
+    TODO: Are ``dimensions`` and ``indices`` expandable?
+    TODO: What does ``expression_type_counts`` represent?
+    """
 
     attr_endpoint: ClassVar[str] = "api/v2/relationalMDLTs"
     default_element: str | Reference | None = None
     required_period_type: str | Reference | None = None
     return_unit_type: str | Reference | None = None
-    indices: list[Assignment] | Assignment | None = None
     treat_null_as_zero: bool | None = None
-    expression_type_counts: str | None = None
     dimensions: list[Assignment] | Assignment | None = None
+    indices: list[Assignment] | Assignment | None = None
+    expression_type_counts: str | None = None
 
 
 class Territory(_RuleElement):
@@ -127,7 +140,10 @@ class TerritoryVariable(_RuleElement):
 
 
 class Variable(_RuleElement):
-    """Variable."""
+    """Variable.
+
+    TODO: What does ``default_element`` refer to?
+    """
 
     attr_endpoint: ClassVar[str] = "api/v2/variables"
     default_element: str | Reference | None = None

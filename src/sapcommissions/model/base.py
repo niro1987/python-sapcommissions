@@ -1,4 +1,9 @@
-"""Base models for Python SAP Commissions Client."""
+"""Pydantic models for Python SAP Commissions Client.
+
+These classes are generally not used directly but can be usefull
+for type checking and type hints. Used to inherrit function on
+all other models.
+"""
 
 from datetime import datetime
 from importlib import import_module
@@ -18,7 +23,13 @@ from pydantic.fields import FieldInfo
 
 
 class _BaseModel(BaseModel):
-    """BaseModel for SAP Commissions."""
+    """BaseModel inherited from ``pydantic.BaseModel``.
+
+    Contains the primary model_config which is required
+    for Pydantic to convert field names between
+    snake_case and camelCase when sending and recieving
+    json data from/to the SAP Commissions tenant.
+    """
 
     model_config: ClassVar[ConfigDict] = ConfigDict(
         str_strip_whitespace=True,
@@ -53,7 +64,16 @@ class _BaseModel(BaseModel):
         cls,
         typed: type | tuple[type, ...],
     ) -> dict[str, FieldInfo]:
-        """Extract all fields from a resource of the specified type."""
+        """Return model fields of the specified type.
+
+        This method can be usefull when converting data types for
+        example.
+
+        Returns:
+            A dictionary of attributes annotated with the specified type
+            where the keys are attribute names and the values are
+            `FieldInfo` objects.
+        """
         model_fields: dict[str, FieldInfo] = cls.model_fields
         fields: dict[str, FieldInfo] = {}
 
@@ -83,76 +103,106 @@ class _BaseModel(BaseModel):
 
 
 class Endpoint(_BaseModel):
-    """BaseModel for an Endpoint."""
+    """Base class for resources that can connect with the client.
+
+    Parameters:
+        attr_endpoint (str): URI endpoint to connect with
+            tenant. Must follow format ``api/v2/nameOfResource``.
+            Used by the client to construct the full request url.
+    """
 
     attr_endpoint: ClassVar[str]
 
     @classmethod
     def expands(cls) -> dict[str, FieldInfo]:
-        """Return model fields that refer to onther resource."""
+        """Return model fields that refer to another model class.
+
+        This function is primarily used by the client to add the
+        ``expand`` parameter to the request.
+
+        Returns:
+            A dictionary of attributes that can be expanded
+            where the keys are attribute names and the values are
+            ``FieldInfo`` objects.
+        """
         return cls.typed_fields(Expandable)
 
 
 class Resource(Endpoint):
-    """Base class for a Resource."""
+    """Base class for a resource.
+
+    Every resource has it's own attribute that uniquely
+    identifies the object on the tenant. Inheritance of
+    this class allows us to refer to the system unique
+    identifier without having to address it directly.
+
+    Example:
+        Attributes ``seq`` and ``credit_seq`` are
+        equal::
+
+            assert Credit.seq == Credit.credit_seq
+
+    Parameters:
+        attr_seq (str): Name of attribute that contains the
+            system unique identifier (seq).
+    """
 
     attr_seq: ClassVar[str]
 
     @property
     def seq(self) -> str | None:
-        """Return the `seq` attribute value for the resource."""
+        """System unique identifier (seq) of the resource instance."""
         return getattr(self, self.attr_seq)
 
 
-class Assignment(_BaseModel):
-    """BaseModel for Assignment."""
-
-    key: str | None = None
-    owned_key: str | None = None
-
-
-class BusinessUnitAssignment(_BaseModel):
-    """BaseModel for BusinessUnitAssignment."""
-
-    mask: int
-    smask: int
-
-
-class RuleUsage(_BaseModel):
-    """BaseModel for RuleUsage."""
-
-    id: str
-    name: str
-
-
-class RuleUsageList(_BaseModel):
-    """BaseModel for RuleUsage lists."""
-
-    children: list[RuleUsage]
-
-
 class ValueUnitType(_BaseModel):
-    """BaseModel for UnitType."""
+    """Unit Type of for ``Value``.
+
+    Parameters:
+        name (str): Name of the unit type.
+        unit_type_seq (str): System unique identifier.
+    """
 
     name: str
     unit_type_seq: str
 
 
 class Value(_BaseModel):
-    """BaseModel for Value."""
+    """Value object used by all numeric fields.
+
+    Parameters:
+        value (int | float | None): The amount.
+        unit_type (ValueUnitType): Type of amount.
+    """
 
     value: int | float | None
     unit_type: ValueUnitType
 
 
 class ValueClass(_BaseModel):
-    """BaseModel for ValueClass."""
+    """Value Class, used only by ``UnitType``.
+
+    Parameters:
+        display_name (str): Name of the value class.
+    """
 
     display_name: str
 
 
 class AdjustmentContext(_BaseModel):
-    """Adjustment Context for a Sales Transaction."""
+    """Adjustment Context for ``SalesTransaction``.
+
+    Used only when updating the value of a ``SalesTransaction``.
+
+    Parameters:
+        adjust_type_flag (Literal["adjustTo", "adjustBy", "reset"]):
+            - ``adjustTo``
+            - ``adjustBy``
+            - ``reset``
+        adjust_to_value (Value | None): Adjust value to this amount.
+        adjust_by_value (Value | None): Adjust value by this amount.
+        comment (str | None): Adjustment comment.
+    """
 
     adjust_type_flag: Literal["adjustTo", "adjustBy", "reset"]
     adjust_to_value: Value | None = None
@@ -161,7 +211,7 @@ class AdjustmentContext(_BaseModel):
 
 
 class Generic16Mixin(_BaseModel):
-    """Mixin to add Generic Attributes to a model."""
+    """Mixin to add generic fields to a model."""
 
     ga1: str | None = Field(None, alias="genericAttribute1")
     ga2: str | None = Field(None, alias="genericAttribute2")
@@ -200,7 +250,7 @@ class Generic16Mixin(_BaseModel):
 
 
 class Generic32Mixin(Generic16Mixin):
-    """Mixin to add extended Generic Attributes to a model."""
+    """Mixin to add generic fields to a model."""
 
     ga17: str | None = Field(None, alias="genericAttribute17")
     ga18: str | None = Field(None, alias="genericAttribute18")
@@ -221,11 +271,25 @@ class Generic32Mixin(Generic16Mixin):
 
 
 class Expandable(_BaseModel):
-    """Pydantic BaseModel to indicate expandable field."""
+    """Indicates expandable field.
+
+    Any model field that is annotated with a subclass of
+    ``Expandable`` will be added to the ``expand`` parameter
+    when sending requests to the tenant.
+    """
 
 
 class Reference(Expandable):
-    """Expanded reference to another resource."""
+    """Expanded reference to a resource.
+
+    Parameters:
+        key (str): System unique identifier for the referred resource.
+        display_name (str): Name of the referred resource.
+        object_type (type[model.Resource]): Class of the referred resource.
+        key_string (str): Seems to always be the same as ``key``.
+        logical_keys (dict[str, str | int | Value | Any]): Some key
+            attributes of the referred resource.
+    """
 
     key: str
     display_name: str
@@ -250,13 +314,95 @@ class Reference(Expandable):
 
 
 class SalesTransactionAssignment(Expandable, Generic16Mixin):
-    """SalesTransaction Assignment."""
+    """Expanded reference to a transaction assignment.
 
+    Parameters:
+        payee_id (str | None): Participant ID assigned to the transaction.
+        position_name (str | None): Position Name assigned to the transaction.
+        title_name (str | None): Title Name assigned to the transaction.
+        sales_order (str | None): Order ID of the transaction.
+        sales_transaction_seq (str): System unique identifier of the
+            transaction.
+        set_number (int | None): Index of the Assignment.
+        compensation_date (datetime | None): Compensation Date of the
+            transaction.
+        processing_unit (str | None): System unique identifier of the
+            Processing Unit.
+        ga{1-16} (str | None): Generic Attributes.
+        gn{1-6} (Value | None): Generic Numbers.
+        gd{1-6} (datetime | None): Generic Dates.
+        gb{1-6} (bool | None): Generic Booleans.
+    """
+
+    payee_id: str | None = None
+    position_name: str | None = None
+    title_name: str | None = None
     sales_order: str
     sales_transaction_seq: str
     set_number: int | None = None
     compensation_date: datetime | None = None
-    title_name: str | None = None
-    position_name: str | None = None
-    payee_id: str | None = None
     processing_unit: str | None = None
+
+
+class Assignment(_BaseModel):
+    """Assignment.
+
+    Used by ``Pipeline`` to refer to stage tables and by
+    ``Plan``, ``Title`` and ``Position`` to refer to
+    Variable Assignments.
+
+    Parameters:
+        key (str | None): Not sure really.
+        owned_key (str | None): Also not sure really.
+
+    TODO: Is this an expandable reference?
+    """
+
+    key: str | None = None
+    owned_key: str | None = None
+
+
+class BusinessUnitAssignment(_BaseModel):
+    """Business Unit Assignment.
+
+    Used by ``AuditLog`` and ``Rule`` to refer to
+    Business Units.
+
+    Parameters:
+        mask (int): Not sure really.
+        smask (int): Seems to be the same as mask.
+
+    TODO: Is this an expandable reference?
+    """
+
+    mask: int
+    smask: int
+
+
+class RuleUsage(_BaseModel):
+    """Rule Usage.
+
+    Used by ``Rule`` and ``Rule Elements`` for some reason.
+
+    Parameters:
+        id (str): ID
+        name (str): Name
+
+    TODO: Is this an expandable reference?
+    """
+
+    id: str
+    name: str
+
+
+class RuleUsageList(_BaseModel):
+    """List of RuleUsage.
+
+    Parameters:
+        children (list[RuleUsage]): List of RuleUsage elements.
+
+    TODO: Is this an expandable reference?
+    TODO: Make this class accessible as iterator of ``RuleUsage``.
+    """
+
+    children: list[RuleUsage]

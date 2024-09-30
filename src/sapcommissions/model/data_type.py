@@ -1,4 +1,4 @@
-"""DataType models for Python SAP Commissions Client."""
+"""Pydantic models for Data Type Resources."""
 
 from datetime import datetime
 from typing import ClassVar
@@ -9,7 +9,7 @@ from .base import Resource, ValueClass
 
 
 class _DataType(Resource):
-    """Base class for Data Type resources."""
+    """Base class for DataType resources."""
 
     attr_seq: ClassVar[str] = "data_type_seq"
     data_type_seq: str | None = None
@@ -42,7 +42,7 @@ class EarningGroup(_DataType):
 
 
 class EventType(_DataType):
-    """Class representation of an Event Type."""
+    """Event Type."""
 
     attr_endpoint: ClassVar[str] = "api/v2/eventTypes"
     event_type_id: str = Field(validation_alias=AliasChoices("eventTypeId", "id"))
@@ -75,14 +75,14 @@ class StatusCode(_DataType):
     """Status Code."""
 
     attr_endpoint: ClassVar[str] = "api/v2/statusCodes"
+    status: str
     name: str | None = None
     type: str | None = None
-    status: str
     is_active: bool = True
 
 
 class UnitType(_DataType):
-    """Class representation of a Unit Type."""
+    """Unit Type."""
 
     attr_endpoint: ClassVar[str] = "api/v2/unitTypes"
     unit_type_seq: str

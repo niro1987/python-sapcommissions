@@ -294,9 +294,9 @@ def deploy(
     \b
     Additionally you can control the order of processing by
     prefixing the filenames numerically. For example:
-      - 01_Event Type.txt
-      - 02_Credit Type.txt
-      - 03_Plan.XML
+      - 01 Event Type.txt
+      - 02 Credit Type.txt
+      - 03 Plan.XML
 
     """  # noqa: D301
     LOGGER.info("Deploy '%s'", path)
