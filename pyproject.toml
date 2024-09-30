@@ -199,4 +199,5 @@ combine-as-imports = true
 split-on-trailing-comma = true
 
 [tool.mypy]
+plugins = ["pydantic.mypy"]
 exclude = ["^docs/.*$"]
