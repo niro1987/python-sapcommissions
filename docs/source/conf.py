@@ -12,36 +12,32 @@ version = '.'.join(release.split('.')[:2])
 
 # General configuration
 extensions = [
-    "sphinx.ext.duration",
-    "sphinx.ext.doctest",
     "sphinx.ext.autodoc",
+    "sphinx.ext.autosectionlabel",
     "sphinx.ext.autosummary",
+    "sphinx.ext.doctest",
+    "sphinx.ext.duration",
     "sphinx.ext.intersphinx",
-    "sphinx.ext.napoleon",
-    "sphinx.ext.viewcode",
+    "sphinx.ext.napoleon",  # https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html
     "sphinx.ext.todo",
+    "sphinx.ext.viewcode",
 ]
+templates_path = ["_templates"]
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
     "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
 }
 intersphinx_disabled_domains = ["std"]
-templates_path = ["_templates"]
 
-# Optiosn for autodoc
+# Extensions configuration
+autosectionlabel_prefix_document = True
 autodoc_class_signature = "separated"
 autodoc_default_options = {
     "exclude-members": "__init__, __new__",
     "show-inheritance": True,
 }
-
-# Options for HTML output
 html_theme = "sphinx_rtd_theme"
-
-# Options for EPUB output
 epub_show_urls = "footnote"
-
-# Napoleon settings
 napoleon_google_docstring = True
 napoleon_numpy_docstring = True
 napoleon_include_init_with_doc = False

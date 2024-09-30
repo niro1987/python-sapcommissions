@@ -23,7 +23,13 @@ from pydantic.fields import FieldInfo
 
 
 class _BaseModel(BaseModel):
-    """BaseModel inherited from ``pydantic.BaseModel``."""
+    """BaseModel inherited from ``pydantic.BaseModel``.
+
+    Contains the primary model_config which is required
+    for Pydantic to convert field names between
+    snake_case and camelCase when sending and recieving
+    json data from/to the SAP Commissions tenant.
+    """
 
     model_config: ClassVar[ConfigDict] = ConfigDict(
         str_strip_whitespace=True,
@@ -64,8 +70,9 @@ class _BaseModel(BaseModel):
         example.
 
         Returns:
-            A dictionary where the keys are and the values are
-            `FieldInfo` objects annotated with the specified type.
+            A dictionary of attributes annotated with the specified type
+            where the keys are attribute names and the values are
+            `FieldInfo` objects.
         """
         model_fields: dict[str, FieldInfo] = cls.model_fields
         fields: dict[str, FieldInfo] = {}
@@ -96,10 +103,12 @@ class _BaseModel(BaseModel):
 
 
 class Endpoint(_BaseModel):
-    """Base class for a Resource.
+    """Base class for resources that can connect with the client.
 
     Attributes:
-        attr_endpoint: URI endpoint to connect with tenant.
+        attr_endpoint: URI endpoint to connect with tenant. Must
+            follow format ``api/v2/nameOfResource``.
+            Used by the client to construct the full request url.
     """
 
     attr_endpoint: ClassVar[str]
@@ -108,37 +117,56 @@ class Endpoint(_BaseModel):
     def expands(cls) -> dict[str, FieldInfo]:
         """Return model fields that refer to another model class.
 
-        Note:
-            This function is primarily used by the `CommissionsClient`
-            to add an ``expand`` paramter to the request.
+        This function is primarily used by the client to add the
+        ``expand`` parameter to the request.
 
         Returns:
-            Dict of field_name and FieldInfo.
+            A dictionary of attributes that can be expanded
+            where the keys are attribute names and the values are
+            `FieldInfo` objects.
         """
         return cls.typed_fields(Expandable)
 
 
 class Resource(Endpoint):
-    """Base class for all models.
+    """Base class for a resource.
+
+    Every resource has it's own attribute that uniquely
+    identifies the object on the tenant. Inheritance of
+    this class allows us to refer to the system unique
+    identifier without having to address it directly.
+
+    Example:
+        Attributes ``seq`` and ``credit_seq`` are
+        equal::
+
+            assert Credit.seq == Credit.credit_seq
 
     Attributes:
-        attr_seq: Class variable referencing the name of
-            attribute that contains the system unique identifier (seq).
+        attr_seq: Name of attribute that contains the
+            system unique identifier (seq).
     """
 
     attr_seq: ClassVar[str]
 
     @property
     def seq(self) -> str | None:
-        """Str | None: System unique identifier (seq) of the resource instance."""
+        """System unique identifier (seq) of the resource instance."""
         return getattr(self, self.attr_seq)
 
 
 class Assignment(_BaseModel):
-    """BaseModel for Assignment.
+    """Assignment.
 
-    Todo:
-        Is the an expandable reference?
+    Used by ``Pipeline`` to refer to stage tables and by
+    ``Plan``, ``Title`` and ``Position`` to refer to
+    Variable Assignments.
+
+    Attributes:
+        key: Not sure really.
+        owned_Key: Also not sure really.
+
+    TODO: Is this an expandable reference?
     """
 
     key: str | None = None
@@ -146,10 +174,16 @@ class Assignment(_BaseModel):
 
 
 class BusinessUnitAssignment(_BaseModel):
-    """BaseModel for BusinessUnitAssignment.
+    """Business Unit Assignment.
 
-    Todo:
-        Is the an expandable reference?
+    Used by ``AuditLog`` and ``Rule`` to refer to
+    Business Units.
+
+    Attributes:
+        mask: Not sure really.
+        smask: Seems to be the same as mask.
+
+    TODO: Is this an expandable reference?
     """
 
     mask: int
@@ -157,10 +191,16 @@ class BusinessUnitAssignment(_BaseModel):
 
 
 class RuleUsage(_BaseModel):
-    """BaseModel for RuleUsage.
+    """Rule Usage.
 
-    Todo:
-        Is the an expandable reference?
+    Used by ``Rule`` and ``Rule Elements`` for some reason.
+    s
+
+    Attributes:
+        id: ID
+        name: Name
+
+    TODO: Is this an expandable reference?
     """
 
     id: str
@@ -168,40 +208,62 @@ class RuleUsage(_BaseModel):
 
 
 class RuleUsageList(_BaseModel):
-    """BaseModel for RuleUsage lists.
+    """List of RuleUsage.
 
-    Todo:
-        Is the an expandable reference?
+    Attributes:
+        children: List of RuleUsage elements.
+
+    TODO: Is this an expandable reference?
     """
 
     children: list[RuleUsage]
 
 
 class ValueUnitType(_BaseModel):
-    """Unit Type of Value."""
+    """Unit Type of for ``Value``.
+
+    Attributes:
+        name: Name of the unit type.
+        unit_type_seq: System unique identifier.
+    """
 
     name: str
     unit_type_seq: str
 
 
 class Value(_BaseModel):
-    """BaseModel for Value."""
+    """Value object used by all numeric fields.
+
+    Attributes:
+        value: The amount.
+        unit_type: Type of amount.
+    """
 
     value: int | float | None
     unit_type: ValueUnitType
 
 
 class ValueClass(_BaseModel):
-    """BaseModel for ValueClass.
+    """Value Class, used only by ``UnitType``.
 
-    Used only by ``UnitType``.
+    Attributes:
+        display_name: Name of the value class.
     """
 
     display_name: str
 
 
 class AdjustmentContext(_BaseModel):
-    """Adjustment Context for a Sales Transaction."""
+    """Adjustment Context for ``SalesTransaction``.
+
+    Used only when updating the value of a ``SalesTransaction``.
+
+    Attributes:
+        adjust_type_flag: ``adjustTo``, ``adjustBy`` or ``reset``.
+        adjust_to_value: Adjust value to this amount.
+        adjust_by_value: Adjust value by this amount.
+        comment: Adjustment comment.
+    """
 
     adjust_type_flag: Literal["adjustTo", "adjustBy", "reset"]
     adjust_to_value: Value | None = None
@@ -210,7 +272,14 @@ class AdjustmentContext(_BaseModel):
 
 
 class Generic16Mixin(_BaseModel):
-    """Mixin to add Generic Attributes to a model."""
+    """Mixin to add generic fields to a model.
+
+    Attributes:
+        ga1..ga16: Generic Attributes
+        gn1..gn6: Generic Numbers
+        gd1..gd6: Generic Dates
+        gb1..gb6: Generic Booleans
+    """
 
     ga1: str | None = Field(None, alias="genericAttribute1")
     ga2: str | None = Field(None, alias="genericAttribute2")
@@ -249,7 +318,14 @@ class Generic16Mixin(_BaseModel):
 
 
 class Generic32Mixin(Generic16Mixin):
-    """Mixin to add extended Generic Attributes to a model."""
+    """Mixin to add generic fields to a model.
+
+    Attributes:
+        ga1..ga32: Generic Attributes
+        gn1..gn6: Generic Numbers
+        gd1..gd6: Generic Dates
+        gb1..gb6: Generic Booleans
+    """
 
     ga17: str | None = Field(None, alias="genericAttribute17")
     ga18: str | None = Field(None, alias="genericAttribute18")
@@ -270,11 +346,24 @@ class Generic32Mixin(Generic16Mixin):
 
 
 class Expandable(_BaseModel):
-    """Pydantic BaseModel to indicate expandable field."""
+    """Indicates expandable field.
+
+    Any model field that is annotated with a type that inherits
+    from this class will be added to the ``expand`` parameter when
+    sending requests to the tenant.
+    """
 
 
 class Reference(Expandable):
-    """Expanded reference to another resource."""
+    """Expanded reference to another resource.
+
+    Attributes:
+        key: System unique identifier for the referred resource.
+        display_name: Name of the referred resource.
+        object_type: Class of the referred resource.
+        key_string: Seems to always be the same as ``key``.
+        logical_keys: Some key attributes of the referred resource.
+    """
 
     key: str
     display_name: str
@@ -299,13 +388,26 @@ class Reference(Expandable):
 
 
 class SalesTransactionAssignment(Expandable, Generic16Mixin):
-    """SalesTransaction Assignment."""
+    """SalesTransaction Assignment.
 
+    Attributes:
+        payee_id: Participant ID assigned to the transaction.
+        position_name: Position Name assigned to the transaction.
+        title_name: Title Name assigned to the transaction.
+        sales_order: Order ID of the transaction.
+        sales_transaction_seq: System unique identifier of the
+            Transaction.
+        set_number: Index of the Assignment.
+        compensation_date: Compensation Date of the transaction.
+        processing_unit: System unique identifier of the
+            Processing Unit.
+    """
+
+    payee_id: str | None = None
+    position_name: str | None = None
+    title_name: str | None = None
     sales_order: str
     sales_transaction_seq: str
     set_number: int | None = None
     compensation_date: datetime | None = None
-    title_name: str | None = None
-    position_name: str | None = None
-    payee_id: str | None = None
     processing_unit: str | None = None

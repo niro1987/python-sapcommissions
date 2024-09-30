@@ -4,11 +4,11 @@
 
    This project is under active development.
 
-Contents
---------
-
 .. toctree::
+   :name: toc
+   :caption: Contents
+   :maxdepth: 2
 
    usage
    client
-   models
+   model

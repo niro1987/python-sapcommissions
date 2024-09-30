@@ -1,4 +1,4 @@
-"""Resource models for Python SAP Commissions Client."""
+"""Pydantic models for Resources."""
 
 from datetime import datetime
 from typing import ClassVar, Literal

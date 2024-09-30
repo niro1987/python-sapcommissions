@@ -1,4 +1,4 @@
-"""Pipeline models for Python SAP Commissions Client."""
+"""Pydantic models for Pipeline jobs."""
 
 from typing import ClassVar, Literal
 

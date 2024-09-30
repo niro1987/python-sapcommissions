@@ -92,10 +92,7 @@ async def deploy_resources_from_file(
         for row in reader:
             resources.append(
                 resource_cls(
-                    **{
-                        "id": row[0],
-                        "description": row[1] if row[1] else None
-                    }
+                    **{"id": row[0], "description": row[1] if row[1] else None}
                 )
             )
     tasks = [deploy_resource(client, resource) for resource in resources]
