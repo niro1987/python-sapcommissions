@@ -1,7 +1,7 @@
-Python SAP Commissions®
+Python SAP Incentive Management®
 =======================
 
-An Asynchronous Python client to communicate with SAP Commissions®.
+An Asynchronous Python client to communicate with SAP Incentive Management®.
 
 If you like this project, please consider to `BuyMeACoffee <https://www.buymeacoffee.com/niro1987>`_.
 
@@ -12,19 +12,21 @@ If you like this project, please consider to `BuyMeACoffee <https://www.buymeaco
 Documentation
 -------------
 
-Read the full documentation on [Read the Docs](https://python-sapcommissions.readthedocs.io/)
+Read the full documentation on [Read the Docs](https://sapimclient.readthedocs.io/)
 
 REST API
 --------
 
-This project mimics the usage of the SAP Commissions REST API. Visit
-:code:`https://{TENANT}.callidusondemand.com/APIDocument` to read the full specification, replacing :code:`TENANT` with your
-tenant-id.
+This project mimics the usage of the SAP Incentive Management REST API. Visit
+:code:`https://{TENANT}.callidusondemand.com/APIDocument` to read the full specification,
+replacing :code:`TENANT` with your tenant-id.
 
 Legal Disclamer
 ---------------
 
-This software is designed for use with SAP Commissions®. It is not affiliated with SAP® and the developers
-take no legal responsibility for the functionality or security of your Commissions environment.
+This software is designed for use with SAP Incentive Management®. It is not affiliated
+with SAP® and the developers take no legal responsibility for the functionality or
+security of your Incentive Management environment.
 
-SAP Commissions is a registered trademark of SAP SE or its affiliates in Germany and in other countries.
+SAP Incentive Management is a registered trademark of SAP SE or its affiliates in
+Germany and in other countries.

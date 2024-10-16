@@ -1,4 +1,4 @@
-"""Deploy module for Python SAP Commissions Client."""
+"""Deploy module for Python SAP Incentive Management Client."""
 
 import asyncio
 import csv
@@ -7,10 +7,10 @@ import re
 from pathlib import Path
 from typing import Final
 
-from sapcommissions import CommissionsClient, model
-from sapcommissions.const import PipelineState, PipelineStatus
-from sapcommissions.exceptions import SAPAlreadyExists, SAPConnectionError
-from sapcommissions.helpers import retry
+from sapimclient import CommissionsClient, model
+from sapimclient.const import PipelineState, PipelineStatus
+from sapimclient.exceptions import SAPAlreadyExists, SAPConnectionError
+from sapimclient.helpers import retry
 
 LOGGER: logging.Logger = logging.getLogger(__name__)
 

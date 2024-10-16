@@ -1,10 +1,10 @@
-"""Exceptions for Python SAP Commissions Client."""
+"""Exceptions for Python SAP Incentive Management Client."""
 
 from typing import Any
 
 
 class SAPException(Exception):
-    """Base exception for Python SAP Commissions Client."""
+    """Base exception for Python SAP Incentive Management Client."""
 
 
 class SAPConnectionError(SAPException):

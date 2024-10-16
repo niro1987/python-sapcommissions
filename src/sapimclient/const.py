@@ -1,4 +1,4 @@
-"""Constants for Python SAP Commissions Client."""
+"""Constants for Python SAP Incentive Management Client."""
 # pylint: disable=invalid-name
 
 from enum import StrEnum

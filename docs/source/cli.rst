@@ -9,7 +9,7 @@ to install the required dependencies, install them with pip:
 
 .. code-block:: console
 
-    (.venv) $ pip install python-sapcommissions[cli]
+    (.venv) $ pip install sapimclient[cli]
 
 Options:
     - ``--tenant {TENANT}``: **Required**
@@ -23,19 +23,21 @@ Options:
     - ``--logfile {PATH}``: *Optional*
         Enable logging to a file.
     - ``-v``: *Optional*
-        Increase log verbosity.
+        Verbose logging.
+    - ``-debug``: *Optional*
+        Enable DEBUG logging.
 
 To list all available options and commands:
 
 .. code-block:: console
 
-    (.venv) $ python -m sapcommissions --help
+    (.venv) $ python -m sapimclient --help
 
 .. code-block:: console
 
-    Usage: python -m sapcommissions [OPTIONS] COMMAND [ARGS]...
+    Usage: python -m sapimclient [OPTIONS] COMMAND [ARGS]...
 
-    Command-line interface for Python SAP Commissions.
+    Command-line interface for Python SAP Incentive Management.
 
     You may provide parameters by setting environment variables
     prefixed with 'SAP_' or by passing them as options.
@@ -48,7 +50,8 @@ To list all available options and commands:
     -p, --password TEXT  Password for authentication.
     --no-ssl             Disable SSL validation.
     -l, --logfile FILE   Enable logging to a file.
-    -v                   Increase logging verbosity.
+    -v                   Verbose logging.
+    -debug               Enable DEBUG logging.
     --help               Show this message and exit.
 
     Commands:
@@ -66,7 +69,7 @@ List all calendars:
 
 .. code-block:: console
 
-    (.venv) $ python -m sapcommissions \
+    (.venv) $ python -m sapimclient \
         --tenant {TENANT} \
         --username {USERNAME} \
         --password {PASSWORD} \
@@ -85,7 +88,7 @@ List all periods for a calendar:
 
 .. code-block:: console
 
-    (.venv) $ python -m sapcommissions \
+    (.venv) $ python -m sapimclient \
         --tenant {TENANT} \
         --username {USERNAME} \
         --password {PASSWORD} \
@@ -127,7 +130,7 @@ Arguments:
 
 .. code-block:: console
 
-    (.venv) $ python -m sapcommissions \
+    (.venv) $ python -m sapimclient \
         --tenant {TENANT} \
         --username {USERNAME} \
         --password {PASSWORD} \
@@ -143,12 +146,12 @@ in the same way you would using the respective UI workspaces.
 
 Options:
     - ``--calendar {CALENDAR}`` *Optional*
-        Apply :py:class:`Calendar <sapcommissions.model.resource.Calendar>` filter on the exported data.
+        Apply :py:class:`Calendar <sapimclient.model.resource.Calendar>` filter on the exported data.
     - ``--period {PERIOD}`` *Optional*
-        Apply :py:class:`Period <sapcommissions.model.resource.Period>` filter on the exported data.
+        Apply :py:class:`Period <sapimclient.model.resource.Period>` filter on the exported data.
         Requires ``--calendar`` to be provided.
     - ``--filters {FILTER_TEXT}`` *Optional*
-        Apply :py:class:`Period <sapcommissions.model.resource.Period>` filter on the exported data.
+        Apply :py:class:`Period <sapimclient.model.resource.Period>` filter on the exported data.
         Can be applied more then once.
 
 .. tip::
@@ -175,7 +178,7 @@ Export credits to a file:
 
 .. code-block:: console
 
-    (.venv) $ python -m sapcommissions \
+    (.venv) $ python -m sapimclient \
         --tenant {TENANT} \
         --username {USERNAME} \
         --password {PASSWORD} \
@@ -188,7 +191,7 @@ Export payments above € 100.000,-:
 
 .. code-block:: console
 
-    (.venv) $ python -m sapcommissions \
+    (.venv) $ python -m sapimclient \
         --tenant {TENANT} \
         --username {USERNAME} \
         --password {PASSWORD} \

@@ -1,4 +1,4 @@
-"""Export module for Python SAP Commissions Client."""
+"""Export module for Python SAP Incentive Management Client."""
 
 import asyncio
 from collections.abc import AsyncGenerator, Coroutine
@@ -8,10 +8,10 @@ from typing import Any
 
 import pandas as pd
 
-from sapcommissions import CommissionsClient, model
-from sapcommissions.exceptions import SAPConnectionError
-from sapcommissions.helpers import BooleanOperator, LogicalOperator, retry
-from sapcommissions.model.base import Reference, Resource, Value
+from sapimclient import CommissionsClient, model
+from sapimclient.exceptions import SAPConnectionError
+from sapimclient.helpers import BooleanOperator, LogicalOperator, retry
+from sapimclient.model.base import Reference, Resource, Value
 
 GLOB_SEMAPHORE = asyncio.Semaphore(5)
 MAX_BUFFER: int = 1000

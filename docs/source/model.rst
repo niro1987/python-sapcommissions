@@ -1,7 +1,7 @@
 Model
 =====
 
-.. autosummary:: sapcommissions.model
+.. autosummary:: sapimclient.model
 
 .. admonition:: Read the API Documentation
 
@@ -13,14 +13,14 @@ Model
     refer to the API documentation. Attribute names are converted to snake_case
     to follow standard python conventions.
 
-    All models support the `read` methods of :py:class:`CommissionsClient <sapcommissions.client.CommissionsClient>`,
+    All models support the `read` methods of :py:class:`CommissionsClient <sapimclient.client.CommissionsClient>`,
     refer to the API documentation for a full list of supported methods.
 
 Base
 ----
 
-.. autosummary:: sapcommissions.model.base
-.. automodule:: sapcommissions.model.base
+.. autosummary:: sapimclient.model.base
+.. automodule:: sapimclient.model.base
 
     .. autoclass:: _BaseModel
         :members: typed_fields
@@ -43,8 +43,8 @@ Base
 Data Type
 ---------
 
-.. autosummary:: sapcommissions.model.data_type
-.. automodule:: sapcommissions.model.data_type
+.. autosummary:: sapimclient.model.data_type
+.. automodule:: sapimclient.model.data_type
 
     .. autoclass:: _DataType
     .. autoclass:: CreditType
@@ -60,8 +60,8 @@ Data Type
 Rule Elements
 -------------
 
-.. autosummary:: sapcommissions.model.rule_element
-.. automodule:: sapcommissions.model.rule_element
+.. autosummary:: sapimclient.model.rule_element
+.. automodule:: sapimclient.model.rule_element
 
     .. autoclass:: _RuleElement
     .. autoclass:: Category
@@ -80,8 +80,8 @@ Rule Elements
 Rule Element Owners
 -------------------
 
-.. autosummary:: sapcommissions.model.rule_element_owner
-.. automodule:: sapcommissions.model.rule_element_owner
+.. autosummary:: sapimclient.model.rule_element_owner
+.. automodule:: sapimclient.model.rule_element_owner
 
     .. autoclass:: _RuleElementOwner
     .. autoclass:: Plan
@@ -91,12 +91,12 @@ Rule Element Owners
 Resource
 --------
 
-.. autosummary:: sapcommissions.model.resource
+.. autosummary:: sapimclient.model.resource
 
 .. hint::
     See :ref:`usage:examples`
 
-.. automodule:: sapcommissions.model.resource
+.. automodule:: sapimclient.model.resource
 
     .. autoclass:: AppliedDeposit
     .. autoclass:: AuditLog
@@ -143,12 +143,12 @@ Resource
 Pipeline
 --------
 
-.. autosummary:: sapcommissions.model.pipeline
+.. autosummary:: sapimclient.model.pipeline
 
 .. hint::
     See example :ref:`example_comp-and-pay`
 
-.. automodule:: sapcommissions.model.pipeline
+.. automodule:: sapimclient.model.pipeline
 
     .. autoclass:: _PipelineJob
     .. autoclass:: ResetFromValidate

@@ -1,4 +1,4 @@
-"""Data models for Python SAP Commissions Client."""
+"""Data models for Python SAP Incentive Management Client."""
 
 from .data_type import (
     CreditType,

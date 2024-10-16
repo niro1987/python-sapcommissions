@@ -1,1 +1,1 @@
-"""Test for SAP Commissions Client."""
+"""Test for SAP Incentive Management Client."""

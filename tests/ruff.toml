@@ -23,6 +23,6 @@ extend-ignore = [
 ]
 
 [lint.isort]
-known-first-party = ["sapcommissions", "tests"]
+known-first-party = ["sapimclient", "tests"]
 known-third-party = ["pytest"]
 forced-separate = ["tests"]

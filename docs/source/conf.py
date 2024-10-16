@@ -4,7 +4,7 @@ from importlib.metadata import version as _version
 
 
 # Project information
-project = "python-sapcommissions"
+project = "sapimclient"
 copyright = "2024, Niels Perfors"
 author = "Niels Perfors"
 release = _version(project)

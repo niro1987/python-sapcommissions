@@ -1,4 +1,4 @@
-"""Helpers for Python SAP Commissions Client."""
+"""Helpers for Python SAP Incentive Management Client."""
 
 import asyncio
 import logging

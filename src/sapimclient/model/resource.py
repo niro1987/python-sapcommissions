@@ -5,7 +5,7 @@ from typing import ClassVar, Literal
 
 from pydantic import Field, field_validator
 
-from sapcommissions import const
+from sapimclient import const
 
 from .base import (
     AdjustmentContext,

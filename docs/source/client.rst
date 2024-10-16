@@ -1,14 +1,14 @@
 Client
 ======
 
-.. autosummary:: sapcommissions.client
+.. autosummary:: sapimclient.client
 
 .. hint::
     See :ref:`usage:examples`
 
-.. automodule:: sapcommissions.client
+.. automodule:: sapimclient.client
 
-    .. autoclass:: sapcommissions.CommissionsClient
+    .. autoclass:: sapimclient.CommissionsClient
         :members:
         :private-members: _request
         :member-order: bysource

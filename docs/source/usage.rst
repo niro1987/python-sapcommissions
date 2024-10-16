@@ -8,14 +8,14 @@ To use this project, install it with pip:
 
 .. code-block:: console
 
-   (.venv) $ pip install python-sapcommissions
+   (.venv) $ pip install sapimclient
 
 This project includes some command-line-interface commands,
 to install the required dependencies, install them with pip:
 
 .. code-block:: console
 
-    (.venv) $ pip install python-sapcommissions[cli]
+    (.venv) $ pip install sapimclient[cli]
 
 Examples
 --------
@@ -31,9 +31,9 @@ period ``January 2024`` on the ``Main Monthly Calendar``.
 .. code-block:: python
 
    from aoihttp
-   from sapcommissions import CommissionsClient, model
-   from sapcommissions.const import PipelineState, PipelineStatus
-   from sapcommissions.model.base import Reference
+   from sapimclient import CommissionsClient, model
+   from sapimclient.const import PipelineState, PipelineStatus
+   from sapimclient.model.base import Reference
 
    async def run_comp_and_pay(
       client: CommissionsClient,

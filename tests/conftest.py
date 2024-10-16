@@ -12,7 +12,7 @@ from aioresponses import aioresponses
 from dotenv import load_dotenv
 from pytest_asyncio import is_async_test
 
-from sapcommissions import CommissionsClient, model
+from sapimclient import CommissionsClient, model
 
 
 def pytest_collection_modifyitems(items):

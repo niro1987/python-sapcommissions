@@ -1,4 +1,4 @@
-"""Asynchronous Client to interact with SAP Commissions REST API."""
+"""Asynchronous Client to interact with SAP Incentive Management REST API."""
 
 import asyncio
 import logging
@@ -10,10 +10,10 @@ from aiohttp import ClientError, ClientSession
 from pydantic.fields import FieldInfo
 from pydantic_core import ValidationError
 
-from sapcommissions import exceptions, model
-from sapcommissions.const import HTTPMethod
-from sapcommissions.helpers import BooleanOperator, LogicalOperator, retry
-from sapcommissions.model.base import Resource
+from sapimclient import exceptions, model
+from sapimclient.const import HTTPMethod
+from sapimclient.helpers import BooleanOperator, LogicalOperator, retry
+from sapimclient.model.base import Resource
 
 LOGGER: logging.Logger = logging.getLogger(__name__)
 T = TypeVar("T", bound=Resource)
@@ -49,7 +49,7 @@ MAX_PAGE_SIZE: int = 100
 
 @dataclass
 class CommissionsClient:
-    """Asynchronous interface to interacting with SAP Commissions REST API.
+    """Asynchronous interface to interacting with SAP Incentive Management REST API.
 
     Parameters:
         tenant (str): Your tenant ID. For example, if the login url is
@@ -343,7 +343,7 @@ class CommissionsClient:
         # FIX: Issue #30
         if resource_cls is model.SalesTransaction:
             LOGGER.warning(
-                "See issue https://github.com/niro1987/python-sapcommissions/issues/30"
+                "See issue https://github.com/niro1987/sapimclient/issues/30"
             )
             page_size = 1
 

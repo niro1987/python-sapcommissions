@@ -7,9 +7,9 @@ from typing import Any, TypeVar
 
 import pytest
 
-from sapcommissions import CommissionsClient, model
-from sapcommissions.helpers import AsyncLimitedGenerator
-from sapcommissions.model.base import Reference, Resource
+from sapimclient import CommissionsClient, model
+from sapimclient.helpers import AsyncLimitedGenerator
+from sapimclient.model.base import Reference, Resource
 
 from tests.conftest import list_resource_cls
 

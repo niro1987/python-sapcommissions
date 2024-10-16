@@ -1,4 +1,4 @@
-"""CLI entry point for Python SAP Commissions Client."""
+"""CLI entry point for Python SAP Incentive Management Client."""
 # pylint: disable=too-many-arguments, no-value-for-parameter
 
 import asyncio
@@ -12,8 +12,8 @@ from pathlib import Path
 import click
 from aiohttp import BasicAuth, ClientSession
 
-from sapcommissions import CommissionsClient, export as sap_export, helpers, model
-from sapcommissions.deploy import deploy_from_path
+from sapimclient import CommissionsClient, export as sap_export, helpers, model
+from sapimclient.deploy import deploy_from_path
 
 LOGGER: logging.Logger = logging.getLogger(__name__)
 
@@ -257,7 +257,7 @@ def cli(  # noqa: PLR0913
     v: bool = False,
     debug: bool = False,
 ) -> None:
-    """Command-line interface for Python SAP Commissions.
+    """Command-line interface for Python SAP Incentive Management.
 
     \b
     You may provide parameters by setting environment variables

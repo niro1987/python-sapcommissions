@@ -1,4 +1,4 @@
-"""Python SAP Commissions Client."""
+"""Python SAP Incentive Management Client."""
 
 from .client import CommissionsClient
 

@@ -4,7 +4,7 @@ from typing import ClassVar, Literal
 
 from pydantic import Field, computed_field, model_validator
 
-from sapcommissions import const
+from sapimclient import const
 
 from .base import Endpoint
 

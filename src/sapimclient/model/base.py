@@ -1,4 +1,4 @@
-"""Pydantic models for Python SAP Commissions Client.
+"""Pydantic models for Python SAP Incentive Management Client.
 
 These classes are generally not used directly but can be usefull
 for type checking and type hints. Used to inherrit function on
@@ -28,7 +28,7 @@ class _BaseModel(BaseModel):
     Contains the primary model_config which is required
     for Pydantic to convert field names between
     snake_case and camelCase when sending and recieving
-    json data from/to the SAP Commissions tenant.
+    json data from/to the SAP Incentive Management tenant.
     """
 
     model_config: ClassVar[ConfigDict] = ConfigDict(
@@ -313,7 +313,7 @@ class Reference(Expandable):
     @classmethod
     def convert_object_type(cls, value: str) -> type[Resource]:
         """Convert string object_type to class."""
-        module: ModuleType = import_module("sapcommissions.model")
+        module: ModuleType = import_module("sapimclient.model")
         if not (obj := getattr(module, value, None)):
             raise ValueError(f"Unknown object type: {value}")
         if issubclass(obj, Resource):
