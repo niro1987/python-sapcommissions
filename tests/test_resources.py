@@ -9,6 +9,7 @@ from typing import Any, TypeVar
 import pytest
 
 from sapcommissions import CommissionsClient, model
+from sapcommissions.const import HTTPMethod
 from sapcommissions.helpers import AsyncLimitedGenerator
 from sapcommissions.model.base import Reference, Resource
 
@@ -80,7 +81,11 @@ async def test_model_raw(
         params["expand"] = expand
 
     LOGGER.info("Params: %s", params)
-    data = await client._request("GET", resource_cls.attr_endpoint, params=params)
+    data = await client._request(
+        HTTPMethod.GET,
+        resource_cls.attr_endpoint,
+        params=params,
+    )
     LOGGER.info("Data: %s", dumps(data, indent=2))
 
 
