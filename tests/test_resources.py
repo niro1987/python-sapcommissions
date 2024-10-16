@@ -3,7 +3,6 @@
 
 import logging
 import warnings
-from json import dumps
 from typing import Any, TypeVar
 
 import pytest
@@ -26,11 +25,11 @@ pytest.skip("These tests perform requests on your tenant", allow_module_level=Tr
     "resource_cls",
     list_resource_cls(),
 )
-async def test_list_resources(  # noqa: C901
+async def test_resource_model(  # noqa: C901
     client: CommissionsClient,
     resource_cls: type[T],
 ) -> None:
-    """Test listing resources."""
+    """Test resource model is complete."""
     LOGGER.info("Testing list %s", resource_cls.__name__)
 
     resource_list: list[T] = []
@@ -49,50 +48,24 @@ async def test_list_resources(  # noqa: C901
     extra_keys: dict[str, set[Any]] = {}
     for instance in resource_list:
         if model_extra := instance.model_extra:
-            model_extra.pop("etag", None)
+            model_extra.pop("etag", None)  # etag is allowed as extra field
             for key, value in model_extra.items():
                 extra_keys.setdefault(key, set())
                 extra_keys[key].add(str(value))
 
-    LOGGER.info("Extra keys: %s", extra_keys)
-    assert not extra_keys, f"Extra keys: {extra_keys}"
+    if extra_keys:
+        pytest.fail(f"Extra keys found: {extra_keys}")
 
 
 @pytest.mark.parametrize(
     "resource_cls",
     list_resource_cls(),
 )
-async def test_model_raw(
+async def test_resource_reference(  # noqa: C901
     client: CommissionsClient,
     resource_cls: type[T],
 ) -> None:
-    """Test the raw model."""
-    LOGGER.info("Testing raw model %s", resource_cls.__name__)
-
-    params: dict[str, int | str] = {"top": 1}
-    expand_fields = resource_cls.expands()
-    assert expand_fields, "Resource does not expand any fields."
-    expand_alias = [
-        field_info.alias for field_info in expand_fields.values() if field_info.alias
-    ]
-    assert expand_alias, "Expand fields do not have any alias."
-    if expand := ",".join(expand_alias):
-        params["expand"] = expand
-
-    LOGGER.info("Params: %s", params)
-    data = await client._request("GET", resource_cls.attr_endpoint, params=params)
-    LOGGER.info("Data: %s", dumps(data, indent=2))
-
-
-@pytest.mark.parametrize(
-    "resource_cls",
-    list_resource_cls(),
-)
-async def test_expand_resources(  # noqa: C901
-    client: CommissionsClient,
-    resource_cls: type[T],
-) -> None:
-    """Test listing resources."""
+    """Test resource expanded fields are reference objects to existing resource."""
     LOGGER.info("Testing list %s", resource_cls.__name__)
 
     resource_list: list[T] = []
@@ -109,8 +82,7 @@ async def test_expand_resources(  # noqa: C901
         pytest.skip("No resources found")
 
     for resource in resource_list:
-        expand_fields = resource_cls.expands()
-        if not expand_fields:
+        if not (expand_fields := resource_cls.expands()):
             pytest.skip("Resource does not expand any fields.")
 
         for field_name in expand_fields:

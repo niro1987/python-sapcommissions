@@ -15,17 +15,17 @@ class SAPResponseError(SAPException):
     """Exception to indicate an unexpected response."""
 
 
-class SAPNotModified(SAPException):
-    """Exception to indicate 304 - Not Modified response."""
-
-
 class SAPBadRequest(SAPException):
     """Exception to indicate an error with the request."""
 
-    def __init__(self, data: dict[str, Any]) -> None:
+    def __init__(self, message: str, data: dict[str, Any]) -> None:
         """Initialize a Bad Request exception."""
         self.data = data
-        super().__init__("Bad Request", {"data": data})
+        super().__init__(message, {"data": data})
+
+
+class SAPNotModified(SAPException):
+    """Exception to indicate 304 - Not Modified response."""
 
 
 class SAPAlreadyExists(SAPException):
@@ -41,45 +41,5 @@ class SAPMissingField(SAPException):
         super().__init__("Missing Required Field(s)", {"fields": fields})
 
 
-class SAPUnsupportedFileError(SAPException):
-    """Exception to indicate file is not supported."""
-
-
-class RequestError(SAPException):
-    """Exception to indicate an error while handling the server request."""
-
-
-class ResponseError(SAPException):
-    """Exception to indicate an error while handling the server response."""
-
-
-class CRUDError(SAPException):
-    """Base Exception for CRUD operations."""
-
-
-class AlreadyExistsError(CRUDError):
-    """Exception to indicate resource with same key already exists."""
-
-
-class MissingFieldError(CRUDError):
-    """Exception to indicate a value is required."""
-
-
-class PeriodTypeError(CRUDError):
-    """Exception to indicate a Period Type mismatch."""
-
-
-class NotModifiedError(CRUDError):
-    """Exception to indicate resource was not modified."""
-
-
-class NotFoundError(CRUDError):
+class SAPNotFound(SAPException):
     """Exception to indicate resource does not exist."""
-
-
-class ReferredByError(CRUDError):
-    """Exception to indicate resource is referred by another resource."""
-
-
-class DeleteFailedError(CRUDError):
-    """Exception to indicate resource was not deleted."""

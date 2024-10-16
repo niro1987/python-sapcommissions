@@ -11,20 +11,22 @@ from pydantic.fields import FieldInfo
 from pydantic_core import ValidationError
 
 from sapcommissions import exceptions, model
+from sapcommissions.const import HTTPMethod
 from sapcommissions.helpers import BooleanOperator, LogicalOperator, retry
+from sapcommissions.model.base import Resource
 
 LOGGER: logging.Logger = logging.getLogger(__name__)
-T = TypeVar("T", bound="model.base.Resource")
+T = TypeVar("T", bound=Resource)
 
 REQUEST_TIMEOUT: int = 60
 STATUS_NOT_MODIFIED: int = 304
 STATUS_BAD_REQUEST: int = 400
 STATUS_SERVER_ERROR: int = 500
 REQUIRED_STATUS: dict[str, tuple[int, ...]] = {
-    "GET": (200,),
-    "POST": (200, 201, STATUS_NOT_MODIFIED),
-    "PUT": (200, STATUS_NOT_MODIFIED),
-    "DELETE": (200,),
+    HTTPMethod.GET: (200,),
+    HTTPMethod.POST: (200, 201),
+    HTTPMethod.PUT: (200,),
+    HTTPMethod.DELETE: (200,),
 }
 ATTR_ERROR: str = "_ERROR_"
 ATTR_EXPAND: str = "expand"
@@ -72,7 +74,7 @@ class CommissionsClient:
 
     async def _request(
         self,
-        method: str,
+        method: HTTPMethod,
         uri: str,
         params: dict | None = None,
         json: list | None = None,
@@ -114,28 +116,28 @@ class CommissionsClient:
             LOGGER.error(msg)
             raise exceptions.SAPConnectionError(msg) from err
 
-        if method in ("POST", "PUT") and response.status == STATUS_NOT_MODIFIED:
-            msg = "Resource not modified"
-            raise exceptions.SAPNotModified(msg)
+        LOGGER.debug("Response: %s", response.status)
 
-        response_text: str = await response.text()
-        if (
-            response.status not in REQUIRED_STATUS[method]
-            and response.status != STATUS_BAD_REQUEST
-        ):
-            msg = f"Unexpected status. {response.status}: {response_text}"
-            LOGGER.error(msg)
-            raise exceptions.SAPResponseError(msg)
+        # Status code 304 Not Modified is successful but does not include
+        # any json data for us to work with.
+        if response.status == STATUS_NOT_MODIFIED:
+            raise exceptions.SAPNotModified("Resource not modified")
 
+        # During maintenance hours we recieve an html response, let it burn!
+        # In all other cases we expect to recieve a JSON response.
         if (content_type := response.headers.get("Content-Type")) != "application/json":
-            msg = f"Unexpected Content-Type. {content_type}: {response_text}"
+            msg = f"Unexpected Content-Type: {content_type}"
             LOGGER.error(msg)
             raise exceptions.SAPResponseError(msg)
 
-        json_data = await response.json()
-        if response.status in (STATUS_BAD_REQUEST, STATUS_SERVER_ERROR):
-            raise exceptions.SAPBadRequest(json_data)
-        return json_data
+        response_json = await response.json()
+
+        # Validate the required status code.
+        if response.status not in REQUIRED_STATUS[method]:
+            msg = f"Unexpected response status: {response.status}"
+            raise exceptions.SAPBadRequest(msg, response_json)
+
+        return response_json
 
     async def create(self, resource: T) -> T:
         """Create a new resource.
@@ -159,7 +161,7 @@ class CommissionsClient:
 
         try:
             response: dict[str, Any] = await self._request(
-                method="POST",
+                method=HTTPMethod.POST,
                 uri=resource.attr_endpoint,
                 json=[json],
             )
@@ -215,7 +217,7 @@ class CommissionsClient:
 
         try:
             response: dict[str, Any] = await self._request(
-                method="PUT",
+                method=HTTPMethod.PUT,
                 uri=resource.attr_endpoint,
                 json=[json],
             )
@@ -272,7 +274,7 @@ class CommissionsClient:
 
         try:
             response: dict[str, Any] = await self._request(
-                method="DELETE",
+                method=HTTPMethod.DELETE,
                 uri=uri,
             )
         except exceptions.SAPBadRequest as err:
@@ -393,7 +395,7 @@ class CommissionsClient:
         *,
         filters: BooleanOperator | LogicalOperator | str | None = None,
         order_by: list[str] | None = None,
-    ) -> T | None:
+    ) -> T:
         """Read the first matching resource.
 
         A convenience method for `await anext(read_all(...))` with `page_size=1`.
@@ -404,7 +406,10 @@ class CommissionsClient:
             order_by (list[str], optional): The fields to order by.
 
         Returns:
-            T | None: The first matching resource. None if there are no matching resources.
+            T: The first matching resource.
+
+        Raises:
+            SAPNotFound: If no matching resource is found.
         """
         LOGGER.debug("Read %s %s", resource_cls.__name__, f"filters={filters}")
         list_resources = self.read_all(
@@ -415,8 +420,8 @@ class CommissionsClient:
         )
         try:
             return await anext(list_resources)  # type: ignore[arg-type]
-        except StopAsyncIteration:
-            return None
+        except StopAsyncIteration as err:
+            raise exceptions.SAPNotFound("No matching resource.") from err
 
     async def read_seq(self, resource_cls: type[T], seq: str) -> T:
         """Read the specified resource.
@@ -441,7 +446,11 @@ class CommissionsClient:
         ]:
             params[ATTR_EXPAND] = ",".join(expand_alias)
 
-        response: dict[str, Any] = await self._request("GET", uri=uri, params=params)
+        response: dict[str, Any] = await self._request(
+            method=HTTPMethod.GET,
+            uri=uri,
+            params=params,
+        )
         try:
             return resource_cls(**response)
         except ValidationError as exc:
@@ -493,7 +502,7 @@ class CommissionsClient:
 
         try:
             response: dict[str, Any] = await self._request(
-                method="POST",
+                method=HTTPMethod.POST,
                 uri=job.attr_endpoint,
                 json=[json],
             )
@@ -544,7 +553,7 @@ class CommissionsClient:
         uri: str = f"{job.attr_endpoint}({job.pipeline_run_seq})"
         try:
             response: dict[str, Any] = await self._request(
-                method="DELETE",
+                method=HTTPMethod.DELETE,
                 uri=uri,
             )
         except exceptions.SAPBadRequest as err:

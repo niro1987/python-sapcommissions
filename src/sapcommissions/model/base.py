@@ -102,6 +102,18 @@ class _BaseModel(BaseModel):
         return fields
 
 
+class ErrorResponse(_BaseModel):
+    """Base class for error responses.
+
+    Parameters:
+        time_stamp (datetime): Time of the response.
+        message (str): Description of the error.
+    """
+
+    time_stamp: datetime
+    message: str
+
+
 class Endpoint(_BaseModel):
     """Base class for resources that can connect with the client.
 
