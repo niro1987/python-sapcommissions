@@ -1,5 +1,5 @@
 Python SAP Incentive Management®
-=======================
+================================
 
 An Asynchronous Python client to communicate with SAP Incentive Management®.
 
