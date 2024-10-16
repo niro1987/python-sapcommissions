@@ -93,8 +93,7 @@ class CommissionsClient:
         Raises:
             SAPConnectionError: If the connection fails.
             SAPNotModified: If the resource has not been modified.
-            SAPResponseError: If the response is not as expected, or during
-                maintenance hours.
+            SAPResponseError: If the response status is not as expected.
             SAPBadRequest: If the request status indicates an error.
         """
         LOGGER.debug("Request: %s, %s, %s", method, uri, params)
