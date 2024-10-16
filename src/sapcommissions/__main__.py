@@ -36,8 +36,12 @@ class DynamicChoice(click.ParamType):
         return value
 
 
-def setup_logging(logfile: Path | None = None, verbose: bool = False) -> None:
-    """Set up logging and add filehandler if logfile is provided."""
+def setup_logging(
+    filename: Path | None = None,
+    verbose: bool = False,
+    debug: bool = False,
+) -> None:
+    """Set up logging."""
     config = {
         "version": 1,
         "formatters": {
@@ -48,16 +52,21 @@ def setup_logging(logfile: Path | None = None, verbose: bool = False) -> None:
         },
     }
     handlers = {}
-    if logfile:
+    if verbose:
+        handlers["console"] = {
+            "class": "logging.StreamHandler",
+            "formatter": "standard",
+        }
+    if filename:
         handlers["file"] = {
             "class": "logging.FileHandler",
             "formatter": "standard",
-            "filename": str(str(logfile)),
+            "filename": str(str(filename)),
         }
     loggers = {
         __package__: {
             "handlers": list(handlers.keys()),
-            "level": "DEBUG" if verbose else "INFO",
+            "level": "DEBUG" if debug else "INFO",
         },
     }
     config["handlers"] = handlers
@@ -231,7 +240,12 @@ async def async_load_resource(
 @click.option(
     "-v",
     is_flag=True,
-    help="Increase logging verbosity.",
+    help="Verbose logging.",
+)
+@click.option(
+    "-debug",
+    is_flag=True,
+    help="Enable DEBUG logging.",
 )
 def cli(  # noqa: PLR0913
     ctx: click.Context,
@@ -241,6 +255,7 @@ def cli(  # noqa: PLR0913
     no_ssl: bool = False,
     logfile: Path | None = None,
     v: bool = False,
+    debug: bool = False,
 ) -> None:
     """Command-line interface for Python SAP Commissions.
 
@@ -258,7 +273,7 @@ def cli(  # noqa: PLR0913
     ctx.obj["PASSWORD"] = password
     ctx.obj["SSL"] = not no_ssl
 
-    setup_logging(logfile, v)
+    setup_logging(logfile, v, debug)
     LOGGER.info("Tenant: '%s', Username: '%s', Ssl: '%s'", tenant, username, not no_ssl)
 
 
