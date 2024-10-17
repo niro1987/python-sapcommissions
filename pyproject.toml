@@ -43,7 +43,7 @@ dev = [
 cli = ["click>=8.1.7", "pandas==2.2.2"]
 
 [project.scripts]
-sap = "sapimclient.__main__:cli"
+sapimclient = "sapimclient.__main__:cli"
 
 [project.urls]
 Homepage = "https://github.com/niro1987/sapimclient"
