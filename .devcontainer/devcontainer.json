@@ -41,6 +41,6 @@
       ]
     }
   },
-  "postCreateCommand": "git config --global --add safe.directory /workspaces/python-sapcommissions && pre-commit install --install-hooks",
+  "postCreateCommand": "git config --global --add safe.directory /workspaces/sapimclient && pre-commit install --install-hooks",
   "postStartCommand": "pip install -e .[dev]"
 }

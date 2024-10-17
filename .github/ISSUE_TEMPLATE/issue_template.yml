@@ -1,5 +1,5 @@
 name: Issue Form
-description: Report an issue with python-sapcommissions
+description: Report an issue with sapimclient
 title: "[Issue]: "
 labels: ["Issue"]
 body:

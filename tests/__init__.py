@@ -1,1 +1,1 @@
-"""Tests for SAP Commissions."""
+"""Tests for SAP Incentive Management."""
