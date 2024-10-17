@@ -10,7 +10,7 @@ An Asynchronous Python client to communicate with SAP Incentive Management®.
 Documentation
 -------------
 
-Read the full documentation on [Read the Docs](https://sapimclient.readthedocs.io/)
+Read the full documentation on `Read the Docs <https://sapimclient.readthedocs.io>`_
 
 REST API
 --------
