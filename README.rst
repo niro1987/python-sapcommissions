@@ -3,7 +3,8 @@ Python SAP Incentive Management®
 
 An Asynchronous Python client to communicate with SAP Incentive Management®.
 
-If you like this project, please consider to `BuyMeACoffee <https://www.buymeacoffee.com/niro1987>`_.
+.. note::
+    This package has been renamed. Use `pip install sapimclient` instead.
 
 .. image:: https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png
     :alt: BuyMeACoffee
