@@ -1,7 +1,2 @@
 """Python SAP Commissions Client."""
-
-from .client import CommissionsClient
-
-__all__ = [
-    "CommissionsClient",
-]
+# python-sapcommissions is now sapimclient
