@@ -6,7 +6,7 @@ from typing import TypeVar
 
 import pytest
 
-from sapimclient import CommissionsClient, const, helpers, model
+from sapimclient import Tenant, const, helpers, model
 
 LOGGER: logging.Logger = logging.getLogger(__name__)
 T = TypeVar("T", bound=model.pipeline._PipelineRunJob)  # pylint: disable=protected-access
@@ -17,7 +17,7 @@ pytest.skip("These tests will run pipelines on your tenant", allow_module_level=
 
 @pytest.fixture(name="cleanup", scope="session")
 async def fixture_delete_pipeline(
-    client: CommissionsClient,
+    client: Tenant,
 ) -> AsyncGenerator[list[model.Pipeline], None]:
     """Fixture to delete the created pipeline."""
 
@@ -37,7 +37,7 @@ async def fixture_delete_pipeline(
 
 
 @pytest.fixture(name="calendar", scope="session")
-async def fixture_calendar(client: CommissionsClient) -> model.Calendar:
+async def fixture_calendar(client: Tenant) -> model.Calendar:
     """Fixture to return first calendar instance."""
     if not (calendar := await client.read_first(model.Calendar)):
         pytest.skip("No calendar returned from client.")
@@ -49,7 +49,7 @@ async def fixture_calendar(client: CommissionsClient) -> model.Calendar:
 
 @pytest.fixture(name="period", scope="session")
 async def fixture_period(
-    client: CommissionsClient,
+    client: Tenant,
     calendar: model.Calendar,
 ) -> model.Period:
     """Fixture to return first calendar period instance."""
@@ -92,7 +92,7 @@ async def fixture_period(
     ],
 )
 async def test_pipelinerun(
-    client: CommissionsClient,
+    client: Tenant,
     pipeline_job: type[T],
     cleanup: list[model.Pipeline],
     period: model.Period,
@@ -113,7 +113,7 @@ async def test_pipelinerun(
 
 
 async def test_xmlimport(
-    client: CommissionsClient,
+    client: Tenant,
     cleanup: list[model.Pipeline],
 ) -> None:
     """Test running an XML import."""
@@ -141,7 +141,7 @@ async def test_xmlimport(
     ],
 )
 async def test_import(
-    client: CommissionsClient,
+    client: Tenant,
     pipeline_job: type[model.pipeline._ImportJob],
     cleanup: list[model.Pipeline],
     calendar: model.Calendar,
@@ -163,7 +163,7 @@ async def test_import(
 
 
 async def test_purge(
-    client: CommissionsClient,
+    client: Tenant,
     cleanup: list[model.Pipeline],
 ) -> None:
     """Test running a Purge pipeline."""
@@ -182,7 +182,7 @@ async def test_purge(
 
 
 async def test_resetfromvalidate(
-    client: CommissionsClient,
+    client: Tenant,
     cleanup: list[model.Pipeline],
     period: model.Period,
 ) -> None:
@@ -203,7 +203,7 @@ async def test_resetfromvalidate(
 
 
 async def test_resetfromvalidate_no_batch(
-    client: CommissionsClient,
+    client: Tenant,
     cleanup: list[model.Pipeline],
     period: model.Period,
 ) -> None:

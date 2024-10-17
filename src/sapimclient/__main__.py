@@ -12,7 +12,7 @@ from pathlib import Path
 import click
 from aiohttp import BasicAuth, ClientSession
 
-from sapimclient import CommissionsClient, export as sap_export, helpers, model
+from sapimclient import Tenant, export as sap_export, helpers, model
 from sapimclient.deploy import deploy_from_path
 
 LOGGER: logging.Logger = logging.getLogger(__name__)
@@ -75,15 +75,15 @@ def setup_logging(
 
 
 @asynccontextmanager
-async def session_client(ctx: click.Context) -> AsyncGenerator[CommissionsClient, None]:
-    """Yield a Session enabled CommissionsClient."""
+async def session_client(ctx: click.Context) -> AsyncGenerator[Tenant, None]:
+    """Yield a Session enabled Tenant."""
     tenant: str = ctx.obj["TENANT"]
     username: str = ctx.obj["USERNAME"]
     password: str = ctx.obj["PASSWORD"]
     ssl: bool = ctx.obj["SSL"]
     auth = BasicAuth(username, password)
     async with ClientSession(auth=auth) as session:
-        client: CommissionsClient = CommissionsClient(
+        client: Tenant = Tenant(
             tenant=tenant,
             session=session,
             verify_ssl=ssl,

@@ -31,12 +31,12 @@ period ``January 2024`` on the ``Main Monthly Calendar``.
 .. code-block:: python
 
    from aoihttp
-   from sapimclient import CommissionsClient, model
+   from sapimclient import Tenant, model
    from sapimclient.const import PipelineState, PipelineStatus
    from sapimclient.model.base import Reference
 
    async def run_comp_and_pay(
-      client: CommissionsClient,
+      client: Tenant,
       calendar_name: str,
       period_name: str,
    ) -> None:

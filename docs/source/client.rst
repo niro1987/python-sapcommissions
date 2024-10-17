@@ -8,7 +8,7 @@ Client
 
 .. automodule:: sapimclient.client
 
-    .. autoclass:: sapimclient.CommissionsClient
+    .. autoclass:: sapimclient.Tenant
         :members:
         :private-members: _request
         :member-order: bysource

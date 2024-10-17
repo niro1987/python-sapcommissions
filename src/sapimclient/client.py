@@ -48,7 +48,7 @@ MAX_PAGE_SIZE: int = 100
 
 
 @dataclass
-class CommissionsClient:
+class Tenant:
     """Asynchronous interface to interacting with SAP Incentive Management REST API.
 
     Parameters:

@@ -7,7 +7,7 @@ from typing import Any, TypeVar
 
 import pytest
 
-from sapimclient import CommissionsClient, model
+from sapimclient import Tenant, model
 from sapimclient.helpers import AsyncLimitedGenerator
 from sapimclient.model.base import Reference, Resource
 
@@ -26,7 +26,7 @@ pytest.skip("These tests perform requests on your tenant", allow_module_level=Tr
     list_resource_cls(),
 )
 async def test_resource_model(  # noqa: C901
-    client: CommissionsClient,
+    client: Tenant,
     resource_cls: type[T],
 ) -> None:
     """Test resource model is complete."""
@@ -62,7 +62,7 @@ async def test_resource_model(  # noqa: C901
     list_resource_cls(),
 )
 async def test_resource_reference(  # noqa: C901
-    client: CommissionsClient,
+    client: Tenant,
     resource_cls: type[T],
 ) -> None:
     """Test resource expanded fields are reference objects to existing resource."""

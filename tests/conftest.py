@@ -12,7 +12,7 @@ from aioresponses import aioresponses
 from dotenv import load_dotenv
 from pytest_asyncio import is_async_test
 
-from sapimclient import CommissionsClient, model
+from sapimclient import Tenant, model
 
 
 def pytest_collection_modifyitems(items):
@@ -77,11 +77,11 @@ async def fixture_session() -> AsyncGenerator[ClientSession, None]:
 @pytest.fixture(name="client", scope="session")
 async def fixture_client(
     session: ClientSession,
-) -> CommissionsClient:
-    """Yield a CommissionsClient instance."""
+) -> Tenant:
+    """Yield a Tenant instance."""
     if not (tenant := os.environ.get("SAP_TENANT")):
         raise ValueError("SAP_TENANT must be set in the environment.")
-    return CommissionsClient(tenant, session, verify_ssl=False)
+    return Tenant(tenant, session, verify_ssl=False)
 
 
 @pytest.fixture(name="responses")

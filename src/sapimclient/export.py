@@ -8,7 +8,7 @@ from typing import Any
 
 import pandas as pd
 
-from sapimclient import CommissionsClient, model
+from sapimclient import Tenant, model
 from sapimclient.exceptions import SAPConnectionError
 from sapimclient.helpers import BooleanOperator, LogicalOperator, retry
 from sapimclient.model.base import Reference, Resource, Value
@@ -108,7 +108,7 @@ def _transform_all(
 
 
 async def load_resource_filtered(
-    client: CommissionsClient,
+    client: Tenant,
     resource_cls: type[Resource],
     filters: BooleanOperator | LogicalOperator | str | None = None,
 ) -> pd.DataFrame:
@@ -143,7 +143,7 @@ async def load_resource_filtered(
 
 
 async def load_resource_seqs(
-    client: CommissionsClient,
+    client: Tenant,
     resource_cls: type[Resource],
     seqs: set[str] | pd.Series,
 ) -> pd.DataFrame:
@@ -177,7 +177,7 @@ async def load_resource_seqs(
 
 
 async def load_credits(
-    client: CommissionsClient,
+    client: Tenant,
     filters: BooleanOperator | LogicalOperator | str | None = None,
     filename: Path | None = None,
 ) -> pd.DataFrame:
@@ -304,7 +304,7 @@ async def load_credits(
 
 
 async def load_measurements(
-    client: CommissionsClient,
+    client: Tenant,
     filters: BooleanOperator | LogicalOperator | str | None = None,
     filename: Path | None = None,
 ) -> pd.DataFrame:
@@ -389,7 +389,7 @@ async def load_measurements(
 
 
 async def load_incentives(
-    client: CommissionsClient,
+    client: Tenant,
     filters: BooleanOperator | LogicalOperator | str | None = None,
     filename: Path | None = None,
 ) -> pd.DataFrame:
@@ -477,7 +477,7 @@ async def load_incentives(
 
 
 async def load_commissions(
-    client: CommissionsClient,
+    client: Tenant,
     filters: BooleanOperator | LogicalOperator | str | None = None,
     filename: Path | None = None,
 ) -> pd.DataFrame:
@@ -534,7 +534,7 @@ async def load_commissions(
 
 
 async def load_deposits(
-    client: CommissionsClient,
+    client: Tenant,
     filters: BooleanOperator | LogicalOperator | str | None = None,
     filename: Path | None = None,
 ) -> pd.DataFrame:
@@ -628,7 +628,7 @@ async def load_deposits(
 
 
 async def load_payment_summary(
-    client: CommissionsClient,
+    client: Tenant,
     filters: BooleanOperator | LogicalOperator | str | None = None,
     filename: Path | None = None,
 ) -> pd.DataFrame:

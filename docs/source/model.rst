@@ -13,7 +13,7 @@ Model
     refer to the API documentation. Attribute names are converted to snake_case
     to follow standard python conventions.
 
-    All models support the `read` methods of :py:class:`CommissionsClient <sapimclient.client.CommissionsClient>`,
+    All models support the `read` methods of :py:class:`Tenant <sapimclient.client.Tenant>`,
     refer to the API documentation for a full list of supported methods.
 
 Base

@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 from typing import Final
 
-from sapimclient import CommissionsClient, model
+from sapimclient import Tenant, model
 from sapimclient.const import PipelineState, PipelineStatus
 from sapimclient.exceptions import SAPAlreadyExists, SAPConnectionError
 from sapimclient.helpers import retry
@@ -62,7 +62,7 @@ def _file_cls(file: Path) -> type[model.base.Endpoint]:
 
 
 async def deploy_from_path(
-    client: CommissionsClient,
+    client: Tenant,
     path: Path,
 ) -> dict[Path, list[model.base.Resource] | list[model.Pipeline]]:
     """Deploy."""
@@ -86,7 +86,7 @@ async def deploy_from_path(
 
 
 async def deploy_resources_from_file(
-    client: CommissionsClient,
+    client: Tenant,
     file: Path,
     resource_cls: type[model.base.Resource],
 ) -> list[model.base.Resource]:
@@ -107,7 +107,7 @@ async def deploy_resources_from_file(
 
 
 async def deploy_resource(
-    client: CommissionsClient, resource: model.base.Resource
+    client: Tenant, resource: model.base.Resource
 ) -> model.base.Resource:
     """Deploy resource."""
     resource_cls: type[model.base.Resource] = resource.__class__
@@ -132,7 +132,7 @@ async def deploy_resource(
 
 
 async def deploy_xml(
-    client: CommissionsClient,
+    client: Tenant,
     file: Path,
 ) -> model.Pipeline:
     """Deploy XML Plan data."""
