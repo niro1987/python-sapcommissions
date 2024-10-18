@@ -17,7 +17,7 @@ pytest.skip("These tests will run pipelines on your tenant", allow_module_level=
 
 @pytest.fixture(name="cleanup", scope="session")
 async def fixture_delete_pipeline(
-    client: Tenant,
+    live_tenant: Tenant,
 ) -> AsyncGenerator[list[model.Pipeline], None]:
     """Fixture to delete the created pipeline."""
 
@@ -25,22 +25,22 @@ async def fixture_delete_pipeline(
     yield pipelines
 
     for pipeline in pipelines:
-        reloaded = await client.read(pipeline)
+        reloaded = await live_tenant.read(pipeline)
         if reloaded.state == const.PipelineState.Done:
             LOGGER.info("Pipeline state done: %s", pipeline.pipeline_run_seq)
             continue
         try:
-            await client.cancel_pipeline(pipeline)
+            await live_tenant.cancel_pipeline(pipeline)
             LOGGER.info("Pipeline cancelled: %s", pipeline.pipeline_run_seq)
         except Exception:  # pylint: disable=broad-except
             LOGGER.exception("Error deleting pipeline")
 
 
 @pytest.fixture(name="calendar", scope="session")
-async def fixture_calendar(client: Tenant) -> model.Calendar:
+async def fixture_calendar(live_tenant: Tenant) -> model.Calendar:
     """Fixture to return first calendar instance."""
-    if not (calendar := await client.read_first(model.Calendar)):
-        pytest.skip("No calendar returned from client.")
+    if not (calendar := await live_tenant.read_first(model.Calendar)):
+        pytest.skip("No calendar returned from tenant.")
     assert calendar.seq is not None, "calendar.seq invalid."
 
     LOGGER.debug("Calendar %s: %s", calendar.seq, calendar.name)
@@ -49,12 +49,12 @@ async def fixture_calendar(client: Tenant) -> model.Calendar:
 
 @pytest.fixture(name="period", scope="session")
 async def fixture_period(
-    client: Tenant,
+    live_tenant: Tenant,
     calendar: model.Calendar,
 ) -> model.Period:
     """Fixture to return first calendar period instance."""
     if not (
-        period := await client.read_first(
+        period := await live_tenant.read_first(
             model.Period,
             filters=helpers.And(
                 helpers.Equals("calendar", str(calendar.seq)),
@@ -62,7 +62,7 @@ async def fixture_period(
             ),
         ),
     ):
-        pytest.skip("No period returned from client.")
+        pytest.skip("No period returned from tenant.")
     assert period.seq, "period.seq invalid."
 
     LOGGER.debug("Period %s: %s", period.seq, period.name)
@@ -92,7 +92,7 @@ async def fixture_period(
     ],
 )
 async def test_pipelinerun(
-    client: Tenant,
+    live_tenant: Tenant,
     pipeline_job: type[T],
     cleanup: list[model.Pipeline],
     period: model.Period,
@@ -103,7 +103,7 @@ async def test_pipelinerun(
         calendar_seq=str(period.calendar),
         period_seq=period.period_seq,
     )
-    result: model.Pipeline = await client.run_pipeline(job)
+    result: model.Pipeline = await live_tenant.run_pipeline(job)
     LOGGER.info(result)
     assert result.pipeline_run_seq is not None
     cleanup.append(result)
@@ -113,7 +113,7 @@ async def test_pipelinerun(
 
 
 async def test_xmlimport(
-    client: Tenant,
+    live_tenant: Tenant,
     cleanup: list[model.Pipeline],
 ) -> None:
     """Test running an XML import."""
@@ -122,7 +122,7 @@ async def test_xmlimport(
         xml_file_content="<xml></xml>",
         update_existing_objects=True,
     )
-    result: model.Pipeline = await client.run_pipeline(job)
+    result: model.Pipeline = await live_tenant.run_pipeline(job)
     LOGGER.info(result)
     assert result.pipeline_run_seq is not None
     cleanup.append(result)
@@ -141,7 +141,7 @@ async def test_xmlimport(
     ],
 )
 async def test_import(
-    client: Tenant,
+    live_tenant: Tenant,
     pipeline_job: type[model.pipeline._ImportJob],
     cleanup: list[model.Pipeline],
     calendar: model.Calendar,
@@ -153,7 +153,7 @@ async def test_import(
         batch_name=batch_name,
         module=const.StageTables.TransactionalData,
     )
-    result: model.Pipeline = await client.run_pipeline(job)
+    result: model.Pipeline = await live_tenant.run_pipeline(job)
     LOGGER.info(result)
     assert result.pipeline_run_seq is not None
     cleanup.append(result)
@@ -163,7 +163,7 @@ async def test_import(
 
 
 async def test_purge(
-    client: Tenant,
+    live_tenant: Tenant,
     cleanup: list[model.Pipeline],
 ) -> None:
     """Test running a Purge pipeline."""
@@ -172,7 +172,7 @@ async def test_purge(
         batch_name=batch_name,
         module=const.StageTables.TransactionalData,
     )
-    result: model.Pipeline = await client.run_pipeline(job)
+    result: model.Pipeline = await live_tenant.run_pipeline(job)
     LOGGER.info(result)
     assert result.pipeline_run_seq is not None
     cleanup.append(result)
@@ -182,7 +182,7 @@ async def test_purge(
 
 
 async def test_resetfromvalidate(
-    client: Tenant,
+    live_tenant: Tenant,
     cleanup: list[model.Pipeline],
     period: model.Period,
 ) -> None:
@@ -193,7 +193,7 @@ async def test_resetfromvalidate(
         period_seq=period.seq,
         batch_name=batch_name,
     )
-    result: model.Pipeline = await client.run_pipeline(job)
+    result: model.Pipeline = await live_tenant.run_pipeline(job)
     LOGGER.info(result)
     assert result.pipeline_run_seq is not None
     cleanup.append(result)
@@ -203,7 +203,7 @@ async def test_resetfromvalidate(
 
 
 async def test_resetfromvalidate_no_batch(
-    client: Tenant,
+    live_tenant: Tenant,
     cleanup: list[model.Pipeline],
     period: model.Period,
 ) -> None:
@@ -212,7 +212,7 @@ async def test_resetfromvalidate_no_batch(
         calendar_seq=str(period.calendar),
         period_seq=period.seq,
     )
-    result: model.Pipeline = await client.run_pipeline(job)
+    result: model.Pipeline = await live_tenant.run_pipeline(job)
     LOGGER.info(result)
     assert result.pipeline_run_seq is not None
     cleanup.append(result)
