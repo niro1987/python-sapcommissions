@@ -9,29 +9,29 @@ from sapimclient import const
 from .base import Endpoint
 
 STAGETABLES: dict[str, list[str]] = {
-    "TransactionalData": [
-        "TransactionAndCredit",
-        "Deposit",
+    'TransactionalData': [
+        'TransactionAndCredit',
+        'Deposit',
     ],
-    "OrganizationData": [
-        "Participant",
-        "Position",
-        "Title",
-        "PositionRelation",
+    'OrganizationData': [
+        'Participant',
+        'Position',
+        'Title',
+        'PositionRelation',
     ],
-    "ClassificationData": [
-        "Category",
-        "Category_Classifiers",
-        "Customer",
-        "Product",
-        "PostalCode",
-        "GenericClassifier",
+    'ClassificationData': [
+        'Category',
+        'Category_Classifiers',
+        'Customer',
+        'Product',
+        'PostalCode',
+        'GenericClassifier',
     ],
-    "PlanRelatedData": [
-        "FixedValue",
-        "VariableAssignment",
-        "Quota",
-        "RelationalMDLT",
+    'PlanRelatedData': [
+        'FixedValue',
+        'VariableAssignment',
+        'Quota',
+        'RelationalMDLT',
     ],
 }
 
@@ -39,16 +39,16 @@ STAGETABLES: dict[str, list[str]] = {
 class _PipelineJob(Endpoint):
     """Base class for a Pipeline Job."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/pipelines"
-    command: Literal["PipelineRun", "Import", "XMLImport"]
+    attr_endpoint: ClassVar[str] = 'api/v2/pipelines'
+    command: Literal['PipelineRun', 'Import', 'XMLImport']
     run_stats: bool = False
 
 
 class ResetFromValidate(_PipelineJob):
     """Run a ResetFromValidate pipeline."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/pipelines/resetfromvalidate"
-    command: Literal["Import"] = "Import"
+    attr_endpoint: ClassVar[str] = 'api/v2/pipelines/resetfromvalidate'
+    command: Literal['Import'] = 'Import'
     calendar_seq: str
     period_seq: str
     batch_name: str | None = None
@@ -60,7 +60,7 @@ class Purge(_PipelineJob):
     stage_type_seq: Literal[const.PipelineRunStages.Purge] = (
         const.PipelineRunStages.Purge
     )
-    command: Literal["PipelineRun"] = "PipelineRun"
+    command: Literal['PipelineRun'] = 'PipelineRun'
     batch_name: str
     module: const.StageTables
 
@@ -73,7 +73,7 @@ class Purge(_PipelineJob):
 class XMLImport(_PipelineJob):
     """Run an XML Import pipeline."""
 
-    command: Literal["XMLImport"] = "XMLImport"
+    command: Literal['XMLImport'] = 'XMLImport'
     stage_type_seq: Literal[const.XMLImportStages.XMLImport] = (
         const.XMLImportStages.XMLImport
     )
@@ -85,7 +85,7 @@ class XMLImport(_PipelineJob):
 class _PipelineRunJob(_PipelineJob):
     """Base class for a PipelineRun job."""
 
-    command: Literal["PipelineRun"] = "PipelineRun"
+    command: Literal['PipelineRun'] = 'PipelineRun'
     period_seq: str
     calendar_seq: str
     stage_type_seq: const.PipelineRunStages
@@ -94,29 +94,30 @@ class _PipelineRunJob(_PipelineJob):
     position_seqs: list[str] | None = None
     processing_unit_seq: str | None = None
 
-    @model_validator(mode="after")
-    def check_runmode(self) -> "_PipelineRunJob":
+    @model_validator(mode='after')
+    def check_runmode(self) -> '_PipelineRunJob':
         """Validate run_mode together with position_groups and position_seqs."""
         if self.run_mode in (
             const.PipelineRunMode.Full,
             const.PipelineRunMode.Incremental,
         ) and not (self.position_groups is None and self.position_seqs is None):
-            raise ValueError(
+            msg = (
                 "When run_mode is 'full' or 'incremental' "
-                "position_groups and position_seqs must be None"
+                'position_groups and position_seqs must be None'
             )
+            raise ValueError(msg)
         if self.run_mode == const.PipelineRunMode.Positions and not (
             self.position_groups or self.position_seqs
         ):
-            raise ValueError(
+            msg = (
                 "When run_mode is 'positions' "
-                "provide either position_groups or position_seqs"
+                'provide either position_groups or position_seqs, not both'
             )
+            raise ValueError(msg)
 
         if self.position_groups and self.position_seqs:
-            raise ValueError(
-                "Provide either position_groups or position_seqs, not both"
-            )
+            msg = 'Provide either position_groups or position_seqs, not both'
+            raise ValueError(msg)
 
         return self
 
@@ -243,7 +244,7 @@ class ReportsGeneration(_PipelineRunJob):
     )
     generate_ods_reports: Literal[True] = Field(
         default=True,
-        alias="generateODSReports",
+        alias='generateODSReports',
     )
     report_type_name: const.ReportType = const.ReportType.Crystal
     report_formats_list: list[const.ReportFormat]
@@ -289,7 +290,7 @@ class UpdateAnalytics(_PipelineRunJob):
 class _ImportJob(_PipelineJob):
     """Base class for an Import job."""
 
-    command: Literal["Import"] = "Import"
+    command: Literal['Import'] = 'Import'
     stage_type_seq: const.ImportStages
     calendar_seq: str
     batch_name: str
@@ -301,8 +302,8 @@ class _ImportJob(_PipelineJob):
         """Compute stageTables field based on module."""
         return STAGETABLES[self.module]
 
-    @model_validator(mode="after")
-    def validate_conditional_fields(self) -> "_ImportJob":
+    @model_validator(mode='after')
+    def validate_conditional_fields(self) -> '_ImportJob':
         """Validate conditional required fields.
 
         Validations:
@@ -313,9 +314,8 @@ class _ImportJob(_PipelineJob):
             self.module != const.StageTables.TransactionalData
             and self.run_mode == const.ImportRunMode.New
         ):
-            raise ValueError(
-                "run_mode can only be 'new' when importing TransactionalData"
-            )
+            msg = ("run_mode can only be 'new' when importing TransactionalData",)
+            raise ValueError(msg)
 
         return self
 

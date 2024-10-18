@@ -1,43 +1,42 @@
 """Configuration file for the Sphinx documentation builder."""
-# pylint: disable=all
+
 from importlib.metadata import version as _version
 
-
 # Project information
-project = "sapimclient"
-copyright = "2024, Niels Perfors"
-author = "Niels Perfors"
+project = 'sapimclient'
+copyright = '2024, Niels Perfors'
+author = 'Niels Perfors'
 release = _version(project)
 version = '.'.join(release.split('.')[:2])
 
 # General configuration
 extensions = [
-    "sphinx.ext.autodoc",
-    "sphinx.ext.autosectionlabel",
-    "sphinx.ext.autosummary",
-    "sphinx.ext.doctest",
-    "sphinx.ext.duration",
-    "sphinx.ext.intersphinx",
-    "sphinx.ext.napoleon",  # https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html
-    "sphinx.ext.todo",
-    "sphinx.ext.viewcode",
+    'sphinx.ext.autodoc',
+    'sphinx.ext.autosectionlabel',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.doctest',
+    'sphinx.ext.duration',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.napoleon',  # https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html
+    'sphinx.ext.todo',
+    'sphinx.ext.viewcode',
 ]
-templates_path = ["_templates"]
+templates_path = ['_templates']
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3/", None),
-    "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
+    'python': ('https://docs.python.org/3/', None),
+    'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
 }
-intersphinx_disabled_domains = ["std"]
+intersphinx_disabled_domains = ['std']
 
 # Extensions configuration
 autosectionlabel_prefix_document = True
-autodoc_class_signature = "separated"
+autodoc_class_signature = 'separated'
 autodoc_default_options = {
-    "exclude-members": "__init__, __new__",
-    "show-inheritance": True,
+    'exclude-members': '__init__, __new__',
+    'show-inheritance': True,
 }
-html_theme = "sphinx_rtd_theme"
-epub_show_urls = "footnote"
+html_theme = 'sphinx_rtd_theme'
+epub_show_urls = 'footnote'
 napoleon_google_docstring = True
 napoleon_numpy_docstring = True
 napoleon_include_init_with_doc = False

@@ -4,10 +4,9 @@ import asyncio
 import logging
 from collections.abc import AsyncGenerator
 from dataclasses import dataclass
-from typing import Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from aiohttp import ClientError, ClientSession
-from pydantic.fields import FieldInfo
 from pydantic_core import ValidationError
 
 from sapimclient import exceptions, model
@@ -16,7 +15,7 @@ from sapimclient.helpers import BooleanOperator, LogicalOperator, retry
 from sapimclient.model.base import Resource
 
 LOGGER: logging.Logger = logging.getLogger(__name__)
-T = TypeVar("T", bound=Resource)
+T = TypeVar('T', bound=Resource)
 
 REQUEST_TIMEOUT: int = 60
 STATUS_NOT_MODIFIED: int = 304
@@ -28,23 +27,27 @@ REQUIRED_STATUS: dict[str, tuple[int, ...]] = {
     HTTPMethod.PUT: (200,),
     HTTPMethod.DELETE: (200,),
 }
-ATTR_ERROR: str = "_ERROR_"
-ATTR_EXPAND: str = "expand"
-ATTR_FILTER: str = "$filter"
-ATTR_ORDERBY: str = "orderBy"
-ATTR_INLINECOUNT: str = "inlineCount"
-ATTR_NEXT: str = "next"
-ATTR_SKIP: str = "skip"
-ATTR_TOP: str = "top"
-ATTR_TOTAL: str = "total"
-ERROR_ALREADY_EXISTS: str = "TCMP_35004"
-ERROR_DELETE_PIPELINE: str = "TCMP_60255"
-ERROR_MISSING_FIELD: str = "TCMP_1002"
-ERROR_NOT_FOUND: str = "TCMP_09007"
-ERROR_REFERRED_BY: str = "TCMP_35001"
-ERROR_REMOVE_FAILED: str = "TCMP_35243"
+ATTR_ERROR: str = '_ERROR_'
+ATTR_EXPAND: str = 'expand'
+ATTR_FILTER: str = '$filter'
+ATTR_ORDERBY: str = 'orderBy'
+ATTR_INLINECOUNT: str = 'inlineCount'
+ATTR_NEXT: str = 'next'
+ATTR_SKIP: str = 'skip'
+ATTR_TOP: str = 'top'
+ATTR_TOTAL: str = 'total'
+ERROR_ALREADY_EXISTS: str = 'TCMP_35004'
+ERROR_DELETE_PIPELINE: str = 'TCMP_60255'
+ERROR_MISSING_FIELD: str = 'TCMP_1002'
+ERROR_NOT_FOUND: str = 'TCMP_09007'
+ERROR_REFERRED_BY: str = 'TCMP_35001'
+ERROR_REMOVE_FAILED: str = 'TCMP_35243'
 MIN_PAGE_SIZE: int = 1
 MAX_PAGE_SIZE: int = 100
+
+
+if TYPE_CHECKING:
+    from pydantic.fields import FieldInfo
 
 
 @dataclass
@@ -70,7 +73,7 @@ class Tenant:
     @property
     def host(self) -> str:
         """The fully qualified hostname."""
-        return f"https://{self.tenant}.callidusondemand.com"
+        return f'https://{self.tenant}.callidusondemand.com'
 
     async def _request(
         self,
@@ -92,41 +95,41 @@ class Tenant:
 
         Raises:
             SAPConnectionError: If the connection fails.
-            SAPNotModified: If the resource has not been modified.
+            SAPNotModifiedError: If the resource has not been modified.
             SAPResponseError: If the response status is not as expected.
-            SAPBadRequest: If the request status indicates an error.
+            SAPBadRequestError: If the request status indicates an error.
         """
-        LOGGER.debug("Request: %s, %s, %s", method, uri, params)
+        LOGGER.debug('Request: %s, %s, %s', method, uri, params)
 
         try:
             async with asyncio.timeout(self.request_timeout):
                 response = await self.session.request(
                     method=method,
-                    url=f"{self.host}/{uri}",
+                    url=f'{self.host}/{uri}',
                     params=params,
                     json=json,
                     ssl=self.verify_ssl,
                 )
         except TimeoutError as err:
-            msg = "Timeout while connecting"
-            LOGGER.error(msg)
+            msg = 'Timeout while connecting'
+            LOGGER.exception(msg)
             raise exceptions.SAPConnectionError(msg) from err
         except ClientError as err:
-            msg = "Could not connect"
-            LOGGER.error(msg)
+            msg = 'Could not connect'
+            LOGGER.exception(msg)
             raise exceptions.SAPConnectionError(msg) from err
 
-        LOGGER.debug("Response: %s", response.status)
+        LOGGER.debug('Response: %s', response.status)
 
         # Status code 304 Not Modified is successful but does not include
         # any json data for us to work with.
         if response.status == STATUS_NOT_MODIFIED:
-            raise exceptions.SAPNotModified("Resource not modified")
+            raise exceptions.SAPNotModifiedError
 
         # During maintenance hours we recieve an html response, let it burn!
         # In all other cases we expect to recieve a JSON response.
-        if (content_type := response.headers.get("Content-Type")) != "application/json":
-            msg = f"Unexpected Content-Type: {content_type}"
+        if (content_type := response.headers.get('Content-Type')) != 'application/json':
+            msg = f'Unexpected Content-Type: {content_type}'
             LOGGER.error(msg)
             raise exceptions.SAPResponseError(msg)
 
@@ -134,8 +137,8 @@ class Tenant:
 
         # Validate the required status code.
         if response.status not in REQUIRED_STATUS[method]:
-            msg = f"Unexpected response status: {response.status}"
-            raise exceptions.SAPBadRequest(msg, response_json)
+            msg = f'Unexpected response status: {response.status}'
+            raise exceptions.SAPBadRequestError(msg, response_json)
 
         return response_json
 
@@ -149,14 +152,14 @@ class Tenant:
             T: The created resource.
 
         Raises:
-            SAPAlreadyExists: If the resource already exists.
-            SAPMissingField: If one or more required fields are missing.
+            SAPAlreadyExistsError: If the resource already exists.
+            SAPMissingFieldError: If one or more required fields are missing.
             SAPResponseError: If the creation encountered an error.
         """
         cls = type(resource)
-        LOGGER.debug("Create %s(%s)", cls.__name__, resource)
+        LOGGER.debug('Create %s(%s)', cls.__name__, resource)
 
-        attr_resource: str = resource.attr_endpoint.split("/")[-1]
+        attr_resource: str = resource.attr_endpoint.split('/')[-1]
         json: dict[str, Any] = resource.model_dump(by_alias=True, exclude_none=True)
 
         try:
@@ -165,26 +168,26 @@ class Tenant:
                 uri=resource.attr_endpoint,
                 json=[json],
             )
-        except exceptions.SAPBadRequest as err:
+        except exceptions.SAPBadRequestError as err:
             if attr_resource not in err.data:
-                msg = f"Unexpected payload. {err.data}"
-                LOGGER.error(msg)
+                msg = f'Unexpected payload. {err.data}'
+                LOGGER.exception(msg)
                 raise exceptions.SAPResponseError(msg) from err
 
             error_data: list[dict[str, Any]] = err.data[attr_resource]
             for errors in error_data:
-                if error_message := errors.get(ATTR_ERROR):
-                    if ERROR_ALREADY_EXISTS in error_message:
-                        raise exceptions.SAPAlreadyExists(error_message) from err
+                error_message = errors.get(ATTR_ERROR)
+                if error_message and ERROR_ALREADY_EXISTS in error_message:
+                    raise exceptions.SAPAlreadyExistsError(error_message) from err
                 if any(ERROR_MISSING_FIELD in value for value in errors.values()):
-                    LOGGER.error(errors)
-                    raise exceptions.SAPMissingField(errors) from err
-            msg = f"Unexpected error. {error_data}"
-            LOGGER.error(msg)
+                    LOGGER.exception(errors)
+                    raise exceptions.SAPMissingFieldError(errors) from err
+            msg = f'Unexpected error. {error_data}'
+            LOGGER.exception(msg)
             raise exceptions.SAPResponseError(msg) from err
 
         if attr_resource not in response:
-            msg = f"Unexpected payload. {response}"
+            msg = f'Unexpected payload. {response}'
             LOGGER.error(msg)
             raise exceptions.SAPResponseError(msg)
 
@@ -194,7 +197,7 @@ class Tenant:
             return cls(**data)
         except ValidationError as exc:
             for error in exc.errors():
-                LOGGER.error("%s on %s", error, data)
+                LOGGER.exception('%s on %s', error, data)
             raise
 
     async def update(self, resource: T) -> T:
@@ -210,9 +213,9 @@ class Tenant:
             SAPResponseError: If the update encountered an error.
         """
         cls = type(resource)
-        LOGGER.debug("Update %s(%s)", cls.__name__, resource)
+        LOGGER.debug('Update %s(%s)', cls.__name__, resource)
 
-        attr_resource: str = resource.attr_endpoint.split("/")[-1]
+        attr_resource: str = resource.attr_endpoint.split('/')[-1]
         json: dict[str, Any] = resource.model_dump(by_alias=True, exclude_none=True)
 
         try:
@@ -221,25 +224,25 @@ class Tenant:
                 uri=resource.attr_endpoint,
                 json=[json],
             )
-        except exceptions.SAPNotModified:
+        except exceptions.SAPNotModifiedError:
             return resource
-        except exceptions.SAPBadRequest as err:
+        except exceptions.SAPBadRequestError as err:
             if attr_resource not in err.data:
-                msg = f"Unexpected payload. {err.data}"
-                LOGGER.error(msg)
+                msg = f'Unexpected payload. {err.data}'
+                LOGGER.exception(msg)
                 raise exceptions.SAPResponseError(msg) from err
 
             error_data: list[dict[str, Any]] = err.data[attr_resource]
             for errors in error_data:
                 if error_message := errors.get(ATTR_ERROR):
-                    LOGGER.error(error_message)
+                    LOGGER.exception(error_message)
                     raise exceptions.SAPResponseError(error_message) from err
-            msg = f"Unexpected error. {error_data}"
-            LOGGER.error(msg)
+            msg = f'Unexpected error. {error_data}'
+            LOGGER.exception(msg)
             raise exceptions.SAPResponseError(msg) from err
 
         if attr_resource not in response:
-            msg = f"Unexpected payload. {response}"
+            msg = f'Unexpected payload. {response}'
             LOGGER.error(msg)
             raise exceptions.SAPResponseError(msg)
 
@@ -249,7 +252,7 @@ class Tenant:
             return cls(**data)
         except ValidationError as exc:
             for error in exc.errors():
-                LOGGER.error("%s on %s", error, data)
+                LOGGER.exception('%s on %s', error, data)
             raise
 
     async def delete(self, resource: T) -> bool:
@@ -262,51 +265,53 @@ class Tenant:
             bool: True if the resource was deleted. Raises an exception othwise.
 
         Raises:
+            SAPNotFoundError: If the resource does not exist.
             SAPResponseError: If the deletion encountered an error.
         """
         cls = type(resource)
-        LOGGER.debug("Delete %s(%s)", cls.__name__, resource)
+        LOGGER.debug('Delete %s(%s)', cls.__name__, resource)
 
-        attr_resource: str = resource.attr_endpoint.split("/")[-1]
+        attr_resource: str = resource.attr_endpoint.split('/')[-1]
         if not (seq := resource.seq):
-            raise ValueError(f"Resource {cls.__name__} has no unique identifier")
-        uri: str = f"{resource.attr_endpoint}({seq})"
+            msg = f'Resource {cls.__name__} has no unique identifier'
+            raise exceptions.SAPNotFoundError('seq')
+        uri: str = f'{resource.attr_endpoint}({seq})'
 
         try:
             response: dict[str, Any] = await self._request(
                 method=HTTPMethod.DELETE,
                 uri=uri,
             )
-        except exceptions.SAPBadRequest as err:
+        except exceptions.SAPBadRequestError as err:
             if attr_resource not in err.data:
-                msg = f"Unexpected payload. {err.data}"
-                LOGGER.error(msg)
+                msg = f'Unexpected payload. {err.data}'
+                LOGGER.exception(msg)
                 raise exceptions.SAPResponseError(msg) from err
 
             error_data: dict[str, str] = err.data[attr_resource]
             if seq not in error_data:
-                msg = f"Unexpected payload. {error_data}"
-                LOGGER.error(msg)
+                msg = f'Unexpected payload. {error_data}'
+                LOGGER.exception(msg)
                 raise exceptions.SAPResponseError(msg) from err
 
             error_message: str = error_data[seq]
-            LOGGER.error(error_message)
+            LOGGER.exception(error_message)
             raise exceptions.SAPResponseError(error_message) from err
 
         if attr_resource not in response:
-            msg = f"Unexpected payload. {response}"
+            msg = f'Unexpected payload. {response}'
             LOGGER.error(msg)
             raise exceptions.SAPResponseError(msg)
 
         json: dict[str, Any] = response[attr_resource]
         if seq not in json:
-            msg = f"Unexpected payload. {json}"
+            msg = f'Unexpected payload. {json}'
             LOGGER.error(msg)
             raise exceptions.SAPResponseError(msg)
 
         return True
 
-    async def read_all(  # pylint: disable=too-many-arguments,too-many-locals  # noqa: PLR0913
+    async def read_all(  # pylint: disable=too-many-arguments,too-many-locals # noqa: C901
         self,
         resource_cls: type[T],
         *,
@@ -318,59 +323,55 @@ class Tenant:
 
         Parameters:
             resource_cls (type[T]): The type of the resource to list.
-            filters (BooleanOperator | LogicalOperator | str, optional): The filters to apply.
+            filters (BooleanOperator | LogicalOperator | str, optional): The filters to
+                apply.
             order_by (list[str], optional): The fields to order by.
             page_size (int, optional): The number of resources per page. Defaults to 10.
-
-        Returns:
-            AsyncGenerator[T, None]: An asynchronous generator yielding the matching resources.
 
         Yields:
             T: Matching resource.
         """
-        LOGGER.debug(
-            "List %s filters=%s order_by=%s page_size=%s",
-            resource_cls.__name__,
-            str(filters),
-            ",".join(order_by) if order_by else "None",
-            page_size,
-        )
-        if page_size < MIN_PAGE_SIZE or page_size > MAX_PAGE_SIZE:
-            raise ValueError(
-                f"page_size ({page_size}) must be between {MIN_PAGE_SIZE} and {MAX_PAGE_SIZE}"
-            )
+        page_size = min(max(page_size, MIN_PAGE_SIZE), MIN_PAGE_SIZE)
 
         # FIX: Issue #30
-        if resource_cls is model.SalesTransaction:
+        if resource_cls is model.SalesTransaction and page_size != 1:
             LOGGER.warning(
-                "See issue https://github.com/niro1987/sapimclient/issues/30"
+                'See issue https://github.com/niro1987/sapimclient/issues/30',
             )
             page_size = 1
 
-        attr_resource: str = resource_cls.attr_endpoint.split("/")[-1]
+        LOGGER.debug(
+            'List %s filters=%s order_by=%s page_size=%s',
+            resource_cls.__name__,
+            str(filters),
+            ','.join(order_by) if order_by else 'None',
+            page_size,
+        )
+
+        attr_resource: str = resource_cls.attr_endpoint.split('/')[-1]
         params: dict[str, str | int] = {ATTR_TOP: page_size}
         if filters:
             params[ATTR_FILTER] = str(filters)
         if order_by:
-            params[ATTR_ORDERBY] = ",".join(order_by)
+            params[ATTR_ORDERBY] = ','.join(order_by)
         expands: dict[str, FieldInfo] = resource_cls.expands()
         if expand_alias := [
             field_info.alias for field_info in expands.values() if field_info.alias
         ]:
-            params[ATTR_EXPAND] = ",".join(expand_alias)
+            params[ATTR_EXPAND] = ','.join(expand_alias)
 
-        uri: str | None = resource_cls.attr_endpoint
+        uri: str = resource_cls.attr_endpoint
         while True:
             response = await retry(
                 self._request,
-                "GET",
+                'GET',
                 uri=uri,
                 params=params,
                 exceptions=exceptions.SAPConnectionError,
             )
 
             if attr_resource not in response:
-                msg = f"Unexpected payload. {response}"
+                msg = f'Unexpected payload. {response}'
                 LOGGER.error(msg)
                 raise exceptions.SAPResponseError(msg)
 
@@ -380,14 +381,14 @@ class Tenant:
                     yield resource_cls(**item)
                 except ValidationError as exc:
                     for error in exc.errors():
-                        LOGGER.error("%s on %s", error, item)
+                        LOGGER.exception('%s on %s', error, item)
                     raise
 
             if not (next_uri := response.get(ATTR_NEXT)):
                 break
 
             params = {}
-            uri = "api" + next_uri
+            uri = 'api' + next_uri
 
     async def read_first(
         self,
@@ -402,16 +403,17 @@ class Tenant:
 
         Parameters:
             resource_cls (type[T]): The type of the resource to read.
-            filters (BooleanOperator | LogicalOperator | str, optional): The filters to apply.
+            filters (BooleanOperator | LogicalOperator | str, optional): The filters to
+                apply.
             order_by (list[str], optional): The fields to order by.
 
         Returns:
             T: The first matching resource.
 
         Raises:
-            SAPNotFound: If no matching resource is found.
+            SAPNotFoundError: If no matching resource is found.
         """
-        LOGGER.debug("Read %s %s", resource_cls.__name__, f"filters={filters}")
+        LOGGER.debug('Read %s %s', resource_cls.__name__, f'filters={filters}')
         list_resources = self.read_all(
             resource_cls,
             filters=filters,
@@ -421,7 +423,7 @@ class Tenant:
         try:
             return await anext(list_resources)  # type: ignore[arg-type]
         except StopAsyncIteration as err:
-            raise exceptions.SAPNotFound("No matching resource.") from err
+            raise exceptions.SAPNotFoundError(resource_cls.__name__) from err
 
     async def read_seq(self, resource_cls: type[T], seq: str) -> T:
         """Read the specified resource.
@@ -434,17 +436,17 @@ class Tenant:
             T: The specified resource. Raises an exception if the resource is not found.
 
         Raises:
-            SAPBadRequest: If the resource was not found.
+            SAPBadRequestError: If the resource was not found.
         """
-        LOGGER.debug("Read Seq %s(%s)", resource_cls.__name__, seq)
+        LOGGER.debug('Read Seq %s(%s)', resource_cls.__name__, seq)
 
-        uri: str = f"{resource_cls.attr_endpoint}({seq})"
+        uri: str = f'{resource_cls.attr_endpoint}({seq})'
         params: dict[str, str] = {}
         expands: dict[str, FieldInfo] = resource_cls.expands()
         if expand_alias := [
             field_info.alias for field_info in expands.values() if field_info.alias
         ]:
-            params[ATTR_EXPAND] = ",".join(expand_alias)
+            params[ATTR_EXPAND] = ','.join(expand_alias)
 
         response: dict[str, Any] = await self._request(
             method=HTTPMethod.GET,
@@ -455,7 +457,7 @@ class Tenant:
             return resource_cls(**response)
         except ValidationError as exc:
             for error in exc.errors():
-                LOGGER.error("%s on %s", error, response)
+                LOGGER.exception('%s on %s', error, response)
             raise
 
     async def read(self, resource: T) -> T:
@@ -480,9 +482,10 @@ class Tenant:
                     pipeline = client.read(pipeline)
         """
         cls = type(resource)
-        LOGGER.debug("Read %s(%s)", cls.__name__, resource.seq)
+        LOGGER.debug('Read %s(%s)', cls.__name__, resource.seq)
         if not (seq := resource.seq):
-            raise ValueError(f"Resource {cls.__name__} has no unique identifier")
+            msg = f'Resource {cls.__name__} has no unique identifier'
+            raise ValueError(msg)
         return await self.read_seq(cls, seq)
 
     async def run_pipeline(self, job: model.pipeline._PipelineJob) -> model.Pipeline:
@@ -497,7 +500,7 @@ class Tenant:
         Raises:
             SAPResponseError: If the pipeline failed to run.
         """
-        LOGGER.debug("Run pipeline %s", type(job).__name__)
+        LOGGER.debug('Run pipeline %s', type(job).__name__)
         json: dict[str, Any] = job.model_dump(by_alias=True, exclude_none=True)
 
         try:
@@ -506,34 +509,34 @@ class Tenant:
                 uri=job.attr_endpoint,
                 json=[json],
             )
-        except exceptions.SAPBadRequest as err:
-            if "pipelines" not in err.data:
-                msg = f"Unexpected payload. {err.data}"
-                LOGGER.error(msg)
+        except exceptions.SAPBadRequestError as err:
+            if 'pipelines' not in err.data:
+                msg = f'Unexpected payload. {err.data}'
+                LOGGER.exception(msg)
                 raise exceptions.SAPResponseError(msg) from err
 
-            error_data: dict[str, str] = err.data["pipelines"]
-            if "0" not in error_data:
-                msg = f"Unexpected payload. {error_data}"
-                LOGGER.error(msg)
+            error_data: dict[str, str] = err.data['pipelines']
+            if '0' not in error_data:
+                msg = f'Unexpected payload. {error_data}'
+                LOGGER.exception(msg)
                 raise exceptions.SAPResponseError(msg) from err
 
-            msg = error_data["0"]
-            LOGGER.error(msg)
+            msg = error_data['0']
+            LOGGER.exception(msg)
             raise exceptions.SAPResponseError(msg) from err
 
-        if "pipelines" not in response:
-            msg = f"Unexpected payload. {response}"
+        if 'pipelines' not in response:
+            msg = f'Unexpected payload. {response}'
             LOGGER.error(msg)
             raise exceptions.SAPResponseError(msg)
 
-        json_data: dict[str, list[str]] = response["pipelines"]
-        if "0" not in json_data:
-            msg = f"Unexpected payload. {json_data}"
+        json_data: dict[str, list[str]] = response['pipelines']
+        if '0' not in json_data:
+            msg = f'Unexpected payload. {json_data}'
             LOGGER.error(msg)
             raise exceptions.SAPResponseError(msg)
 
-        seq: str = json_data["0"][0]
+        seq: str = json_data['0'][0]
         return await self.read_seq(model.Pipeline, seq)
 
     async def cancel_pipeline(self, job: model.Pipeline) -> bool:
@@ -543,23 +546,24 @@ class Tenant:
             job (model.Pipeline): The running pipeline job to cancel.
 
         Returns:
-            bool: True if the pipeline was successfully canceled. Raises an exception othwise.
+            bool: True if the pipeline was successfully canceled. Raises an exception
+                othwise.
 
         Raises:
             SAPResponseError: If the deletion encountered an error.
         """
-        LOGGER.debug("Cancel %s(%s)", job.command, job.pipeline_run_seq)
+        LOGGER.debug('Cancel %s(%s)', job.command, job.pipeline_run_seq)
 
-        uri: str = f"{job.attr_endpoint}({job.pipeline_run_seq})"
+        uri: str = f'{job.attr_endpoint}({job.pipeline_run_seq})'
         try:
             response: dict[str, Any] = await self._request(
                 method=HTTPMethod.DELETE,
                 uri=uri,
             )
-        except exceptions.SAPBadRequest as err:
+        except exceptions.SAPBadRequestError as err:
             if job.pipeline_run_seq not in err.data:
-                msg = f"Unexpected payload. {err.data}"
-                LOGGER.error(msg)
+                msg = f'Unexpected payload. {err.data}'
+                LOGGER.exception(msg)
                 raise exceptions.SAPResponseError(msg) from err
 
             error_message: str = err.data[job.pipeline_run_seq]
@@ -569,12 +573,12 @@ class Tenant:
                 # [GSVRH] Setting Job runStatus to Cancel, but the Controller returned
                 # the following error: ++-error::[Controller] unknown command: delJob
                 return True
-            msg = f"Unexpected payload. {error_message}"
-            LOGGER.error(msg)
+            msg = f'Unexpected payload. {error_message}'
+            LOGGER.exception(msg)
             raise exceptions.SAPResponseError(msg) from err
 
         if job.pipeline_run_seq not in response:
-            msg = f"Unexpected payload. {response}"
+            msg = f'Unexpected payload. {response}'
             LOGGER.error(msg)
             raise exceptions.SAPResponseError(msg)
 

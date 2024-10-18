@@ -1,19 +1,20 @@
 """CLI entry point for Python SAP Incentive Management Client."""
-# pylint: disable=too-many-arguments, no-value-for-parameter
 
 import asyncio
 import logging
 import sys
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncGenerator, Callable
 from contextlib import asynccontextmanager
 from logging.config import dictConfig
 from pathlib import Path
+from typing import Any
 
 import click
 from aiohttp import BasicAuth, ClientSession
 
 from sapimclient import Tenant, export as sap_export, helpers, model
 from sapimclient.deploy import deploy_from_path
+from sapimclient.exceptions import SAPNotFoundError
 
 LOGGER: logging.Logger = logging.getLogger(__name__)
 
@@ -21,66 +22,74 @@ LOGGER: logging.Logger = logging.getLogger(__name__)
 class DynamicChoice(click.ParamType):
     """Class to enable dynamic choise."""
 
-    def __init__(self, name: str, choices_getter):
+    def __init__(self, name: str, choices_getter: Callable) -> None:
         """Initialize DynamicChoise."""
         self.name = name
         self.choices_getter = choices_getter
 
-    def convert(self, value, param, ctx):
+    def convert(
+        self,
+        value: Any,
+        param: click.Parameter | None = None,
+        ctx: click.Context | None = None,
+    ) -> Any:
         """Validate and Convert Value."""
         choices = self.choices_getter(ctx)
         if value not in choices:
             self.fail(
-                f"{value} is not a valid choice. Choose from: {choices}.", param, ctx
+                f'{value} is not a valid choice. Choose from: {choices}.',
+                param,
+                ctx,
             )
         return value
 
 
 def setup_logging(
+    *,
     filename: Path | None = None,
     verbose: bool = False,
     debug: bool = False,
 ) -> None:
     """Set up logging."""
     config = {
-        "version": 1,
-        "formatters": {
-            "standard": {
-                "format": "%(asctime)s | %(name)-25s | %(levelname)-8s | %(message)s",
-                "datefmt": "%Y-%m-%d %H:%M:%S",
+        'version': 1,
+        'formatters': {
+            'standard': {
+                'format': '%(asctime)s | %(name)-25s | %(levelname)-8s | %(message)s',
+                'datefmt': '%Y-%m-%d %H:%M:%S',
             },
         },
     }
     handlers = {}
     if verbose:
-        handlers["console"] = {
-            "class": "logging.StreamHandler",
-            "formatter": "standard",
+        handlers['console'] = {
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard',
         }
     if filename:
-        handlers["file"] = {
-            "class": "logging.FileHandler",
-            "formatter": "standard",
-            "filename": str(str(filename)),
+        handlers['file'] = {
+            'class': 'logging.FileHandler',
+            'formatter': 'standard',
+            'filename': str(str(filename)),
         }
     loggers = {
         __package__: {
-            "handlers": list(handlers.keys()),
-            "level": "DEBUG" if debug else "INFO",
+            'handlers': list(handlers.keys()),
+            'level': 'DEBUG' if debug else 'INFO',
         },
     }
-    config["handlers"] = handlers
-    config["loggers"] = loggers
+    config['handlers'] = handlers
+    config['loggers'] = loggers
     dictConfig(config)
 
 
 @asynccontextmanager
 async def session_client(ctx: click.Context) -> AsyncGenerator[Tenant, None]:
     """Yield a Session enabled Tenant."""
-    tenant: str = ctx.obj["TENANT"]
-    username: str = ctx.obj["USERNAME"]
-    password: str = ctx.obj["PASSWORD"]
-    ssl: bool = ctx.obj["SSL"]
+    tenant: str = ctx.obj['TENANT']
+    username: str = ctx.obj['USERNAME']
+    password: str = ctx.obj['PASSWORD']
+    ssl: bool = ctx.obj['SSL']
     auth = BasicAuth(username, password)
     async with ClientSession(auth=auth) as session:
         client: Tenant = Tenant(
@@ -90,7 +99,7 @@ async def session_client(ctx: click.Context) -> AsyncGenerator[Tenant, None]:
             request_timeout=60,
         )
         yield client
-        LOGGER.debug("Closed session.")
+        LOGGER.debug('Closed session.')
 
 
 async def async_deploy(path: Path, ctx: click.Context) -> None:
@@ -101,18 +110,15 @@ async def async_deploy(path: Path, ctx: click.Context) -> None:
 
 async def async_list_calendars(ctx: click.Context) -> list[str]:
     """Async list all calendars."""
-
     calendar_names: list[str] = []
     async with session_client(ctx) as client:
         generator = client.read_all(model.Calendar)
-        async for item in generator:
-            calendar_names.append(item.name)
+        calendar_names.extend([item.name async for item in generator])
     return calendar_names
 
 
 def list_calendars(ctx: click.Context) -> list[str]:
     """List all calendars."""
-
     return asyncio.run(async_list_calendars(ctx))
 
 
@@ -126,23 +132,23 @@ async def async_list_periods(
 
     async with session_client(ctx) as client:
         calendar_obj: model.Calendar | None = await client.read_first(
-            model.Calendar, filters=helpers.Equals("name", calendar_name)
+            model.Calendar,
+            filters=helpers.Equals('name', calendar_name),
         )
         if not calendar_obj:
-            raise ValueError("Calendar not found")
+            raise SAPNotFoundError('Calendar')
         filters = [
-            helpers.Equals("calendar", str(calendar_obj.seq)),
-            helpers.Equals("periodType", str(calendar_obj.minor_period_type)),
+            helpers.Equals('calendar', str(calendar_obj.seq)),
+            helpers.Equals('periodType', str(calendar_obj.minor_period_type)),
         ]
         if period_name is not None:
-            filters.append(helpers.Equals("name", period_name))
+            filters.append(helpers.Equals('name', period_name))
         generator = client.read_all(
             model.Period,
             filters=helpers.And(*filters),
-            order_by=["startDate desc"],
+            order_by=['startDate desc'],
         )
-        async for item in generator:
-            period_names.append(item.name)
+        period_names.extend([item.name async for item in generator])
     return period_names
 
 
@@ -152,23 +158,22 @@ def list_periods(
     period_name: str | None = None,
 ) -> list[str]:
     """List all calendars."""
-
     return asyncio.run(async_list_periods(ctx, calendar_name, period_name))
 
 
-def validate_period(ctx: click.Context, _, value):
+def validate_period(ctx: click.Context, _: click.Parameter | None, value: Any) -> Any:
     """Validate the Period input."""
     if value is None:
-        return
-    if not (calendar_name := ctx.params.get("calendar", None)):
-        raise click.BadParameter("Must provide Calendar before Period.")
+        return None
+    if not (calendar_name := ctx.params.get('calendar', None)):
+        raise click.BadParameter(message='Must provide Calendar before Period.')
     period_names = list_periods(
         ctx=ctx,
         calendar_name=calendar_name,
         period_name=value,
     )
     if value not in period_names:
-        raise click.BadParameter(f"Period does not exist in '{calendar_name}'.")
+        raise click.BadParameter(message=f"Period does not exist in '{calendar_name}'.")
     return value
 
 
@@ -179,54 +184,53 @@ async def async_load_resource(
     filters: str | None = None,
 ) -> None:
     """Load Credits report to file."""
-
     async with session_client(ctx) as client:
-        if resource == "CREDITS":
+        if resource == 'CREDITS':
             await sap_export.load_credits(client, filters, path)
-        elif resource == "MEASUREMENTS":
+        elif resource == 'MEASUREMENTS':
             await sap_export.load_measurements(client, filters, path)
-        elif resource == "INCENTIVES":
+        elif resource == 'INCENTIVES':
             await sap_export.load_incentives(client, filters, path)
-        elif resource == "COMMISSIONS":
+        elif resource == 'COMMISSIONS':
             await sap_export.load_commissions(client, filters, path)
-        elif resource == "DEPOSITS":
+        elif resource == 'DEPOSITS':
             await sap_export.load_deposits(client, filters, path)
-        elif resource == "PAYMENTS":
+        elif resource == 'PAYMENTS':
             await sap_export.load_payment_summary(client, filters, path)
 
 
 @click.group()
 @click.pass_context
 @click.option(
-    "-t",
-    "--tenant",
+    '-t',
+    '--tenant',
     prompt=True,
     help="Tenant to connect to, for example 'CALD-DEV'.",
-    envvar="SAP_TENANT",
+    envvar='SAP_TENANT',
 )
 @click.option(
-    "-u",
-    "--username",
+    '-u',
+    '--username',
     prompt=True,
-    help="Username for authentication.",
-    envvar="SAP_USERNAME",
+    help='Username for authentication.',
+    envvar='SAP_USERNAME',
 )
 @click.option(
-    "-p",
-    "--password",
+    '-p',
+    '--password',
     prompt=True,
     hide_input=True,
-    help="Password for authentication.",
-    envvar="SAP_PASSWORD",
+    help='Password for authentication.',
+    envvar='SAP_PASSWORD',
 )
 @click.option(
-    "--no-ssl",
+    '--no-ssl',
     is_flag=True,
-    help="Disable SSL validation.",
+    help='Disable SSL validation.',
 )
 @click.option(
-    "-l",
-    "--logfile",
+    '-l',
+    '--logfile',
     type=click.Path(
         exists=False,
         file_okay=True,
@@ -235,20 +239,21 @@ async def async_load_resource(
         resolve_path=False,
         path_type=Path,
     ),
-    help="Enable logging to a file.",
+    help='Enable logging to a file.',
 )
 @click.option(
-    "-v",
+    '-v',
     is_flag=True,
-    help="Verbose logging.",
+    help='Verbose logging.',
 )
 @click.option(
-    "-debug",
+    '-debug',
     is_flag=True,
-    help="Enable DEBUG logging.",
+    help='Enable DEBUG logging.',
 )
-def cli(  # noqa: PLR0913
+def cli(  # pylint: disable=too-many-arguments
     ctx: click.Context,
+    *,
     tenant: str,
     username: str,
     password: str,
@@ -266,21 +271,20 @@ def cli(  # noqa: PLR0913
     to passing `--tenant CALD-DEV`
 
     """  # noqa: D301
-
     ctx.ensure_object(dict)
-    ctx.obj["TENANT"] = tenant
-    ctx.obj["USERNAME"] = username
-    ctx.obj["PASSWORD"] = password
-    ctx.obj["SSL"] = not no_ssl
+    ctx.obj['TENANT'] = tenant
+    ctx.obj['USERNAME'] = username
+    ctx.obj['PASSWORD'] = password
+    ctx.obj['SSL'] = not no_ssl
 
-    setup_logging(logfile, v, debug)
+    setup_logging(filename=logfile, verbose=v, debug=debug)
     LOGGER.info("Tenant: '%s', Username: '%s', Ssl: '%s'", tenant, username, not no_ssl)
 
 
 @cli.command()
 @click.pass_context
 @click.argument(
-    "path",
+    'path',
     type=click.Path(
         exists=True,
         file_okay=False,
@@ -292,6 +296,7 @@ def cli(  # noqa: PLR0913
 )
 def deploy(
     ctx: click.Context,
+    *,
     path: Path,
 ) -> None:
     """Deploy rule elements from a directory to the tenant.
@@ -325,10 +330,10 @@ def calendars(
     ctx: click.Context,
 ) -> None:
     """List all calendars."""
-    LOGGER.info("List Calendars")
+    LOGGER.info('List Calendars')
 
     calendar_names = asyncio.run(async_list_calendars(ctx))
-    LOGGER.info("%s", calendar_names)
+    LOGGER.info('%s', calendar_names)
 
     for item in calendar_names:
         click.echo(item)
@@ -337,23 +342,24 @@ def calendars(
 @cli.command()
 @click.pass_context
 @click.option(
-    "--calendar",
+    '--calendar',
     prompt=True,
     type=DynamicChoice(
-        "Calendar",
+        'Calendar',
         list_calendars,
     ),
     help="Name of the Calendar. Invoke command 'calendars' for a list of choices.",
-    envvar="SAP_CALENDAR",
+    envvar='SAP_CALENDAR',
 )
 @click.option(
-    "--period",
+    '--period',
     prompt=False,
     type=click.STRING,
     help="Name of the Period to search. Allows wildcard like '*2024*'.",
 )
 def periods(
     ctx: click.Context,
+    *,
     calendar: str,
     period: str | None = None,
 ) -> None:
@@ -361,7 +367,7 @@ def periods(
     LOGGER.info("List Periods for '%s'", calendar)
 
     period_names = asyncio.run(async_list_periods(ctx, calendar, period))
-    LOGGER.info("%s", period_names)
+    LOGGER.info('%s', period_names)
 
     for item in period_names:
         click.echo(item)
@@ -370,21 +376,21 @@ def periods(
 @cli.command()
 @click.pass_context
 @click.argument(
-    "resource",
+    'resource',
     type=click.Choice(
         [
-            "CREDITS",
-            "MEASUREMENTS",
-            "INCENTIVES",
-            "COMMISSIONS",
-            "DEPOSITS",
-            "PAYMENTS",
+            'CREDITS',
+            'MEASUREMENTS',
+            'INCENTIVES',
+            'COMMISSIONS',
+            'DEPOSITS',
+            'PAYMENTS',
         ],
         case_sensitive=False,
     ),
 )
 @click.argument(
-    "path",
+    'path',
     type=click.Path(
         file_okay=True,
         dir_okay=False,
@@ -394,26 +400,27 @@ def periods(
     ),
 )
 @click.option(
-    "--calendar",
-    type=DynamicChoice("Calendar", list_calendars),
-    help="Apply Credits filter on Calendar.",
-    envvar="SAP_CALENDAR",
+    '--calendar',
+    type=DynamicChoice('Calendar', list_calendars),
+    help='Apply Credits filter on Calendar.',
+    envvar='SAP_CALENDAR',
 )
 @click.option(
-    "--period",
+    '--period',
     type=click.STRING,
-    help="Apply Credits filter on Period, use with --calendar.",
+    help='Apply Credits filter on Period, use with --calendar.',
     callback=validate_period,
-    envvar="SAP_PERIOD",
+    envvar='SAP_PERIOD',
 )
 @click.option(
-    "--filters",
+    '--filters',
     multiple=True,
     type=click.STRING,
-    help="Optional. Apply a filter, can be provided more then once.",
+    help='Optional. Apply a filter, can be provided more then once.',
 )
-def export(  # noqa: PLR0913
+def export(  # pylint: disable=too-many-arguments
     ctx: click.Context,
+    *,
     resource: str,
     path: Path,
     calendar: str | None = None,
@@ -430,14 +437,15 @@ def export(  # noqa: PLR0913
     )
     all_filters: list[str] = []
     if calendar and period:
-        all_filters.append(str(helpers.Equals("period/calendar/name", calendar)))
-        all_filters.append(str(helpers.Equals("period/name", period)))
+        all_filters.append(str(helpers.Equals('period/calendar/name', calendar)))
+        all_filters.append(str(helpers.Equals('period/name', period)))
     if filters:
         all_filters.extend(filters)
-    final_filters: str | None = " and ".join(all_filters) if all_filters else None
+    final_filters: str | None = ' and '.join(all_filters) if all_filters else None
     asyncio.run(async_load_resource(ctx, resource, path, final_filters))
     click.echo(path)
 
 
-if __name__ == "__main__":
-    sys.exit(cli(obj={}, auto_envvar_prefix="SAP"))
+if __name__ == '__main__':
+    # pylint: disable=missing-kwoa, no-value-for-parameter
+    sys.exit(cli(obj={}, auto_envvar_prefix='SAP'))

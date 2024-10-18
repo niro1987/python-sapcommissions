@@ -2,6 +2,4 @@
 
 from .client import Tenant
 
-__all__ = [
-    "Tenant",
-]
+__all__ = ['Tenant']

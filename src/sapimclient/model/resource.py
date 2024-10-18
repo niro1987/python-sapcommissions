@@ -28,8 +28,8 @@ class AppliedDeposit(Resource):
         Supports only ``read`` operations.
     """
 
-    attr_endpoint: ClassVar[str] = "api/v2/appliedDeposits"
-    attr_seq: ClassVar[str] = "applied_deposit_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/appliedDeposits'
+    attr_seq: ClassVar[str] = 'applied_deposit_seq'
     applied_deposit_seq: str | None = None
     position: str | Reference
     payee: str | Reference
@@ -52,8 +52,8 @@ class AuditLog(Resource):
         Supports only ``read`` operations.
     """
 
-    attr_endpoint: ClassVar[str] = "api/v2/auditLogs"
-    attr_seq: ClassVar[str] = "audit_log_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/auditLogs'
+    attr_seq: ClassVar[str] = 'audit_log_seq'
     audit_log_seq: str | None = None
     event_date: datetime
     event_type: str
@@ -73,8 +73,8 @@ class Balance(Resource):
         Supports only ``read`` operations.
     """
 
-    attr_endpoint: ClassVar[str] = "api/v2/balances"
-    attr_seq: ClassVar[str] = "balance_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/balances'
+    attr_seq: ClassVar[str] = 'balance_seq'
     balance_seq: str | None = None
     position: str | Reference
     payee: str | Reference
@@ -95,8 +95,8 @@ class Balance(Resource):
 class BusinessUnit(Resource):
     """Business Unit."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/businessUnits"
-    attr_seq: ClassVar[str] = "business_unit_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/businessUnits'
+    attr_seq: ClassVar[str] = 'business_unit_seq'
     business_unit_seq: str | None = None
     name: str
     description: str | None = None
@@ -107,8 +107,8 @@ class BusinessUnit(Resource):
 class Calendar(Resource):
     """Calendar."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/calendars"
-    attr_seq: ClassVar[str] = "calendar_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/calendars'
+    attr_seq: ClassVar[str] = 'calendar_seq'
     calendar_seq: str | None = None
     name: str
     description: str | None = None
@@ -122,8 +122,8 @@ class Calendar(Resource):
 class CategoryClassifier(Resource):
     """categoryClassifier."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/categoryClassifiers"
-    attr_seq: ClassVar[str] = "category_classifiers_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/categoryClassifiers'
+    attr_seq: ClassVar[str] = 'category_classifiers_seq'
     category_classifiers_seq: str | None = None
     category_tree: str | Reference
     category: str | Reference
@@ -138,8 +138,8 @@ class CategoryClassifier(Resource):
 class CategoryTree(Resource):
     """CategoryTree."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/categoryTrees"
-    attr_seq: ClassVar[str] = "category_tree_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/categoryTrees'
+    attr_seq: ClassVar[str] = 'category_tree_seq'
     category_tree_seq: str | None = None
     name: str
     description: str | None = None
@@ -159,8 +159,8 @@ class Commission(Resource):
     TODO: No results.
     """
 
-    attr_endpoint: ClassVar[str] = "api/v2/commissions"
-    attr_seq: ClassVar[str] = "commission_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/commissions'
+    attr_seq: ClassVar[str] = 'commission_seq'
     commission_seq: str | None = None
     position: str | Reference
     payee: str | Reference
@@ -181,8 +181,8 @@ class Commission(Resource):
 class Credit(Resource, Generic16Mixin):
     """Credit."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/credits"
-    attr_seq: ClassVar[str] = "credit_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/credits'
+    attr_seq: ClassVar[str] = 'credit_seq'
     credit_seq: str | None = None
     name: str
     position: str | Reference
@@ -212,8 +212,8 @@ class Credit(Resource, Generic16Mixin):
 class Deposit(Resource, Generic16Mixin):
     """Deposit."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/deposits"
-    attr_seq: ClassVar[str] = "deposit_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/deposits'
+    attr_seq: ClassVar[str] = 'deposit_seq'
     deposit_seq: str | None = None
     name: str
     earning_group_id: str
@@ -241,8 +241,8 @@ class Deposit(Resource, Generic16Mixin):
 class EarningGroupCode(Resource):
     """EarningGroupCode."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/earningGroupCodes"
-    attr_seq: ClassVar[str] = "earning_group_code_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/earningGroupCodes'
+    attr_seq: ClassVar[str] = 'earning_group_code_seq'
     earning_group_code_seq: str | None = None
     earning_group_code: str
     earning_code_id: str
@@ -255,8 +255,8 @@ class EarningGroupCode(Resource):
 class GenericClassifier(Resource, Generic16Mixin):
     """Generic Classifier."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/genericClassifiers"
-    attr_seq: ClassVar[str] = "generic_classifier_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/genericClassifiers'
+    attr_seq: ClassVar[str] = 'generic_classifier_seq'
     generic_classifier_seq: str | None = None
     name: str | None = None
     description: str | None = None
@@ -274,8 +274,8 @@ class GenericClassifier(Resource, Generic16Mixin):
 class GenericClassifierType(Resource):
     """Generic Classifier Type."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/genericClassifierTypes"
-    attr_seq: ClassVar[str] = "generic_classifier_type_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/genericClassifierTypes'
+    attr_seq: ClassVar[str] = 'generic_classifier_type_seq'
     generic_classifier_type_seq: int | None = None
     name: str
 
@@ -283,8 +283,8 @@ class GenericClassifierType(Resource):
 class GlobalFieldName(Resource):
     """Global Field Name."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/globalFieldNames"
-    attr_seq: ClassVar[str] = "global_field_name_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/globalFieldNames'
+    attr_seq: ClassVar[str] = 'global_field_name_seq'
     global_field_name_seq: str | None = None
     name: str
     description: str | None = None
@@ -304,8 +304,8 @@ class GlobalFieldName(Resource):
 class Incentive(Resource, Generic16Mixin):
     """Incentive."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/incentives"
-    attr_seq: ClassVar[str] = "incentive_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/incentives'
+    attr_seq: ClassVar[str] = 'incentive_seq'
     incentive_seq: str | None = None
     name: str | None = None
     quota: Value | None = None
@@ -327,8 +327,8 @@ class Incentive(Resource, Generic16Mixin):
 class Measurement(Resource, Generic16Mixin):
     """Measurement."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/measurements"
-    attr_seq: ClassVar[str] = "measurement_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/measurements'
+    attr_seq: ClassVar[str] = 'measurement_seq'
     measurement_seq: str | None = None
     name: str
     position: str | Reference
@@ -347,20 +347,20 @@ class Measurement(Resource, Generic16Mixin):
 class PrimaryMeasurement(Measurement):
     """Primary Measurement."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/primaryMeasurements"
+    attr_endpoint: ClassVar[str] = 'api/v2/primaryMeasurements'
 
 
 class SecondaryMeasurement(Measurement):
     """Secondary Measurement."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/secondaryMeasurements"
+    attr_endpoint: ClassVar[str] = 'api/v2/secondaryMeasurements'
 
 
 class Message(Resource):
     """Message."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/messages"
-    attr_seq: ClassVar[str] = "message_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/messages'
+    attr_seq: ClassVar[str] = 'message_seq'
     message_seq: str | None = None
     message_key: str
     message_time_stamp: datetime
@@ -382,8 +382,8 @@ class Message(Resource):
 class MessageLog(Resource):
     """Message Log."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/messageLogs"
-    attr_seq: ClassVar[str] = "message_log_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/messageLogs'
+    attr_seq: ClassVar[str] = 'message_log_seq'
     message_log_seq: str | None = None
     source_seq: str | None = None
     component_name: str
@@ -394,8 +394,8 @@ class MessageLog(Resource):
 class Participant(Resource, Generic16Mixin):
     """Participant."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/participants"
-    attr_seq: ClassVar[str] = "payee_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/participants'
+    attr_seq: ClassVar[str] = 'payee_seq'
     payee_seq: str | None = None
     payee_id: str
     first_name: str | None = None
@@ -436,14 +436,14 @@ class Participant(Resource, Generic16Mixin):
 #     post_pipeline_run_date: datetime | None = None
 #     reason: str | None = None
 #     value: Value
-#     processingUnit: str | None = None
+#     processing_unit: str | None = None
 
 
 class PaymentMapping(Resource):
     """Payment Mapping."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/paymentMappings"
-    attr_seq: ClassVar[str] = "payment_mapping_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/paymentMappings'
+    attr_seq: ClassVar[str] = 'payment_mapping_seq'
     payment_mapping_seq: str | None = None
     source_table_name: str
     source_attribute: str
@@ -453,8 +453,8 @@ class PaymentMapping(Resource):
 class PaymentSummary(Resource):
     """Payment Summary."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/paymentSummarys"
-    attr_seq: ClassVar[str] = "payment_summary_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/paymentSummarys'
+    attr_seq: ClassVar[str] = 'payment_summary_seq'
     payment_summary_seq: str | None = None
     position: str | Reference
     participant: str | Reference
@@ -468,14 +468,14 @@ class PaymentSummary(Resource):
     outstanding_balance: Value | None = None
     payment: Value | None = None
     business_units: list[str] | None = None
-    processingUnit: str | None = None
+    processing_unit: str | None = None
 
 
 class Period(Resource):
     """Period."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/periods"
-    attr_seq: ClassVar[str] = "period_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/periods'
+    attr_seq: ClassVar[str] = 'period_seq'
     period_seq: str | None = None
     name: str
     short_name: str
@@ -493,8 +493,8 @@ class Period(Resource):
 class PeriodType(Resource):
     """Period Type."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/periodTypes"
-    attr_seq: ClassVar[str] = "period_type_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/periodTypes'
+    attr_seq: ClassVar[str] = 'period_type_seq'
     period_type_seq: str | None = None
     name: str
     description: str | None = None
@@ -507,17 +507,17 @@ class PeriodType(Resource):
 class Pipeline(Resource):
     """Pipeline."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/pipelines"
-    attr_seq: ClassVar[str] = "pipeline_run_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/pipelines'
+    attr_seq: ClassVar[str] = 'pipeline_run_seq'
     pipeline_run_seq: str | None = None
     command: (
         Literal[
-            "PipelineRun",
-            "Import",
-            "XMLImport",
-            "ModelRun",
-            "MaintenanceRun",
-            "CleanupDeferredPipelineResults",
+            'PipelineRun',
+            'Import',
+            'XMLImport',
+            'ModelRun',
+            'MaintenanceRun',
+            'CleanupDeferredPipelineResults',
         ]
         | None
     )
@@ -545,7 +545,8 @@ class Pipeline(Resource):
     num_errors: int | None = Field(repr=False)
     num_warnings: int | None = Field(repr=False)
     run_mode: const.ImportRunMode | const.PipelineRunMode | None = Field(
-        None, repr=False
+        None,
+        repr=False,
     )
     product_version: str | None = None
     stored_proc_version: str | None = None
@@ -564,18 +565,18 @@ class Pipeline(Resource):
     model_seq: str | None = None
     model_run: str | None = None
 
-    @field_validator("run_progress", mode="before")
+    @field_validator('run_progress', mode='before')
     @classmethod
     def percent_as_float(cls, value: str) -> float | None:
         """Convert percentage string to float."""
-        return int(value.removesuffix("%")) / 100 if value else None
+        return int(value.removesuffix('%')) / 100 if value else None
 
 
 class PositionGroup(Resource):
     """Position."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/positionGroups"
-    attr_seq: ClassVar[str] = "position_group_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/positionGroups'
+    attr_seq: ClassVar[str] = 'position_group_seq'
     position_group_seq: str | None = None
     name: str
     business_units: list[str] | None = None
@@ -587,8 +588,8 @@ class PositionGroup(Resource):
 class PositionRelation(Resource):
     """Position Relation."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/positionRelations"
-    attr_seq: ClassVar[str] = "position_relation_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/positionRelations'
+    attr_seq: ClassVar[str] = 'position_relation_seq'
     position_relation_seq: str | None = None
     name: str | None = None
     effective_start_date: datetime
@@ -604,8 +605,8 @@ class PositionRelation(Resource):
 class PostalCode(Resource, Generic16Mixin):
     """Postal Code."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/postalCodes"
-    attr_seq: ClassVar[str] = "classifier_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/postalCodes'
+    attr_seq: ClassVar[str] = 'classifier_seq'
     classifier_seq: str | None = None
     classifier_id: str
     low_postal_code: str
@@ -622,8 +623,8 @@ class PostalCode(Resource, Generic16Mixin):
 class ProcessingUnit(Resource):
     """Processing Unit."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/processingUnits"
-    attr_seq: ClassVar[str] = "processing_unit_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/processingUnits'
+    attr_seq: ClassVar[str] = 'processing_unit_seq'
     processing_unit_seq: str | None = None
     name: str
     description: str | None = None
@@ -632,8 +633,8 @@ class ProcessingUnit(Resource):
 class Product(Resource, Generic16Mixin):
     """Product."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/products"
-    attr_seq: ClassVar[str] = "classifier_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/products'
+    attr_seq: ClassVar[str] = 'classifier_seq'
     classifier_seq: str | None = None
     classifier_id: str
     name: str | None = None
@@ -652,8 +653,8 @@ class Product(Resource, Generic16Mixin):
 class Quota(Resource):
     """Quota."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/quotas"
-    attr_seq: ClassVar[str] = "quota_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/quotas'
+    attr_seq: ClassVar[str] = 'quota_seq'
     quota_seq: str | None = None
     calendar: str | Reference
     name: str
@@ -671,8 +672,8 @@ class Quota(Resource):
 class SalesOrder(Resource, Generic16Mixin):
     """Sales Order."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/salesOrders"
-    attr_seq: ClassVar[str] = "sales_order_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/salesOrders'
+    attr_seq: ClassVar[str] = 'sales_order_seq'
     sales_order_seq: str | None = None
     order_id: str
     pipeline_run: str | None = None
@@ -687,8 +688,8 @@ class SalesOrder(Resource, Generic16Mixin):
 class SalesTransaction(Resource, Generic32Mixin):
     """Sales Transaction."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/salesTransactions"
-    attr_seq: ClassVar[str] = "sales_transaction_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/salesTransactions'
+    attr_seq: ClassVar[str] = 'sales_transaction_seq'
     sales_transaction_seq: str | None = None
     sales_order: str | Reference
     line_number: Value
@@ -732,15 +733,15 @@ class SalesTransaction(Resource, Generic32Mixin):
 class User(Resource):
     """User."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/users"
-    attr_seq: ClassVar[str] = "user_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/users'
+    attr_seq: ClassVar[str] = 'user_seq'
     user_seq: str | None = None
     id: str
     user_name: str | None = None
     description: str | None = None
     email: str | None = None
-    read_only_business_unit_list: list[dict[Literal["name"], str]] | None = None
-    full_access_business_unit_list: list[dict[Literal["name"], str]] | None = None
+    read_only_business_unit_list: list[dict[Literal['name'], str]] | None = None
+    full_access_business_unit_list: list[dict[Literal['name'], str]] | None = None
     preferred_language: str | None = None
     last_login: datetime | None = None
     created_by: str | None = Field(None, exclude=True, repr=False)
@@ -751,8 +752,8 @@ class User(Resource):
 class PlanComponent(Resource):
     """Plan."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/planComponents"
-    attr_seq: ClassVar[str] = "plan_component_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/planComponents'
+    attr_seq: ClassVar[str] = 'plan_component_seq'
     plan_component_seq: str | None = None
     name: str
     description: str | None = None
@@ -770,8 +771,8 @@ class PlanComponent(Resource):
 class Rule(Resource):
     """Rule."""
 
-    attr_endpoint: ClassVar[str] = "api/v2/rules"
-    attr_seq: ClassVar[str] = "rule_seq"
+    attr_endpoint: ClassVar[str] = 'api/v2/rules'
+    attr_seq: ClassVar[str] = 'rule_seq'
     rule_seq: str | None = None
     name: str
     description: str | None = None

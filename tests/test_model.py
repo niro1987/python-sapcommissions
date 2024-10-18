@@ -17,7 +17,7 @@ LOGGER: logging.Logger = logging.getLogger(__name__)
 
 
 @pytest.mark.parametrize(
-    "endpoint_cls",
+    'endpoint_cls',
     list_endpoint_cls(),
 )
 def test_endpoint_basics(
@@ -27,7 +27,7 @@ def test_endpoint_basics(
     assert issubclass(
         endpoint_cls,
         BaseModel,
-    ), "endpoint is not a pydantic model"
+    ), 'endpoint is not a pydantic model'
     assert issubclass(
         endpoint_cls,
         BaseModel,
@@ -40,14 +40,14 @@ def test_endpoint_basics(
     # endpoint
     assert hasattr(
         endpoint_cls,
-        "attr_endpoint",
+        'attr_endpoint',
     ), "resource does not have attribute 'attr_endpoint'"
-    if not endpoint_cls.attr_endpoint.startswith("api/v2/"):
-        LOGGER.warning("Endpoint possibly incorrect: %s", endpoint_cls.attr_endpoint)
+    if not endpoint_cls.attr_endpoint.startswith('api/v2/'):
+        LOGGER.warning('Endpoint possibly incorrect: %s', endpoint_cls.attr_endpoint)
 
 
 @pytest.mark.parametrize(
-    "resource_cls",
+    'resource_cls',
     list_resource_cls(),
 )
 def test_resource_basics(
@@ -67,20 +67,20 @@ def test_resource_basics(
     # attr_seq
     assert hasattr(
         resource_cls,
-        "attr_seq",
+        'attr_seq',
     ), "resource does not have attribute 'attr_seq'"
-    assert resource_cls.attr_seq.endswith("_seq"), "_attr_seq should end with '_seq'"
+    assert resource_cls.attr_seq.endswith('_seq'), "_attr_seq should end with '_seq'"
     assert resource_cls.attr_seq in resource_cls.model_fields
     seq_field: FieldInfo = resource_cls.model_fields[resource_cls.attr_seq]
     assert seq_field.annotation in (
         int | None,
         str | None,
-    ), "Invalid seq field type"
+    ), 'Invalid seq field type'
 
     # expands class method
     assert hasattr(
         resource_cls,
-        "expands",
+        'expands',
     ), "resource does not have class method 'expands'"
 
     expands = resource_cls.expands()
@@ -94,7 +94,7 @@ def test_resource_basics(
 
 
 @pytest.mark.parametrize(
-    "pipeline_job",
+    'pipeline_job',
     list_pipeline_job_cls(),
 )
 def test_pipeline_job_basics(
@@ -113,10 +113,10 @@ def test_pipeline_job_basics(
 
     # command
     assert (
-        "command" in pipeline_job.model_fields
+        'command' in pipeline_job.model_fields
     ), "pipeline job does not have attribute 'command'"
-    command: FieldInfo = pipeline_job.model_fields["command"]
-    assert command.default in ("PipelineRun", "Import", "XMLImport"), "Invalid command"
+    command: FieldInfo = pipeline_job.model_fields['command']
+    assert command.default in ('PipelineRun', 'Import', 'XMLImport'), 'Invalid command'
 
 
 def test_resource_model() -> None:
@@ -125,21 +125,21 @@ def test_resource_model() -> None:
     class DummyResource(Resource):
         """Dummy resource model."""
 
-        attr_seq: ClassVar[str] = "dummy_seq"
+        attr_seq: ClassVar[str] = 'dummy_seq'
         dummy_seq: str | None = None
         name: str
         dummy_int: int
 
     dummy_data: dict[str, Any] = {
-        "dummySeq": "spam",
-        "name": "eggs",
-        "dummyInt": 42,
-        "extraField": {"spam": "eggs"},
+        'dummySeq': 'spam',
+        'name': 'eggs',
+        'dummyInt': 42,
+        'extraField': {'spam': 'eggs'},
     }
 
     dummy_resource: DummyResource = DummyResource(**dummy_data)
-    assert dummy_resource.dummy_seq == "spam"
-    assert dummy_resource.name == "eggs"
+    assert dummy_resource.dummy_seq == 'spam'
+    assert dummy_resource.name == 'eggs'
     assert dummy_resource.dummy_int == 42
 
     dump: dict[str, Any] = dummy_resource.model_dump(by_alias=True, exclude_none=True)
@@ -148,12 +148,12 @@ def test_resource_model() -> None:
     extra: dict[str, Any] | None = dummy_resource.model_extra
     assert extra is not None
     # pylint: disable=unsupported-membership-test
-    assert "dummySeq" not in extra
-    assert "name" not in extra
-    assert "dummyInt" not in extra
-    assert "extraField" in extra
+    assert 'dummySeq' not in extra
+    assert 'name' not in extra
+    assert 'dummyInt' not in extra
+    assert 'extraField' in extra
     # pylint: disable=unsubscriptable-object
-    assert extra["extraField"] == {"spam": "eggs"}
+    assert extra['extraField'] == {'spam': 'eggs'}
 
 
 def test_model_alias_override() -> None:
@@ -163,24 +163,24 @@ def test_model_alias_override() -> None:
         """Dummy model."""
 
         dummy_code_id: str = Field(
-            validation_alias=AliasChoices("dummyCodeId", "ID"),
+            validation_alias=AliasChoices('dummyCodeId', 'ID'),
         )
 
-    data: dict[str, str] = {"dummyCodeId": "spam"}
+    data: dict[str, str] = {'dummyCodeId': 'spam'}
     dummy: DummyResource = DummyResource(**data)  # type: ignore[arg-type]
-    assert dummy.dummy_code_id == "spam"
+    assert dummy.dummy_code_id == 'spam'
     dump: dict[str, str] = dummy.model_dump(by_alias=True, exclude_none=True)
     assert dump == data
 
-    data2: dict[str, str] = {"ID": "eggs"}
+    data2: dict[str, str] = {'ID': 'eggs'}
     dummy2: DummyResource = DummyResource(**data2)  # type: ignore[arg-type]
-    assert dummy2.dummy_code_id == "eggs"
+    assert dummy2.dummy_code_id == 'eggs'
     dump2: dict[str, str] = dummy2.model_dump(by_alias=True, exclude_none=True)
-    assert "ID" not in dump2
+    assert 'ID' not in dump2
 
 
 @pytest.mark.parametrize(
-    "resource_cls",
+    'resource_cls',
     list_resource_cls(),
 )
 def test_resource_reference(
@@ -188,38 +188,36 @@ def test_resource_reference(
 ) -> None:
     """Test resource reference."""
     data: dict[str, Any] = {
-        "key": "spam",
-        "displayName": "eggs",
-        "objectType": resource_cls.__name__,
-        "logicalKeys": {"name": "eggs"},
+        'key': 'spam',
+        'displayName': 'eggs',
+        'objectType': resource_cls.__name__,
+        'logicalKeys': {'name': 'eggs'},
     }
     reference: Reference = Reference(**data)
-    assert reference.key == "spam"
-    assert reference.display_name == "eggs"
+    assert reference.key == 'spam'
+    assert reference.display_name == 'eggs'
     assert reference.object_type is resource_cls
 
 
 def test_resource_reference_error() -> None:
     """Test resource reference."""
     data1: dict[str, Any] = {
-        "key": "spam",
-        "displayName": "eggs",
-        "objectType": "Bacon",
-        "logicalKeys": {"name": "eggs"},
+        'key': 'spam',
+        'displayName': 'eggs',
+        'objectType': 'Bacon',
+        'logicalKeys': {'name': 'eggs'},
     }
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError):
         Reference(**data1)
-        assert "Unknown object type" in str(exc)
 
     data2: dict[str, Any] = {
-        "key": "spam",
-        "displayName": "eggs",
-        "objectType": "Value",
-        "logicalKeys": {"name": "eggs"},
+        'key': 'spam',
+        'displayName': 'eggs',
+        'objectType': 'Value',
+        'logicalKeys': {'name': 'eggs'},
     }
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError):
         Reference(**data2)
-        assert "Invalid object type" in str(exc)
 
 
 def test_reference_string() -> None:
@@ -231,27 +229,27 @@ def test_reference_string() -> None:
         id: str
         reference: str | Reference
 
-    data: dict[str, str] = {"id": "spamm", "reference": "eggs"}
+    data: dict[str, str] = {'id': 'spamm', 'reference': 'eggs'}
     dummy: DummyResource = DummyResource(**data)  # type: ignore[arg-type]
-    assert dummy.id == "spamm"
+    assert dummy.id == 'spamm'
     assert isinstance(dummy.reference, str)
-    assert dummy.reference == "eggs"
+    assert dummy.reference == 'eggs'
 
     data2: dict[str, str | dict[str, Any]] = {
-        "id": "spamm",
-        "reference": {
-            "key": "eggs",
-            "displayName": "Eggs",
-            "objectType": "User",
-            "logicalKeys": {"likes": "bacon"},
+        'id': 'spamm',
+        'reference': {
+            'key': 'eggs',
+            'displayName': 'Eggs',
+            'objectType': 'User',
+            'logicalKeys': {'likes': 'bacon'},
         },
     }
     dummy2: DummyResource = DummyResource(**data2)  # type: ignore[arg-type]
-    assert dummy2.id == "spamm"
+    assert dummy2.id == 'spamm'
     assert isinstance(dummy2.reference, Reference)
-    assert str(dummy2.reference) == "eggs"
+    assert str(dummy2.reference) == 'eggs'
     assert issubclass(dummy2.reference.object_type, Resource)
 
     assert isinstance(dummy2.reference.logical_keys, dict)
     logical_keys: dict[str, Any] = dummy2.reference.logical_keys
-    assert logical_keys["likes"] == "bacon"
+    assert logical_keys['likes'] == 'bacon'

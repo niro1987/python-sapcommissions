@@ -14,23 +14,23 @@ from sapimclient.model.base import Reference, Resource
 from tests.conftest import list_resource_cls
 
 LOGGER = logging.getLogger(__name__)
-T = TypeVar("T", bound=model.base.Resource)
-warnings.filterwarnings("error")  # Raise warnings as errors
+T = TypeVar('T', bound=model.base.Resource)
+warnings.filterwarnings('error')  # Raise warnings as errors
 
 
-pytest.skip("These tests perform requests on your tenant", allow_module_level=True)
+pytest.skip('These tests perform requests on your tenant', allow_module_level=True)
 
 
 @pytest.mark.parametrize(
-    "resource_cls",
+    'resource_cls',
     list_resource_cls(),
 )
-async def test_resource_model(  # noqa: C901
+async def test_resource_model(
     client: Tenant,
     resource_cls: type[T],
 ) -> None:
     """Test resource model is complete."""
-    LOGGER.info("Testing list %s", resource_cls.__name__)
+    LOGGER.info('Testing list %s', resource_cls.__name__)
 
     resource_list: list[T] = []
 
@@ -43,30 +43,30 @@ async def test_resource_model(  # noqa: C901
         resource_list.append(resource)
 
     if not resource_list:
-        pytest.skip("No resources found")
+        pytest.skip('No resources found')
 
     extra_keys: dict[str, set[Any]] = {}
     for instance in resource_list:
         if model_extra := instance.model_extra:
-            model_extra.pop("etag", None)  # etag is allowed as extra field
+            model_extra.pop('etag', None)  # etag is allowed as extra field
             for key, value in model_extra.items():
                 extra_keys.setdefault(key, set())
                 extra_keys[key].add(str(value))
 
     if extra_keys:
-        pytest.fail(f"Extra keys found: {extra_keys}")
+        pytest.fail(f'Extra keys found: {extra_keys}')
 
 
 @pytest.mark.parametrize(
-    "resource_cls",
+    'resource_cls',
     list_resource_cls(),
 )
-async def test_resource_reference(  # noqa: C901
+async def test_resource_reference(
     client: Tenant,
     resource_cls: type[T],
 ) -> None:
     """Test resource expanded fields are reference objects to existing resource."""
-    LOGGER.info("Testing list %s", resource_cls.__name__)
+    LOGGER.info('Testing list %s', resource_cls.__name__)
 
     resource_list: list[T] = []
 
@@ -79,17 +79,19 @@ async def test_resource_reference(  # noqa: C901
         resource_list.append(resource)
 
     if not resource_list:
-        pytest.skip("No resources found")
+        pytest.skip('No resources found')
 
     for resource in resource_list:
         if not (expand_fields := resource_cls.expands()):
-            pytest.skip("Resource does not expand any fields.")
+            pytest.skip('Resource does not expand any fields.')
 
         for field_name in expand_fields:
             if field_value := getattr(resource, field_name):
                 assert isinstance(
-                    field_value, Reference
+                    field_value,
+                    Reference,
                 ), f"{field_name}: Invalid Reference '{field_value}'."
                 assert issubclass(
-                    field_value.object_type, Resource
+                    field_value.object_type,
+                    Resource,
                 ), f"{field_name}: Invalid reference type '{field_value.object_type}'."
