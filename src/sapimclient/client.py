@@ -119,8 +119,6 @@ class Tenant:
             LOGGER.exception(msg)
             raise exceptions.SAPConnectionError(msg) from err
 
-        LOGGER.debug('Response: %s', response.status)
-
         # Status code 304 Not Modified is successful but does not include
         # any json data for us to work with.
         if response.status == STATUS_NOT_MODIFIED:
@@ -138,6 +136,7 @@ class Tenant:
         # Validate the required status code.
         if response.status not in REQUIRED_STATUS[method]:
             msg = f'Unexpected response status: {response.status}'
+            LOGGER.error(msg)
             raise exceptions.SAPBadRequestError(msg, response_json)
 
         return response_json
