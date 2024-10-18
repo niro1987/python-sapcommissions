@@ -67,7 +67,7 @@ async def fixture_live_session() -> AsyncGenerator[ClientSession, None]:
     username: str | None = os.environ.get('SAP_USERNAME')
     password: str | None = os.environ.get('SAP_PASSWORD')
     if not (username and password):
-        pytest.skip('SAP_USERNAME and SAP_PASSWORD must be set in the environment.')
+        pytest.fail('SAP_USERNAME and SAP_PASSWORD must be set in the environment.')
     auth: BasicAuth = BasicAuth(username, password)
     async with ClientSession(auth=auth) as session:
         yield session
@@ -79,7 +79,7 @@ async def fixture_live_tenant(
 ) -> Tenant:
     """Yield a Tenant instance."""
     if not (tenant := os.environ.get('SAP_TENANT')):
-        pytest.skip('SAP_TENANT must be set in the environment.')
+        pytest.fail('SAP_TENANT must be set in the environment.')
     return Tenant(tenant, live_session, verify_ssl=False)
 
 

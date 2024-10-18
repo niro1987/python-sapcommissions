@@ -1,4 +1,4 @@
-"""Test the resource interaction with the client."""
+"""Test the resource interaction with the Tenant."""
 # pylint: disable=protected-access
 
 import logging
@@ -18,15 +18,12 @@ T = TypeVar('T', bound=model.base.Resource)
 warnings.filterwarnings('error')  # Raise warnings as errors
 
 
-pytest.skip('These tests perform requests on your tenant', allow_module_level=True)
-
-
 @pytest.mark.parametrize(
     'resource_cls',
     list_resource_cls(),
 )
 async def test_resource_model(
-    client: Tenant,
+    live_tenant: Tenant,
     resource_cls: type[T],
 ) -> None:
     """Test resource model is complete."""
@@ -37,7 +34,7 @@ async def test_resource_model(
     page_size: int = (
         1 if resource_cls is model.SalesTransaction else 100
     )  # FIX Issue #30
-    generator = client.read_all(resource_cls, page_size=page_size)
+    generator = live_tenant.read_all(resource_cls, page_size=page_size)
     async for resource in AsyncLimitedGenerator(generator, page_size * 2):
         assert isinstance(resource, resource_cls)
         resource_list.append(resource)
@@ -62,7 +59,7 @@ async def test_resource_model(
     list_resource_cls(),
 )
 async def test_resource_reference(
-    client: Tenant,
+    live_tenant: Tenant,
     resource_cls: type[T],
 ) -> None:
     """Test resource expanded fields are reference objects to existing resource."""
@@ -73,7 +70,7 @@ async def test_resource_reference(
     page_size: int = (
         1 if resource_cls is model.SalesTransaction else 100
     )  # FIX Issue #30
-    generator = client.read_all(resource_cls, page_size=page_size)
+    generator = live_tenant.read_all(resource_cls, page_size=page_size)
     async for resource in AsyncLimitedGenerator(generator, page_size * 2):
         assert isinstance(resource, resource_cls)
         resource_list.append(resource)
