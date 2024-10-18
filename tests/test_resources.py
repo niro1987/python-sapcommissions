@@ -18,6 +18,9 @@ T = TypeVar('T', bound=model.base.Resource)
 warnings.filterwarnings('error')  # Raise warnings as errors
 
 
+pytest.skip('These tests will run pipelines on your tenant', allow_module_level=True)
+
+
 @pytest.mark.parametrize(
     'resource_cls',
     list_resource_cls(),
